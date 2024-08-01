@@ -1,4 +1,7 @@
-﻿namespace CleanArchitecture.Blazor.Server.UI.Constants;
+﻿using DocumentFormat.OpenXml.Office.Word;
+using MudBlazor;
+
+namespace CleanArchitecture.Blazor.Server.UI.Constants;
 
 public class Theme
 {
@@ -8,7 +11,7 @@ public class Theme
         {
             PaletteLight = new PaletteLight
             {
-                Primary = "#5052ba", 
+                Primary = "#469EC5", 
                 Secondary = "#80838b", 
                 Success = "#0CAD39", 
                 Info = "#4099f3", 
@@ -59,6 +62,8 @@ public class Theme
                 TableLines = "rgba(63, 68, 82, 0.6)",
                 LinesDefault = "#3F4452", 
                 LinesInputs = "rgba(255, 255, 255, 0.3)",
+               
+
             },
             LayoutProperties = new LayoutProperties
             {
@@ -91,7 +96,7 @@ public class Theme
                 },
                 H3 = new H3
                 {
-                    FontSize = "2rem",
+                    FontSize = "2.25rem",
                     FontWeight = 600,
                     LineHeight = 1.167,
                     LetterSpacing = "0"

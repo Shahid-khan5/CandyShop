@@ -1,60 +1,48 @@
 ﻿@inject IStringLocalizer<HeaderMenu> L
 <MudAppBar Class=""
-           Elevation="0"
+           Elevation="1"
            Style="background: --mud-palette-appbar-background">
     <MudTooltip Arrow="true" Text="@L["Toggle menu"]">
         <MudToggleIconButton Class="mr-3"
                              Color="@Color.Default"
-                             Icon="@Icons.Material.Filled.MenuOpen"
+                             Icon="@Icons.Material.Filled.ChevronLeft"
                              Size="Size.Medium"
                              Toggled="NavigationMenuDrawerOpen"
                              ToggledChanged="ToggleNavigationMenuDrawer"
                              ToggledColor="@Color.Default"
-                             ToggledIcon="@Icons.Material.Filled.Close"/>
+                             ToggledIcon="@Icons.Material.Filled.ChevronRight"
+                             Style="
+                             position:absolute;
+                             left:-18px;
+                             top:58px;
+                             background-color:#4b7ef6;
+                             width:30px;
+                             height:30px;
+                             color:white;" />
 
     </MudTooltip>
     <MudHidden Breakpoint="Breakpoint.SmAndDown">
-        <MudTooltip Arrow="true"
-                    Text="@L["Search (Cmd + K)"]">
-            <MudIconButton Color="Color.Default"
-                           Edge="Edge.Start"
-                           Icon="@Icons.Material.Filled.Search"
-                           OnClick="OpenSearchDialog"/>
-        </MudTooltip>
-        <MudSpacer/>
-        <MudTooltip Arrow="true"
-                    Text="@L["Navigate to GitHub"]">
-            <MudIconButton Class="mx-1"
-                           Color="Color.Default"
-                           Icon="@Icons.Custom.Brands.GitHub"
-                           Href="https://github.com/neozhu/CleanArchitectureWithBlazorServer"
-                           Target="_blank"/>
-        </MudTooltip>
-        <LanguageSelector/>
+        <MudText Typo="Typo.h5" Class="fw-700">Overview</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="TextValue" Label="Filled" Variant="Variant.Filled"></MudTextField>
+        <MudSpacer />
         <NotificationMenu/>
-        <MudTooltip Text="@(RightToLeft ? L["Toggle right-to-left"] : L["Toggle left-to-right"])">
-            <MudIconButton Class="mx-1"
-                           Icon="@(RightToLeft ? Icons.Material.Filled.FormatTextdirectionLToR : Icons.Material.Filled.FormatTextdirectionRToL)"
-                           Color="Color.Default"
-                           OnClick="@(e => RightToLeftToggle.InvokeAsync())"/>
-        </MudTooltip>
+  
     </MudHidden>
     <MudHidden Breakpoint="Breakpoint.SmAndDown" Invert="true">
+        <MudText Typo="Typo.h5" Class="fw-700">Overview</MudText>
+        <MudSpacer/>
         <MudTooltip Arrow="true"
                     Text="@L["Search (Cmd + K)"]">
             <MudIconButton Color="Color.Default"
                            Edge="Edge.Start"
                            Icon="@Icons.Material.Filled.Search"
-                           OnClick="OpenSearchDialog"/>
+                           OnClick="OpenSearchDialog" />
         </MudTooltip>
         <MudSpacer/>
         <NotificationMenu/>
     </MudHidden>
     <UserMenu OnSettingClick="OnSettingClick"/>
-    <MudDivider Class="mx-3 my-5" DividerType="DividerType.Middle" Vertical="true" FlexItem="true"></MudDivider>
-    <MudText Color="@Color.Primary" Typo="Typo.h6">
-        <b>@L[ApplicationSettings.Company]</b>
-    </MudText>
 </MudAppBar>
 
 @code
@@ -66,4 +54,15 @@
     [EditorRequired] [Parameter] public bool RightToLeft { get; set; }
     [EditorRequired] [Parameter] public EventCallback RightToLeftToggle { get; set; }
     [Parameter] public EventCallback<MouseEventArgs> OnSettingClick { get; set; }
+    public string TextValue { get; set; }
+
 }
+<style>
+    .mud-input.mud-input-filled{
+        border-radius:10px;
+        overflow:hidden;
+    }
+    .fw-700{
+        font-weight:700 !important;
+    }
+</style>

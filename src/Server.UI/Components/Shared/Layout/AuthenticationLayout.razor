@@ -6,10 +6,14 @@
     <MudLayout>
         <AuthorizeView>
             <NotAuthorized>
-                <MudContainer MaxWidth="MaxWidth.Small" Class="d-flex align-center" Style="height: 100vh;">
-                    <div class="d-flex flex-column mud-width-full">
-                        <MudPaper Elevation="25" Class="pa-8" Width="100%" MaxWidth="500px">
-                            <MudIcon Icon="@Icons.Custom.Brands.MudBlazor" Size="Size.Large" Style="width:100px; height:100px;"/>
+                <MudContainer MaxWidth="MaxWidth.Small" Class="d-flex align-center justify-center" Style="height: 100vh; max-width:100%;">
+                    <div class="d-flex flex-column" style="min-width:300px; width:450px; ">
+                        <MudPaper Elevation="25" Class="px-8 pb-8 pt-0" Width="100%">
+                          <div class="d-flex align-center justify-center">
+                                <MudBlazorLogo>
+
+                                </MudBlazorLogo>
+                              </div>
                             @Body
                         </MudPaper>
                     </div>
@@ -26,3 +30,10 @@
 {
 
 }
+
+<style>
+    .mud-container {
+        background-image: url('/img/login.png');
+        background-size:100%;
+    }
+</style>
