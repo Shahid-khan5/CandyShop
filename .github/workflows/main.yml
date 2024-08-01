@@ -3,7 +3,7 @@
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   deploy:
@@ -26,9 +26,9 @@ jobs:
       - name: 🚀 Deploy to FTP (Beta)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server: win9016.site4now.net
-          username: dlenetwork-001
+          server: win6054.site4now.net
+          username: monawar123-001
           password: insh@1432KHAN
-          server-dir: /dle/
+          server-dir: /godiskassan/
           local-dir: ./publish/
 
