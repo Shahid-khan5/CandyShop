@@ -4,18 +4,17 @@
 @inject IStringLocalizer<Dashboard> L
 <PageTitle>@Title</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Large">
+<MudContainer MaxWidth="MaxWidth.Large" Class="mb-0">
   <MudGrid>
     <MudItem xs="12" md="7">
-          <MudPaper style="height:60vh;">
-         </MudPaper>
-              <MudPaper class="mt-5" style="height:40vh;"></MudPaper>
+          <MudPaper style="height:calc(60vh - 60px);"></MudPaper>
+              <MudPaper class="mt-5" style="height:calc(40vh - 60px);"></MudPaper>
     </MudItem>
 
        <MudItem xs="12" md="5">
-          <MudPaper style="height:60vh;">
+                <MudPaper style="height:calc(60vh - 60px);">
          </MudPaper>
-              <MudPaper class="mt-5" style="height:40vh;"></MudPaper>
+                <MudPaper class="mt-5" style="height:calc(40vh - 60px);"></MudPaper>
     </MudItem>
   
 </MudGrid>
@@ -107,5 +106,20 @@
 
     .mud-container-maxwidth-lg{
         max-width:100% !important;
+    }
+
+    .mud-main-content{
+        padding-top:75px;
+    }
+
+    .mud-container.mud-container-maxwidth-xl.mud-container--gutters.mb-4.mt-4 {
+        margin-bottom: 0 !important;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .mud-container.mud-container-maxwidth-lg.mud-container--gutters.mb-0 {
+        padding-left: 20px;
+        padding-right: 20px;
     }
     </style>
