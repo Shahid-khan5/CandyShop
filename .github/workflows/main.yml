@@ -20,9 +20,6 @@ jobs:
         run: dotnet restore ./src/Server.UI/Server.UI.csproj
       - name: 🔨 Build and publish 
         run: dotnet publish ./src/Server.UI/Server.UI.csproj -c Release -o publish
-      - name: Clean for Deploy
-        run: |
-          rm ./publish/ffmpeg.exe
       - name: 🚀 Deploy to FTP (Beta)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
