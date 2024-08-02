@@ -6,20 +6,23 @@
         <circle cx="50" cy="50" r="45" fill="none" stroke="@ProgressColor" stroke-width="10"
                 stroke-dasharray="@CircumferenceString" stroke-dashoffset="@StrokeDashOffsetString"
                 transform="rotate(-90 50 50)" />
-        <text x="50" y="50" font-family="Arial" font-size="20" fill="#333"
+        <text x="50" y="50" font-family="Arial" font-weight="@FontWeight" font-size="@FontSize" fill="#333"
               text-anchor="middle" dy="7">@Content</text>
     </svg>
+
 </div>
 
 @code {
     [Parameter] public string TrackColor { get; set; } = "#e0e0e0";
-    [Parameter] public string ProgressColor { get; set; } = "#4caf50";
+    [Parameter] public string ProgressColor { get; set; } = "#5f27cd";
     [Parameter] public string Content { get; set; } = "";
     [Parameter] public double Min { get; set; } = 0;
     [Parameter] public double Max { get; set; } = 100;
     [Parameter] public double Value { get; set; } = 0;
     [Parameter] public string Width { get; set; } = "100%";
     [Parameter] public string Height { get; set; } = "auto";
+    [Parameter] public string FontSize { get; set; } = "24";
+    [Parameter] public string FontWeight { get; set; } = "700";
 
     private const double Radius = 45;
     private const double Circumference = 2 * Math.PI * Radius;

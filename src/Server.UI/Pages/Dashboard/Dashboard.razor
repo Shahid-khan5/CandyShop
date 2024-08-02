@@ -9,7 +9,7 @@
         <MudItem xs="12" md="7">
             <MudPaper Class="pa-4">
                 <span class="fw-700 fs-16">Live Sales Tracker</span>
-                <MudChart ChartType="ChartType.Bar" ChartSeries="@Series" XAxisLabels="@XAxisLabels" Width="100%">
+                <MudChart ChartType="ChartType.Bar" ChartSeries="@Series" XAxisLabels="@XAxisLabels" Width="100%" Height="320px">
                 </MudChart>
             </MudPaper>
             <MudPaper class="mt-5 pa-10">
@@ -189,9 +189,30 @@
         <MudItem xs="12" md="5">
 
             <MudPaper Class="pa-4">
-                <App___Copy Height="50px" Content="50%" Max="100" Value="50"></App___Copy>
-                <App___Copy Height="50px" Content="10%" Max="100" Value="10"></App___Copy>
-                <App___Copy Height="50px" Content="90%" Max="100" Value="90"></App___Copy>
+                <div class="d-flex justify-space-between">
+                    <div>
+                <App___Copy Height="140px"  Content="85%" Max="100" Value="85"></App___Copy>
+                            <MudText Typo="Typo.h6" Class="mt-5 fw-600 text-center text-gray">Current Students</MudText>
+                    </div>
+                    <div>
+                            <App___Copy Height="140px" Content="66%" ProgressColor="#ffc029" Max="100" Value="66"></App___Copy>
+                            <MudText Typo="Typo.h6" Class="mt-5 text-center fw-600 text-gray">New Students</MudText>
+
+                    </div>
+                </div>
+
+                    <div class="d-flex justify-space-between mt-5">
+                        <div>
+                            <App___Copy Height="140px" Content="90%" Max="100" ProgressColor="#ff8918" Value="90"></App___Copy>
+                            <MudText Typo="Typo.h6" Class="mt-5 fw-600 text-center text-gray">Daily Sales </MudText>
+
+                        </div>
+                        <div>
+                            <App___Copy Height="140px" Content="30%" Max="100" ProgressColor="#ff6b6b" Value="30"></App___Copy>
+                            <MudText Typo="Typo.h6" Class="mt-5 fw-600 text-center text-gray">Total Sales</MudText>
+
+                        </div>
+                    </div>
             </MudPaper>
             <MudPaper class="mt-5 px-5 py-8">
                 <div class="d-flex justify-space-between">
@@ -220,8 +241,10 @@
                         <span class="fs-14 fw-600">Class 9A</span>
                         <span class="fs-14 fw-600">7 day Left</span>
                     </div>
-                    <MudProgressLinear Color="Color.Info" Size="Size.Medium" Value="50" Class="my-7" />
-
+                    <MudProgressLinear Color="Color.Info" Size="Size.Medium" Value="63" Class="my-7" />
+                    <div class="d-flex justify-end">
+                        <p class="fw-600 fs-14">60%</p>
+                    </div>
                 </div>
 
                 <div class="mt-10">
@@ -229,14 +252,21 @@
                         <span class="fs-14 fw-600">Class 8A</span>
                         <span class="fs-14 fw-600">7 day Left</span>
                     </div>
-                    <MudProgressLinear Color="Color.Secondary" Size="Size.Medium" Value="50" Class="my-7" />
+                    <MudProgressLinear Color="Color.Secondary" Size="Size.Medium" Value="88" Class="my-7" />
+                        <div class="d-flex justify-end">
+                            <p class="fw-600 fs-14">88%</p>
+                        </div>
                 </div>
                 <div class="mt-10">
                     <div class="d-flex justify-space-between">
                         <span class="fs-14 fw-600">Class 7A</span>
                         <span class="fs-14 fw-600">7 day Left</span>
                     </div>
-                    <MudProgressLinear Color="Color.Tertiary" Size="Size.Medium" Value="50" Class="my-7" />
+                    <MudProgressLinear Color="Color.Tertiary" Size="Size.Medium" Value="38" Class="my-7" />
+                        <div class="d-flex justify-end">
+                            <p class="fw-600 fs-14">38%</p>
+                        </div>
+
                 </div>
             </MudPaper>
         </MudItem>
@@ -288,6 +318,31 @@
     .fw-500 {
         font-weight: 500;
     }
+    .text-center{
+        text-align:center;
+    }
+
+        App___Copy::after {
+         font-size:24px;
+         font-weight:700;
+        }
+        .mud-progress-linear.mud-progress-linear-color-info:not(.mud-progress-linear-buffer) .mud-progress-linear-bar
+        {
+            background: #FFC029 !important;
+        }
+
+        .mud-progress-linear.mud-progress-linear-color-secondary:not(.mud-progress-linear-buffer) .mud-progress-linear-bar {
+            background: #FF6B6B !important;
+        }
+
+        ..mud-progress-linear.mud-progress-linear-color-tertiary:not(.mud-progress-linear-buffer) .mud-progress-linear-bar {
+            background: #5F27CD !important;
+        }
+
+        .mud-progress-linear.horizontal.mud-progress-linear-medium {
+            border-radius: 10px !important;
+            overflow: hidden;
+        }
 </style>
 
 
@@ -364,7 +419,6 @@
     }
 
     .mud-container.mud-container-maxwidth-xl.mud-container--gutters.mb-4.mt-4 {
-        margin-bottom: 0 !important;
         padding-left: 0;
         padding-right: 0;
     }
