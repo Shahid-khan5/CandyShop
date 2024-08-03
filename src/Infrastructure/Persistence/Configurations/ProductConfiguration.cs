@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text.Json;
@@ -21,5 +21,9 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
                     (c1, c2) => c1.SequenceEqual(c2),
                     c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
                     c => c.ToList()));
+        builder.HasMany(p => p.SaleItems)
+         .WithOne(si => si.Product)
+         .HasForeignKey(si => si.ProductId)
+         .OnDelete(DeleteBehavior.Restrict);
     }
 }

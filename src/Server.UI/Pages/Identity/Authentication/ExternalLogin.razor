@@ -177,7 +177,7 @@
         }
 
         var userId = await UserManager.GetUserIdAsync(user);
-        result = await UserManager.AddToRoleAsync(user, RoleName.Basic);
+        result = await UserManager.AddToRoleAsync(user, RoleName.Admin);
         if (!result.Succeeded)
         {
             message = $"{string.Join(" ", result.Errors.Select(error => error.Description))}";

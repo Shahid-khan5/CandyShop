@@ -19,5 +19,7 @@ public interface IApplicationDbContext
     ChangeTracker ChangeTracker { get; }
 
     DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
+    DbSet<Campaign> Campaigns { get; set; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

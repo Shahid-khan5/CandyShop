@@ -65,6 +65,55 @@ namespace CleanArchitecture.Blazor.Migrators.MSSQL.Migrations
                     b.ToTable("AuditTrails");
                 });
 
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Campaign", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Campaigns");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.CampaignUser", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("CampaignId")
+                        .HasMaxLength(450)
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId", "CampaignId");
+
+                    b.HasIndex("CampaignId");
+
+                    b.ToTable("CampaignUsers");
+                });
+
             modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Contact", b =>
                 {
                     b.Property<int>("Id")
@@ -320,6 +369,9 @@ namespace CleanArchitecture.Blazor.Migrators.MSSQL.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int>("Stock")
+                        .HasColumnType("int");
+
                     b.Property<string>("Unit")
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
@@ -327,6 +379,97 @@ namespace CleanArchitecture.Blazor.Migrators.MSSQL.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Sale", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CampaignId")
+                        .HasMaxLength(450)
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CustomerEmail")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CustomerName")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("SaleDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CampaignId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Sales");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.SaleItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SaleId")
+                        .HasMaxLength(450)
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("SaleId");
+
+                    b.ToTable("SaleItems");
                 });
 
             modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Tenant", b =>
@@ -659,6 +802,25 @@ namespace CleanArchitecture.Blazor.Migrators.MSSQL.Migrations
                     b.Navigation("Owner");
                 });
 
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.CampaignUser", b =>
+                {
+                    b.HasOne("CleanArchitecture.Blazor.Domain.Entities.Campaign", "Campaign")
+                        .WithMany("CampaignUsers")
+                        .HasForeignKey("CampaignId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CleanArchitecture.Blazor.Domain.Identity.ApplicationUser", "User")
+                        .WithMany("CampaignUsers")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Campaign");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Document", b =>
                 {
                     b.HasOne("CleanArchitecture.Blazor.Domain.Identity.ApplicationUser", "Owner")
@@ -680,6 +842,44 @@ namespace CleanArchitecture.Blazor.Migrators.MSSQL.Migrations
                     b.Navigation("Owner");
 
                     b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Sale", b =>
+                {
+                    b.HasOne("CleanArchitecture.Blazor.Domain.Entities.Campaign", "Campaign")
+                        .WithMany("Sales")
+                        .HasForeignKey("CampaignId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CleanArchitecture.Blazor.Domain.Identity.ApplicationUser", "User")
+                        .WithMany("Sales")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Campaign");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.SaleItem", b =>
+                {
+                    b.HasOne("CleanArchitecture.Blazor.Domain.Entities.Product", "Product")
+                        .WithMany("SaleItems")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CleanArchitecture.Blazor.Domain.Entities.Sale", "Sale")
+                        .WithMany("SaleItems")
+                        .HasForeignKey("SaleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Sale");
                 });
 
             modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Identity.ApplicationRole", b =>
@@ -769,6 +969,23 @@ namespace CleanArchitecture.Blazor.Migrators.MSSQL.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Campaign", b =>
+                {
+                    b.Navigation("CampaignUsers");
+
+                    b.Navigation("Sales");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Product", b =>
+                {
+                    b.Navigation("SaleItems");
+                });
+
+            modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Entities.Sale", b =>
+                {
+                    b.Navigation("SaleItems");
+                });
+
             modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Identity.ApplicationRole", b =>
                 {
                     b.Navigation("RoleClaims");
@@ -778,7 +995,11 @@ namespace CleanArchitecture.Blazor.Migrators.MSSQL.Migrations
 
             modelBuilder.Entity("CleanArchitecture.Blazor.Domain.Identity.ApplicationUser", b =>
                 {
+                    b.Navigation("CampaignUsers");
+
                     b.Navigation("Logins");
+
+                    b.Navigation("Sales");
 
                     b.Navigation("Tokens");
 

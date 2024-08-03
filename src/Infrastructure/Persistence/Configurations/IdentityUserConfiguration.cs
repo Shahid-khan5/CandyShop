@@ -31,6 +31,16 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
         builder.HasOne(x => x.Superior).WithMany().HasForeignKey(u => u.SuperiorId);
         builder.HasOne(x => x.Tenant).WithMany().HasForeignKey(u => u.TenantId);
         builder.Navigation(e => e.Tenant).AutoInclude();
+
+        builder.HasMany(u => u.CampaignUsers)
+          .WithOne(cu => cu.User)
+          .HasForeignKey(cu => cu.UserId)
+          .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(u => u.Sales)
+            .WithOne(s => s.User)
+            .HasForeignKey(s => s.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
 public class ApplicationRoleConfiguration : IEntityTypeConfiguration<ApplicationRole>
