@@ -19,7 +19,7 @@
 <MudForm Model="@Model" @ref="@_form" Validation="@(Validator.ValidateValue(Model))">
     <input For="@(() => Model.Id)" @bind-value="Model.Id" type="hidden"/>
     <input For="@(() => Model.ProfilePictureDataUrl)" @bind-value="Model.ProfilePictureDataUrl" type="hidden"/>
-
+     
     <MudGrid Spacing="2">
         <MudItem xs="12" md="6">
            <MudTextField @bind-Value="TextValue" Label="Product Name" Variant="Variant.Outlined"></MudTextField>

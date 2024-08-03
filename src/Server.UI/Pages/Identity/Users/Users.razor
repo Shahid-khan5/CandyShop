@@ -587,7 +587,7 @@
     private async Task OnCreate()
     {
         var model = new ApplicationUserDto { Provider = "Local", Email = "", UserName = "", AssignedRoles = new[] { RoleName.Admin } };
-        await ShowCreateUserDialog(model, L["Create a new user"]);
+        await ShowCreateUserDialog(model, L["Add Product"]);
     }
 
     private async Task OnEdit(ApplicationUserDto item)
@@ -1005,4 +1005,6 @@
             padding-top: 66px;
         }
 }
+
+
     </style>
