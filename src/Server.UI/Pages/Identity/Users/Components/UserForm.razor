@@ -1,4 +1,5 @@
 ﻿@using MudExtensions
+@using RRSTEK.Server.UI.Components
 @using ResizeMode = SixLabors.ImageSharp.Processing.ResizeMode
 @using Size = SixLabors.ImageSharp.Size
 @using Image = SixLabors.ImageSharp.Image
@@ -32,17 +33,17 @@
             <div class="mt-3">
                 <MudTextField @bind-Value="TextValue" Label="Brand Name" Variant="Variant.Outlined"></MudTextField>
             </div>
-            <MudGrid Class="mt-3">
+            <MudGrid Class="pt-3">
             <MudItem xs="12" md="6">
                 <MudTextField @bind-Value="TextValue" Label="SKU" Variant="Variant.Outlined"></MudTextField>
             </MudItem>
             <MudItem xs="12" md="6">
                 <MudTextField @bind-Value="TextValue" Label="Stock Quantity" Variant="Variant.Outlined"></MudTextField>
             </MudItem>
-            <MudItem xs="12" md="6">
+            <MudItem xs="12" md="6" Class="pt-3">
                 <MudTextField @bind-Value="TextValue" Label="Cost Price" Variant="Variant.Outlined"></MudTextField>
             </MudItem>
-            <MudItem xs="12" md="6">
+                <MudItem xs="12" md="6" Class="pt-3">
                 <MudTextField @bind-Value="TextValue" Label="Sale Price" Variant="Variant.Outlined"></MudTextField>
             </MudItem>
             </MudGrid>
@@ -71,9 +72,9 @@
                                    Class="@_dragClass"
                                    Style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
                              <span>
-                               @CustomIcon.ImageDrop
+                                 @((MarkupString)CustomIcons.ImageDrop)
                              </span>
-                             <MudText Class="fs-16 mt-3">Drop your image here  or browser jpeg,png are allowed</MudText>
+                             <MudText Class="fs-16 mt-3 text-gray">Drop your image here  or browser jpeg,png are allowed</MudText>
                         </MudPaper>
                     </ActivatorContent>
                 </MudFileUpload>
@@ -82,10 +83,10 @@
 
             <div>
                 <MudText Typo="Typo.h6" Class="my-3">Product Gallery</MudText>
-                <MudStack Style="width: 100%">
-                    <MudFileUpload T="IReadOnlyList<IBrowserFile>"
-                                   @ref="@_fileUpload"
-                                   OnFilesChanged="OnInputFileChanged"
+                 <MudStack Style="width: 100%">
+                     <MudFileUpload T="IReadOnlyList<IBrowserFile>"
+                                    @ref="@_fileUpload"
+                                    OnFilesChanged="OnInputFileChanged"
                                           AppendMultipleFiles
                                     Hidden="@false"
                                     InputClass="absolute mud-width-full mud-height-full overflow-hidden z-10"
@@ -96,24 +97,19 @@
                                     @ondragleave="@ClearDragClass"
                                     @ondragend="@ClearDragClass">
                          <ActivatorContent>
-                             <MudPaper Height="300px"
+                             <MudPaper Height="150px"
                                        Outlined="true"
-                                       Class="@_dragClass">
-                                 <MudText Typo="Typo.h6">
-                                     Drag and drop files here or click
-                                 </MudText>
-                                 @foreach (var file in _fileNames)
-                                {
-                                    <MudChip T="string"
-                                             Color="Color.Dark"
-                                             Text="@file"
-                                             tabindex="-1" />
-                                }
-                            </MudPaper>
-                        </ActivatorContent>
-                    </MudFileUpload>
-                  
-                </MudStack>
+                                       Class="@_dragClass"
+                                       Style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                                 <span>
+                                     @((MarkupString)CustomIcons.ImageDrop)
+                                 </span>
+                                 <MudText Class="fs-16 mt-3 text-gray">Drop your image here  or browser jpeg,png are allowed</MudText>
+                             </MudPaper>
+                         </ActivatorContent>
+                     </MudFileUpload>
+
+                 </MudStack>
             </div>
 
         </MudItem> 
@@ -123,7 +119,7 @@
 @code{
 
 #nullable enable
-    private const string DefaultDragClass = "relative rounded-lg border-2 border-dashed pa-4 mt-4 mud-width-full mud-height-full";
+    private const string DefaultDragClass = "relative rounded-lg border-2 border-dashed pa-4 mt-1 mud-width-full mud-height-full";
     private string _dragClass = DefaultDragClass;
     private readonly List<string> _fileNames = new();
     private MudFileUpload<IReadOnlyList<IBrowserFile>>? _fileUpload;
@@ -261,4 +257,13 @@
     .fs-16{
         font-size:16px !important
     }
+
+
+    .text-gray{
+        color: #70706E !important;
+    }
+
+
+ 
+
 </style>
