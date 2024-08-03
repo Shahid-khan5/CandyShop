@@ -20,7 +20,7 @@
                              color:white;" />
 
     <MudHidden Breakpoint="Breakpoint.SmAndDown">
-        <MudText Typo="Typo.h5" Class="fw-700">Overview</MudText>
+        <MudText Typo="Typo.h5" Class="fw-700 text-gray">Overview</MudText>
         <MudSpacer />
         <MudTextField @bind-Value="TextValue" Label="Filled" Variant="Variant.Filled"></MudTextField>
         <MudSpacer />
@@ -62,5 +62,9 @@
     }
     .fw-700{
         font-weight:700 !important;
+    }
+
+    .mud-appbar .mud-toolbar-appbar {
+        background: white !important;
     }
 </style>
