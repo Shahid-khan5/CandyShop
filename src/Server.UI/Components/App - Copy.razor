@@ -1,0 +1,50 @@
+﻿@using System;
+
+<div class="circular-progress-container" style="@ContainerStyle">
+    <svg viewBox="0 0 100 100" style="@SvgStyle">
+        <circle cx="50" cy="50" r="45" fill="none" stroke="@TrackColor" stroke-width="10" />
+        <circle cx="50" cy="50" r="45" fill="none" stroke="@ProgressColor" stroke-width="10"
+                stroke-dasharray="@CircumferenceString" stroke-dashoffset="@StrokeDashOffsetString"
+                transform="rotate(-90 50 50)" />
+        <text x="40" y="50" font-family="Arial" font-weight="@FontWeight" font-size="@FontSize" fill="@TextColor"
+              text-anchor="middle" dy="7" color="@SufixColor">@Content</text>
+        <text x="56" y="50" font-family="Arial" font-weight="@SymbolFontWeight" font-size="@SymbolFontSize" fill="@SufixColor"
+              text-anchor="middle" dy="7">@Symbol</text>
+    </svg>
+
+</div>
+
+@code {
+    [Parameter] public string TrackColor { get; set; } = "#e0e0e0";
+    [Parameter] public string ProgressColor { get; set; } = "#5f27cd";
+    [Parameter] public string Content { get; set; } = "";
+    [Parameter] public string Symbol { get; set; } = "";
+    [Parameter] public double Min { get; set; } = 0;
+    [Parameter] public double Max { get; set; } = 100;
+    [Parameter] public double Value { get; set; } = 0;
+    [Parameter] public string Width { get; set; } = "100%";
+    [Parameter] public string Height { get; set; } = "auto";
+    [Parameter] public string FontSize { get; set; } = "20";
+    [Parameter] public string SymbolFontSize { get; set; } = "10";
+    [Parameter] public string FontWeight { get; set; } = "700";
+    [Parameter] public string SymbolFontWeight { get; set; } = "800";
+    [Parameter] public string TextColor { get; set; } = "#fc9b9b";
+    [Parameter] public string SufixColor { get; set; } = "black";
+
+    private const double Radius = 45;
+    private const double Circumference = 2 * Math.PI * Radius;
+
+    private string CircumferenceString => Circumference.ToString("F2");
+
+    private double NormalizedValue => (Value - Min) / (Max - Min);
+
+    private double StrokeDashOffset => Circumference * (1 - NormalizedValue);
+
+    private string StrokeDashOffsetString => StrokeDashOffset.ToString("F2");
+
+    private string ContainerStyle => $"width: {Width}; height: {Height}; position: relative;";
+
+    private string SvgStyle => Height == "auto"
+        ? "position: absolute; width: 100%; height: 100%; left: 0; top: 0;"
+        : "width: 100%; height: 100%;";
+}

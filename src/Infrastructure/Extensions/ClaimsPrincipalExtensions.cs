@@ -26,7 +26,7 @@ public static class ClaimsPrincipalExtensions
             profile.Email = claimsPrincipal.GetEmail() ?? "";
             profile.DisplayName = claimsPrincipal.GetDisplayName();
             profile.AssignedRoles = claimsPrincipal.GetRoles();
-            profile.DefaultRole = profile.AssignedRoles.Any() ? profile.AssignedRoles.First() : RoleName.Basic;
+            profile.DefaultRole = profile.AssignedRoles.Any() ? profile.AssignedRoles.First() : RoleName.Admin;
             profile.ProfilePictureDataUrl = claimsPrincipal.GetProfilePictureDataUrl();
             profile.IsActive = true;
         }

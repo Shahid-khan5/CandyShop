@@ -23,6 +23,7 @@ using ActualLab.Fusion;
 using Toolbelt.Blazor.Extensions.DependencyInjection;
 using ActualLab.Fusion.Extensions;
 using CleanArchitecture.Blazor.Server.UI.Middlewares;
+using MudExtensions.Services;
 
 namespace CleanArchitecture.Blazor.Server.UI;
 
@@ -66,6 +67,7 @@ public static class DependencyInjection
         services.AddMudBlazorSnackbar();
         services.AddMudBlazorDialog();
         services.AddHotKeys2();
+        services.AddMudExtensions();
 
         services.AddFluxor(options =>
         {

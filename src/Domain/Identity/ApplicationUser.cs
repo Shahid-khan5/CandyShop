@@ -33,4 +33,6 @@ public class ApplicationUser : IdentityUser
 
     public string? SuperiorId { get; set; } = null;
     public ApplicationUser? Superior { get; set; } = null;
+    public ICollection<CampaignUser> CampaignUsers { get; set; }
+    public ICollection<Sale> Sales { get; set; }
 }
