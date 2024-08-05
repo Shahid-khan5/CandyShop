@@ -1,4 +1,4 @@
-﻿@page "/identity/users"
+﻿@page "/identity/report"
 @using ActualLab.Fusion
 @using CleanArchitecture.Blazor.Server.UI.Services.Fusion
 @using Microsoft.AspNetCore.WebUtilities
@@ -31,10 +31,23 @@
 @inject IFusionCache FusionCache;
 @inject IExcelService ExcelService
 @inject IMailService MailService
-@inject IStringLocalizer<Users> L
-@inject ILogger<Users> Logger
- 
+@inject IStringLocalizer<CleanArchitecture.Blazor.Server.UI.Pages.Identity.Users.Users> L
+@inject ILogger<CleanArchitecture.Blazor.Server.UI.Pages.Identity.Users.Users> Logger
+
 <PageTitle>@Title</PageTitle>
+
+<MudGrid Justify="Justify.Center" Class="align-end mb-5">
+    <MudItem xs="12" md="3">
+        <MudTextField @bind-Value="TextValue" Class="bg-none" Label="Class Name" Variant="Variant.Outlined"></MudTextField>
+    </MudItem>
+
+    <MudItem xs="12" md="3">
+        <MudDatePicker Label="Editable with Placeholder" Editable="true" @bind-Date="_date" Placeholder="Select Date" />
+    </MudItem>
+    <MudItem xs="12" md="3">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="w-100">Search</MudButton>
+    </MudItem>
+</MudGrid>
 
 <MudDataGrid @ref="_table"
              FixedHeader="true"
@@ -47,127 +60,10 @@
              Loading="@_loading"
              ServerData="@(ServerReload)">
     <ToolBarContent>
-        <div class="d-flex align-start flex-grow-1">
-            <div class="d-flex gap-4">
-                <MudIcon Icon="@Icons.Material.Filled.SwitchAccount" Size="Size.Large" />
-                <div class="d-flex flex-column">
-                    <MudText Typo="Typo.caption" Class="mb-2">@L[_currentDto.GetClassDescription()]</MudText>
-                    <MudSelect T="string" Style="min-width:120px" ValueChanged="OnChangedListView" Value="@_selectedTenantId" Dense="true" Label="List View">
-                        <MudSelectItem T="string" Value="@(" ")">@L["ALL"]</MudSelectItem>
-                        @foreach (var item in TenantsService.DataSource)
-                        {
-                            <MudSelectItem T="string" Value="@item.Id">@item.Name</MudSelectItem>
-                        }
-                    </MudSelect>
-                </div>
-            </div>
-            <div class="flex-grow-1" />
-            <div class="d-flex flex-column justify-end">
-                <div class="d-flex gap-1">
-                    <MudHidden Breakpoint="Breakpoint.SmAndDown">
-                        <MudButton Variant="Variant.Outlined"
-                                   Size="Size.Small"
-                                   Disabled="@_loading"
-                                   OnClick="@(OnRefresh)"
-                                   StartIcon="@Icons.Material.Filled.Refresh" IconColor="Color.Surface" Color="Color.Primary">
-                            @ConstantString.Refresh
-                        </MudButton>
-                        @if (_canCreate)
-                        {
-                            <MudButton Variant="Variant.Outlined" Color="Color.Primary"
-                                       StartIcon="@Icons.Material.Filled.Add"
-                                       Size="Size.Small"
-                                       OnClick="OnCreate"
-                                       IconColor="Color.Surface">
-                                @ConstantString.New
-                            </MudButton>
-                        }
-                        @if (_canDelete)
-                        {
-                            <MudButton Variant="Variant.Outlined" Color="Color.Error"
-                                       StartIcon="@Icons.Material.Filled.Delete"
-                                       Disabled="@(!(_selectedItems.Count > 0))"
-                                       Size="Size.Small"
-                                       OnClick="OnDeleteChecked"
-                                       IconColor="Color.Surface">
-                                @ConstantString.Delete
-                            </MudButton>
-                        }
-                        @if (_canExport)
-                        {
-                            <MudLoadingButton Variant="Variant.Outlined" Color="Color.Primary"
-                                              StartIcon="@Icons.Material.Filled.Download"
-                                              Size="Size.Small"
-                                              Loading="_exporting" LoadingAdornment="Adornment.Start" OnClick="OnExport"
-                                              IconColor="Color.Surface">
-                                @ConstantString.Export
-                            </MudLoadingButton>
-                        }
-                        @if (_canImport)
-                        {
-                            <MudFileUpload T="IBrowserFile" FilesChanged="OnImportData" Accept=".xlsx">
-                                <ActivatorContent>
-                                    <MudButton Size="Size.Small"
-                                               Variant="Variant.Outlined"
-                                               Color="Color.Primary"
-                                               Disabled="@_loading"
-                                               StartIcon="@Icons.Material.Filled.Upload">
-                                        @if (_uploading)
-                                        {
-                                            <MudProgressCircular Size="Size.Small" Indeterminate="true" />
-                                            @ConstantString.Uploading
-                                        }
-                                        else
-                                        {
-                                            @ConstantString.Import
-                                        }
-                                    </MudButton>
-                                </ActivatorContent>
-                            </MudFileUpload>
-                        }
-                    </MudHidden>
-                    <MudHidden Breakpoint="Breakpoint.SmAndDown" Invert="true">
-                        @if (_canCreate)
-                        {
-                            <MudButton Variant="Variant.Outlined" Color="Color.Primary"
-                                       StartIcon="@Icons.Material.Filled.Add"
-                                       Size="Size.Small"
-                                       OnClick="OnCreate"
-                                       IconColor="Color.Surface">
-                                @ConstantString.New
-                            </MudButton>
-                        }
-                        @if (_canDelete)
-                        {
-                            <MudButton Variant="Variant.Outlined" Color="Color.Error"
-                                       StartIcon="@Icons.Material.Filled.Delete"
-                                       Disabled="@(!(_selectedItems.Count > 0))"
-                                       Size="Size.Small"
-                                       OnClick="OnDeleteChecked"
-                                       IconColor="Color.Surface">
-                                @ConstantString.Delete
-                            </MudButton>
-                        }
-                    </MudHidden>
-                </div>
-                @if (_canSearch)
-                {
-                    <MudStack Row="true" AlignItems="AlignItems.Stretch">
-                        <MudSelect T="string" Placeholder="Search for role name" Value="@_searchRole" Clearable="true" ValueChanged="@(OnSearchRole)" Style="width:150px">
-                            @foreach (var str in _roles)
-                            {
-                                <MudSelectItem Value="@str">@str</MudSelectItem>
-                            }
-                        </MudSelect>
-                        <MudHidden Breakpoint="Breakpoint.SmAndDown">
-                            <MudTextField T="string" Immediate="false" ValueChanged="@(OnSearch)" Value="@_searchString" Placeholder="@ConstantString.Search" Adornment="Adornment.End"
-                                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Small">
-                            </MudTextField>
-                        </MudHidden>
-                    </MudStack>
-                }
+        <div class="d-flex justify-space-between align-center w-100">
+            <MudText Typo="Typo.h6">Report</MudText>
+            <MudIconButton Icon="@Icons.Material.Filled.MoreVert" />
 
-            </div>
         </div>
     </ToolBarContent>
     <Columns>
@@ -316,13 +212,6 @@
 
 
 <PermissionsDrawer OnAssignAllChanged="OnAssignAllChangedHandler" Waiting="@_processing" OnOpenChanged="OnOpenChangedHandler" Open="_showPermissionsDrawer" Permissions="_permissions" OnAssignChanged="OnAssignChangedHandler"></PermissionsDrawer>
-
-<style>
-    .mud-table-toolbar {
-        height: 120px !important;
-    }
-</style>
-
 @code {
     [CascadingParameter] private Task<AuthenticationState> AuthState { get; set; } = default!;
     private UserManager<ApplicationUser> UserManager = null!;
@@ -375,7 +264,7 @@
         _canImport = (await AuthService.AuthorizeAsync(state.User, Permissions.Users.Import)).Succeeded;
         _canExport = (await AuthService.AuthorizeAsync(state.User, Permissions.Users.Export)).Succeeded;
         _roles = await RoleManager.Roles.Select(x => x.Name).ToListAsync();
-       
+
 
     }
     private void InitializeServices()
@@ -384,19 +273,19 @@
         UserManager = ScopedServices.GetRequiredService<UserManager<ApplicationUser>>();
         PermissionHelper = ScopedServices.GetRequiredService<PermissionHelper>();
     }
-    private  async Task OnInvalidated(IComputed state)
+    private async Task OnInvalidated(IComputed state)
     {
         await InvokeAsync(StateHasChanged);
     }
     public void Dispose()
     {
-       
+
     }
     private bool IsOnline(string username)
     {
         return UsersStateContainer.UsersByConnectionId.Any(x => x.Value.Equals(username, StringComparison.OrdinalIgnoreCase));
     }
-   
+
     private Expression<Func<ApplicationUser, bool>> CreateSearchPredicate()
     {
         return x =>
@@ -420,7 +309,7 @@
                 .Include(x => x.Superior)
                 .EfOrderBySortDefinitions(state)
                 .Skip(state.Page * state.PageSize).Take(state.PageSize).ProjectTo<ApplicationUserDto>(Mapper.ConfigurationProvider).ToListAsync();
-           
+
             return new GridData<ApplicationUserDto> { TotalItems = total, Items = items };
         }
         finally
@@ -770,7 +659,7 @@
         return Task.CompletedTask;
     }
 
-    
+
 
     private async Task OnAssignAllChangedHandler(List<PermissionModel> models)
     {
@@ -889,7 +778,7 @@
     {
         return await ExcelService.ExportAsync(items,
             new Dictionary<string, Func<ApplicationUserDto, object?>>
-                    {
+                            {
                 { L["Id"], item => item.Id },
                 { L["User Name"], item => item.UserName },
                 { L["Display Name"], item => item.DisplayName },
@@ -897,7 +786,7 @@
                 { L["Phone Number"], item => item.PhoneNumber },
                 { L["Tenant Id"], item => item.TenantId },
                 { L["Tenant Name"], item => item.TenantName }
-                    }, L["Users"]);
+                            }, L["Users"]);
     }
 
     private async Task OnImportData(IBrowserFile file)
@@ -984,27 +873,45 @@
         Logger.LogInformation("Rest password email sent to {0}.", toEmail);
     }
 
-}
+            private DateTime? _date = DateTime.Today;
+                public string TextValue { get; set; }}
 
-    <style>
-    .mud-table.mud-data-grid.mud-xs-table.mud-table-hover.mud-table-sticky-header.mud-elevation-1{
-        height: calc(100vh - 112px) !important;
+<style>
+    .mud-table.mud-data-grid.mud-xs-table.mud-table-hover.mud-table-sticky-header.mud-elevation-1 {
+        height: calc(100vh - 180px) !important;
     }
 
     .mud-toolbar.mud-toolbar-gutters.mud-table-toolbar {
         overflow: auto !important;
     }
-    @@media (max-width: 760px) {
-   .mud-table.mud-data-grid.mud-xs-table.mud-table-hover.mud-table-sticky-header.mud-elevation-1{
-        height: calc(100vh - 96px) !important;
+
+    .mud-table-toolbar {
+        height: 60px !important;
     }
+
+    .w-100 {
+        width: 100% !important;
+    }
+
+
+    .mud-container.mud-container-maxwidth-xl.mud-container--gutters.mb-4.mt-4 {
+        margin-bottom: 0 !important;
+    }
+
+    .mud-input-control.mud-input-input-control.bg-none .mud-input-control-input-container label{
+        background: #f5f5f5;
+    }
+    @@media (max-width: 760px) {
+        .mud-table.mud-data-grid.mud-xs-table.mud-table-hover.mud-table-sticky-header.mud-elevation-1 {
+        height: calc(100vh - 140px) !important;
+        margin-bottom: 10px;
+        }
 
         .mud-drawer-close-mini-md-left .mud-main-content {
             margin-left: var(--mud-drawer-width-mini-left);
             scroll-padding-top: auto;
             padding-top: 66px;
         }
-}
+    }
 
-
-    </style>
+</style>
