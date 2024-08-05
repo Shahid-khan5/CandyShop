@@ -1,4 +1,4 @@
-﻿@page "/identity/order"
+﻿@page "/identity/report"
 @using ActualLab.Fusion
 @using CleanArchitecture.Blazor.Server.UI.Services.Fusion
 @using Microsoft.AspNetCore.WebUtilities
@@ -36,23 +36,35 @@
 
 <PageTitle>@Title</PageTitle>
 
+<MudGrid Justify="Justify.Center" Class="align-end mb-5">
+    <MudItem xs="12" md="3">
+        <MudTextField @bind-Value="TextValue" Class="bg-none" Label="Class Name" Variant="Variant.Outlined"></MudTextField>
+    </MudItem>
+
+    <MudItem xs="12" md="3">
+        <MudDatePicker Label="Editable with Placeholder" Editable="true" @bind-Date="_date" Placeholder="Select Date" />
+    </MudItem>
+    <MudItem xs="12" md="3">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="w-100">Search</MudButton>
+    </MudItem>
+</MudGrid>
+
 <MudDataGrid @ref="_table"
              FixedHeader="true"
              FixedFooter="false"
-             Height="calc(100vh - 224px)"
+             Height="calc(100vh - 300px)"
              @bind-RowsPerPage="_defaultPageSize"
              Hover="true"
              MultiSelection="true"
              @bind-SelectedItems="_selectedItems"
              Loading="@_loading"
              ServerData="@(ServerReload)">
-
     <ToolBarContent>
-      <div class="d-flex justify-space-between w-100 align-center">
-           <MudText Typo="Typo.h6" >Order</MudText>
+        <div class="d-flex justify-space-between align-center w-100">
+            <MudText Typo="Typo.h6">Report</MudText>
             <MudIconButton Icon="@Icons.Material.Filled.MoreVert" />
 
-      </div>
+        </div>
     </ToolBarContent>
     <Columns>
         <SelectColumn ShowInFooter="false"></SelectColumn>
@@ -766,7 +778,7 @@
     {
         return await ExcelService.ExportAsync(items,
             new Dictionary<string, Func<ApplicationUserDto, object?>>
-                        {
+                            {
                 { L["Id"], item => item.Id },
                 { L["User Name"], item => item.UserName },
                 { L["Display Name"], item => item.DisplayName },
@@ -774,7 +786,7 @@
                 { L["Phone Number"], item => item.PhoneNumber },
                 { L["Tenant Id"], item => item.TenantId },
                 { L["Tenant Name"], item => item.TenantName }
-                        }, L["Users"]);
+                            }, L["Users"]);
     }
 
     private async Task OnImportData(IBrowserFile file)
@@ -861,9 +873,13 @@
         Logger.LogInformation("Rest password email sent to {0}.", toEmail);
     }
 
-}
+            private DateTime? _date = DateTime.Today;
+                public string TextValue { get; set; }}
 
 <style>
+    .mud-table.mud-data-grid.mud-xs-table.mud-table-hover.mud-table-sticky-header.mud-elevation-1 {
+        height: calc(100vh - 180px) !important;
+    }
 
     .mud-toolbar.mud-toolbar-gutters.mud-table-toolbar {
         overflow: auto !important;
@@ -872,12 +888,23 @@
     .mud-table-toolbar {
         height: 60px !important;
     }
-    .w-100{
-        width:100% !important;
+
+    .w-100 {
+        width: 100% !important;
+    }
+
+
+    .mud-container.mud-container-maxwidth-xl.mud-container--gutters.mb-4.mt-4 {
+        margin-bottom: 0 !important;
+    }
+
+    .mud-input-control.mud-input-input-control.bg-none .mud-input-control-input-container label{
+        background: #f5f5f5;
     }
     @@media (max-width: 760px) {
         .mud-table.mud-data-grid.mud-xs-table.mud-table-hover.mud-table-sticky-header.mud-elevation-1 {
-            height: calc(100vh - 80px) !important;
+        height: calc(100vh - 140px) !important;
+        margin-bottom: 10px;
         }
 
         .mud-drawer-close-mini-md-left .mud-main-content {
@@ -885,17 +912,6 @@
             scroll-padding-top: auto;
             padding-top: 66px;
         }
-
-        .mud-main-content {
-            overflow: hidden !important;
-            padding-top: 62px !important;
-        }
-
-        .mud-container.mud-container-maxwidth-xl.mud-container--gutters.mt-4 {
-            margin: 0 !important;
-            margin-top: 10px !important;
-        }
-
     }
 
 </style>
