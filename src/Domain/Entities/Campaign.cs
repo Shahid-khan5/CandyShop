@@ -6,22 +6,19 @@ using CleanArchitecture.Blazor.Domain.Common.Entities;
 
 namespace CleanArchitecture.Blazor.Domain.Entities;
 
-public class Campaign : IEntity<int>
+public class Campaign : BaseEntity
 {
-    [Key]
-    public int Id { get; set; }
-
     [Required]
     [MaxLength(450)]
     public required string Name { get; set; }
     public required string Description { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
-    public CompaignStatus Status { get; set; }
+    public CampaignStatus Status { get; set; }
     public required ICollection<CampaignUser> CampaignUsers { get; set; }
     public ICollection<Sale>? Sales { get; set; }
 }
-public enum CompaignStatus
+public enum CampaignStatus
 {
     Requested,
     InProgress,

@@ -174,7 +174,7 @@ public class ApplicationDbContextInitializer
                     .RuleFor(c => c.Description, f => f.Lorem.Paragraph())
                     .RuleFor(c => c.StartDate, f => f.Date.Past())
                     .RuleFor(c => c.EndDate, f => f.Date.Future())
-                    .RuleFor(c => c.Status, f => f.PickRandom<CompaignStatus>())
+                    .RuleFor(c => c.Status, f => f.PickRandom<CampaignStatus>())
                     .RuleFor(c => c.CampaignUsers, f => new List<CampaignUser>())
                     .RuleFor(c => c.Sales, f => new List<Sale>());
 
@@ -205,7 +205,7 @@ public class ApplicationDbContextInitializer
                     .RuleFor(si => si.TotalPrice, f => 0); // Will be updated later
 
                 // Create additional admins and campaigns
-                var adminUsers = userFaker.Generate(50).DistinctBy(x=>x.NormalizedUserName).ToList();
+                var adminUsers = userFaker.Generate(50);
                 var campaigns = campaignFaker.Generate(50);
                 var candyProducts = candyFaker.Generate(50); // Generate 10 candy products
 
@@ -222,7 +222,7 @@ public class ApplicationDbContextInitializer
                     var campaign = campaigns[i];
                     campaign.CampaignUsers.Add(new CampaignUser { UserId = adminUser.Id, Campaign = campaign });
 
-                    if (campaign.Status == CompaignStatus.InProgress || campaign.Status == CompaignStatus.Ended)
+                    if (campaign.Status == CampaignStatus.InProgress || campaign.Status == CampaignStatus.Ended)
                     {
                         var users = userFaker.Generate(random.Next(1, 5));
                         foreach (var user in users)
