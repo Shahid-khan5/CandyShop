@@ -23,6 +23,11 @@ public static class SaleCacheKey
     public static string GetPaginationCacheKey(string parameters) {
         return $"SaleCacheKey:SalesWithPaginationQuery,{parameters}";
     }
+
+    public static string GetSalesSummaryCacheKey(string parameters)
+    {
+        return $"SaleCacheKey:GetSalesSummaryCacheKey,{parameters}";
+    }
     public static string GetByNameCacheKey(string parameters) {
         return $"SaleCacheKey:GetByNameCacheKey,{parameters}";
     }

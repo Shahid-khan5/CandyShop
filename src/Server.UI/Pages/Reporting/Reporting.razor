@@ -1,0 +1,188 @@
+﻿@page "/pages/reporting"
+
+@using BlazorDownloadFile
+@using CleanArchitecture.Blazor.Application.Features.Campaigns.DTOs
+@using CleanArchitecture.Blazor.Application.Features.Campaigns.Queries.GetAll
+@using CleanArchitecture.Blazor.Application.Features.Sales.Caching
+@using CleanArchitecture.Blazor.Application.Features.Sales.DTOs
+@using CleanArchitecture.Blazor.Application.Features.Sales.Queries.GetSalesSummaryQuery
+@using CleanArchitecture.Blazor.Application.Features.Sales.Specifications
+@using CleanArchitecture.Blazor.Application.Features.Sales.Commands.Import
+@using CleanArchitecture.Blazor.Application.Features.Sales.Queries.Export
+@using CleanArchitecture.Blazor.Application.Features.Sales.Queries.Pagination
+@using CleanArchitecture.Blazor.Server.UI.Pages.Sales.Components
+
+@inject IStringLocalizer<Reporting> L
+@attribute [Authorize(Policy = Permissions.Sales.View)]
+<PageTitle>@Title</PageTitle>
+<style>
+    .mud-table-toolbar {
+        height: 120px !important;
+    }
+</style>
+
+<MudCard Elevation="25">
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h6">@Title</MudText>
+        </CardHeaderContent>
+    </MudCardHeader>
+    <MudCardContent>
+        <MudGrid>
+            <MudItem xs="12" sm="6" md="3">
+                <MudSelect Variant="Variant.Outlined" T="int?" @bind-Value="SelectedCampaignId" Label="Class Name" AnchorOrigin="Origin.BottomCenter">
+                    <MudSelectItem Value="@((int?)null)">All Classes</MudSelectItem>
+                    @foreach (var campaign in Campaigns)
+                    {
+                        <MudSelectItem T="int?" Value="@campaign.Id">@campaign.Name</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="3">
+                <MudDatePicker Variant="Variant.Outlined" @bind-Date="StartDate" Label="Start Date" />
+            </MudItem>
+            <MudItem xs="12" sm="6" md="3">
+                <MudDatePicker Variant="Variant.Outlined" @bind-Date="EndDate" Label="End Date" />
+            </MudItem>
+            <MudItem xs="12" sm="6" md="3" Style="margin-top: 25px;">
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           OnClick="ApplyFilters">Apply Filters</MudButton>
+                <MudButton Variant="Variant.Outlined"
+                           OnClick="@(()=>OnRefresh())"
+                           StartIcon="@Icons.Material.Filled.Refresh"
+                           IconColor="Color.Surface"
+                           Color="Color.Primary">@L["Refresh"]</MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudCardContent>
+</MudCard>
+
+<MudDataGrid T="SaleSummaryDto" ServerData="@(ServerReload)"
+             FixedHeader="true"
+             FixedFooter="true"
+             Virtualize="true"
+             @bind-RowsPerPage="_defaultPageSize"
+             Height="calc(100vh - 330px)"
+             Loading="@_loading"
+             MultiSelection="true"
+             @bind-SelectedItems="_selectedItems"
+             @bind-SelectedItem="_currentDto"
+             Hover="true" @ref="_table">
+    <Columns>
+        <SelectColumn ShowInFooter="false"></SelectColumn>
+        <PropertyColumn Property="x => x.ClassName" Title="@L[_currentDto.GetMemberDescription(x=>x.ClassName)]" />
+        <PropertyColumn Property="x => x.AdminName" Title="@L[_currentDto.GetMemberDescription(x=>x.AdminName)]" />
+        <PropertyColumn Property="x => x.TotalCandiesSold" Title="@L[_currentDto.GetMemberDescription(x=>x.TotalCandiesSold)]" />
+        <PropertyColumn Property="x => x.TotalCommission" Title="@L[_currentDto.GetMemberDescription(x=>x.TotalCommission)]">
+            <CellTemplate>
+                @context.Item.TotalCommission.ToString("C")
+            </CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.NumberOfOrders" Title="@L[_currentDto.GetMemberDescription(x=>x.NumberOfOrders)]" />
+        <PropertyColumn Property="x => x.TotalCustomers" Title="@L[_currentDto.GetMemberDescription(x=>x.TotalCustomers)]" />
+        <PropertyColumn Property="x => x.TotalAmount" Title="@L[_currentDto.GetMemberDescription(x=>x.TotalAmount)]">
+            <CellTemplate>
+                @context.Item.TotalAmount.ToString("C")
+            </CellTemplate>
+        </PropertyColumn>
+    </Columns>
+    <NoRecordsContent>
+        <MudText>@ConstantString.NoRecords</MudText>
+    </NoRecordsContent>
+    <LoadingContent>
+        <MudText>@ConstantString.Loading</MudText>
+    </LoadingContent>
+    <PagerContent>
+        <MudDataGridPager PageSizeOptions="@(new int[]{10,15,30,50,100,500,1000})" />
+    </PagerContent>
+</MudDataGrid>
+
+
+
+@code {
+    public string? Title { get; private set; }
+    private int _defaultPageSize = 15;
+    private HashSet<SaleSummaryDto> _selectedItems = new HashSet<SaleSummaryDto>();
+    private MudDataGrid<SaleSummaryDto> _table = default!;
+    private SaleSummaryDto _currentDto = new();
+    private bool _loading;
+    private bool _uploading;
+    private bool _downloading;
+    private bool _exporting;
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthState { get; set; } = default!;
+    [CascadingParameter]
+    private UserProfile? UserProfile { get; set; }
+
+    private GetSalesSummaryQuery Query { get; set; } = new();
+    [Inject]
+    private IBlazorDownloadFileService BlazorDownloadFileService { get; set; } = null!;
+    private bool _canSearch;
+    private bool _canCreate;
+    private bool _canEdit;
+    private bool _canDelete;
+    private bool _canImport;
+    private bool _canExport;
+    private DateTime? StartDate { get; set; }
+    private DateTime? EndDate { get; set; }
+    private int? SelectedCampaignId { get; set; }
+    private IEnumerable<CampaignDto> Campaigns { get; set; } = new List<CampaignDto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Title = "Reports";
+        var state = await AuthState;
+        _canSearch = (await AuthService.AuthorizeAsync(state.User, Permissions.Sales.Search)).Succeeded;
+        _canDelete = (await AuthService.AuthorizeAsync(state.User, Permissions.Sales.Delete)).Succeeded;
+        StartDate = DateTime.Today;
+        EndDate = DateTime.Today;
+        Query.StartDate = StartDate;
+        Query.EndDate = EndDate;
+        await LoadCampaigns();
+    }
+
+    private async Task<GridData<SaleSummaryDto>> ServerReload(GridState<SaleSummaryDto> state)
+    {
+        try
+        {
+            _loading = true;
+            var result = await Mediator.Send(Query);
+            return new GridData<SaleSummaryDto>() { TotalItems = result.Count, Items = result };
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task LoadCampaigns()
+    {
+        var query = new GetAllCampaignsQuery();
+        Campaigns = await Mediator.Send(query);
+    }
+
+    private async Task OnRefresh()
+    {
+        StartDate = DateTime.Today;
+        EndDate = DateTime.Today;
+        SelectedCampaignId = null;
+        Query = new GetSalesSummaryQuery
+            {
+                StartDate = StartDate,
+                EndDate = EndDate,
+                CampaignId = SelectedCampaignId,
+                // UserId = UserProfile?.Id
+            };
+        await _table.ReloadServerData();
+    }
+
+    private async Task ApplyFilters()
+    {
+        Query.StartDate = StartDate;
+        Query.EndDate = EndDate;
+        Query.CampaignId = SelectedCampaignId;
+        await _table.ReloadServerData();
+    }
+
+}
