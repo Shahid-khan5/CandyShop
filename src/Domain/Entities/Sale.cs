@@ -8,11 +8,8 @@ using CleanArchitecture.Blazor.Domain.Common.Entities;
 
 namespace CleanArchitecture.Blazor.Domain.Entities;
 
-public class Sale : IEntity<int>
+public class Sale : BaseAuditableEntity
 {
-    [Key]
-    public int Id { get; set; }
-
     [Required]
     [MaxLength(450)]
     public int CampaignId { get; set; }
