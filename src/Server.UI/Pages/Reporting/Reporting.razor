@@ -13,7 +13,7 @@
 @using CleanArchitecture.Blazor.Server.UI.Pages.Sales.Components
 
 @inject IStringLocalizer<Reporting> L
-@attribute [Authorize(Policy = Permissions.Sales.View)]
+@attribute [Authorize(Policy = Permissions.Reporting.View)]
 <PageTitle>@Title</PageTitle>
 <style>
     .mud-table-toolbar {
@@ -71,6 +71,15 @@
              Hover="true" @ref="_table">
     <Columns>
         <SelectColumn ShowInFooter="false"></SelectColumn>
+        <TemplateColumn CellStyle="width:60px" Title="@ConstantString.Actions" Sortable="false">
+            <CellTemplate>
+                <MudMenu Icon="@Icons.Material.Filled.ImportExport" Variant="Variant.Filled" Size="Size.Small"
+                             Dense="true"
+                             IconColor="Color.Info" AnchorOrigin="Origin.CenterLeft">
+                             <MudMenuItem>Export To Pdf</MudMenuItem>
+                    </MudMenu>
+            </CellTemplate>
+        </TemplateColumn>
         <PropertyColumn Property="x => x.ClassName" Title="@L[_currentDto.GetMemberDescription(x=>x.ClassName)]" />
         <PropertyColumn Property="x => x.AdminName" Title="@L[_currentDto.GetMemberDescription(x=>x.AdminName)]" />
         <PropertyColumn Property="x => x.TotalCandiesSold" Title="@L[_currentDto.GetMemberDescription(x=>x.TotalCandiesSold)]" />

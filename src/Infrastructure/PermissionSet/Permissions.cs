@@ -114,4 +114,11 @@ public static partial class Permissions
         public const string View = "Permissions.Hangfire.View";
         public const string Jobs = "Permissions.Hangfire.Jobs";
     }
+
+    [DisplayName("Reporting")]
+    [Description("Reporting Permissions")]
+    public static class Reporting
+    {
+        public const string View = "Permissions.Reporting.View";
+    }
 }
