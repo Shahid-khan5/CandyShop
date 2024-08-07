@@ -7,13 +7,15 @@
 @using SixLabors.ImageSharp.Processing
 @using SixLabors.ImageSharp
 @using SixLabors.ImageSharp.Formats.Png
-@using CleanArchitecture.Blazor.Application.Features.Products.Commands.AddEdit
+@using CleanArchitecture.Blazor.Application.Features.Identity.DTOs
 @using CleanArchitecture.Blazor.Domain.Common.Enums
-@using CleanArchitecture.Blazor.Server.UI.Services.JsInterop
-@using System.Collections.Immutable
-
-@inject IStringLocalizer<Products> L
+@using CleanArchitecture.Blazor.Domain.Identity
+@using CleanArchitecture.Blazor.Application.Common.Interfaces.MultiTenant
+@inherits OwningComponentBase
+@inject IValidationService Validator
 @inject IUploadService UploadService
+@inject ITenantService TenantsService
+@inject IStringLocalizer<Users> L
 
 <MudForm Model="@Model" @ref="@_form" Validation="@(Validator.ValidateValue(Model))">
     <input For="@(() => Model.Id)" @bind-value="Model.Id" type="hidden" />
@@ -103,7 +105,6 @@
 
 
 @code {
-    [CascadingParameter] private MudDialogInstance MudDialog { get; set; } = default!;
 
     [EditorRequired][Parameter] public AddEditProductCommand Model { get; set; } = default!;
 
@@ -209,44 +210,21 @@
             }
             else
             {
-                Snackbar.Add(result.ErrorMessage, Severity.Error);
+                Model.AssignedRoles = Roles.Where(x => x.Value).Select(x => x.Key).ToArray();
+                await OnFormSubmit.InvokeAsync(Model);
             }
-        }
-        finally
-        {
-            _saving = false;
         }
     }
 
-    private async Task SaveAndNew()
-    {
-        try
-        {
-            _saveingnew = true;
-            await _form!.Validate().ConfigureAwait(false);
-            if (!_form!.IsValid)
-                return;
-            var result = await Mediator.Send(Model);
-            if (result.Succeeded)
-            {
-                Snackbar.Add(ConstantString.SaveSuccess, Severity.Info);
-                Refresh?.Invoke();
-                Model = new AddEditProductCommand();
-            }
-            else
-            {
-                Snackbar.Add(result.ErrorMessage, Severity.Error);
-            }
-        }
-        finally
-        {
-            _saveingnew = false;
-        }
+}
+<style>
+    .fs-16 {
+        font-size: 16px !important
     }
 
-    private void Cancel()
-    {
-        MudDialog.Cancel();
+
+    .text-gray {
+        color: #70706E !important;
     }
 
 }

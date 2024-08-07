@@ -7,9 +7,9 @@
         <AuthorizeView>
             <NotAuthorized>
                 <MudContainer MaxWidth="MaxWidth.Small" Class="d-flex align-center justify-center" Style="height: 100vh; max-width:100%;">
-                    <div class="d-flex flex-column" style="min-width:300px; width:450px; ">
+                    <div class="d-flex flex-column" style="min-width:300px; width:400px; ">
                         <MudPaper Elevation="25" Class="px-8 pb-8 pt-0" Width="100%">
-                          <div class="d-flex align-center justify-center">
+                          <div class="d-flex align-center mt-2 justify-center">
                                 <MudBlazorLogo>
 
                                 </MudBlazorLogo>
@@ -34,6 +34,12 @@
 <style>
     .mud-container {
         background-image: url('/img/LoginImage-1.png');
-        background-size:100%;
+        background-size:cover;
     }
+
+@@media screen and (max-width: 767px) {
+        .mud-container {
+            background: #469ec5 !important;
+        }
+}
 </style>

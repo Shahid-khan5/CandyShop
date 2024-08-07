@@ -17,7 +17,7 @@
     <div class="d-flex flex-column">
         <EditForm Model="Input" method="post"  OnValidSubmit="OnSubmit" FormName="login">
             <DataAnnotationsValidator/>
-                <MudText Typo="Typo.h3" class="mud-primary-text mb-10" GutterBottom="true">@L["Login"]</MudText>
+                <MudText Typo="Typo.h4" class="mud-primary-text fw-600 mb-10" GutterBottom="true">@L["Login"]</MudText>
           
             <StatusMessage Message="@errorMessage" Error="true"/>
             <div class="mud-input-control mud-input-input-control mb-4 mt-2">
@@ -56,7 +56,11 @@
                     </div>
                 </div>
             </div>
-            <div Class="d-flex justify-end mb-4">
+            <div Class="d-flex justify-space-between align-center mb-4 mt-3">
+                <label class="form-label fs-15 d-flex">
+                    <InputCheckbox @bind-Value="Input.RememberMe" style="width:18px; height:18px; font-family:sans-serif;" class="form-check-input me-2 " />
+                    @L["Remember me"]
+                </label>
                 <MudLink Href="@Forgot.PageUrl">@L["Forgot password?"]</MudLink>
             </div>
 
@@ -130,6 +134,7 @@
             errorMessage = L["Error: Invalid login attempt."];
         }
     }
+        public bool Basic_CheckBox2 { get; set; } = false;
 
     public sealed class InputModel
     {
@@ -148,5 +153,20 @@
 <style>
     .text-center{
         text-align:center;
+    }
+
+    .fw-600{
+        font-weight:600;
+    }
+
+    .fs-15{
+        font-size:15px !important;
+    }
+    .mud-input > input.mud-input-root-outlined, div.mud-input-slot.mud-input-root-outlined {
+        padding: 15.5px 14px;
+    }
+
+    input[type="checkbox"]{
+        accent-color: #469ec5 !important;
     }
 </style>
