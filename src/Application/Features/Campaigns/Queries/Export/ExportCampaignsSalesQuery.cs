@@ -13,11 +13,221 @@ using Document = QuestPDF.Fluent.Document;
 using IContainer = QuestPDF.Infrastructure.IContainer;
 using AutoMapper;
 using Microsoft.AspNetCore.Hosting;
+using CleanArchitecture.Blazor.Domain.Entities;
+using QuestPDF.Infrastructure;
 
 namespace CleanArchitecture.Blazor.Application.Features.Campaigns.Queries.Export;
 public class ExportCampaignsSalesQuery : IRequest<Result<byte[]>>
 {
     public int CampaignId { get; set; }
+}
+public class CampaignSalesReport : IDocument
+{
+    private readonly Campaign _campaign;
+
+    public CampaignSalesReport(Campaign campaign)
+    {
+        _campaign = campaign;
+    }
+
+    public DocumentMetadata GetMetadata() => DocumentMetadata.Default;
+
+    public void Compose(IDocumentContainer container)
+    {
+        container
+            .Page(page =>
+            {
+                page.Margin(10);
+                page.Size(PageSizes.A4);
+                page.DefaultTextStyle(x => x.FontFamily("Arial"));
+
+                page.Header().Element(ComposeHeader);
+                page.Content().Element(ComposeContent);
+                page.Footer().Element(ComposeFooter);
+            });
+    }
+
+    void ComposeHeader(IContainer container)
+    {
+        var titleStyle = TextStyle.Default.FontSize(24).SemiBold().FontColor(Colors.White);
+        var subtitleStyle = TextStyle.Default.FontSize(14).FontColor(Colors.White);
+
+        container.Background(Colors.Blue.Medium)
+            .Padding(20)
+            .Row(row =>
+            {
+                row.RelativeItem().Column(column =>
+                {
+                    column.Item().Text("Campaign Sales Report").Style(titleStyle);
+                    column.Item().Text($"Generated on: {DateTime.Now:MMMM d, yyyy}").Style(subtitleStyle);
+                });
+            });
+    }
+
+    void ComposeContent(IContainer container)
+    {
+        container.PaddingVertical(20).Column(column =>
+        {
+            column.Spacing(20);
+
+            column.Item().Element(ComposeCampaignDetails);
+            column.Item().Element(ComposeProductSales);
+            column.Item().Element(ComposeTopPerformers);
+            column.Item().Element(ComposeSummary);
+        });
+    }
+
+    void ComposeCampaignDetails(IContainer container)
+    {
+      
+        
+
+        container.Background(Colors.Grey.Lighten3)
+            .Padding(10)
+            .Column(column =>
+            {
+                column.Item().Text("Campaign Details").FontSize(18).SemiBold();
+                column.Item().Text($"Name: {_campaign.Name}");
+                column.Item().Text($"Start Date: {_campaign.StartDate:yyyy-MM-dd} | End Date: {_campaign.EndDate:yyyy-MM-dd} | Status: {_campaign.Status}");
+            });
+    }
+
+    void ComposeProductSales(IContainer container)
+    {
+        var sales = _campaign.Sales;
+
+        var groupedSales = sales
+            .SelectMany(s => s.SaleItems)
+            .GroupBy(si => new { si.Product.Id, si.Product.Name })
+            .OrderByDescending(g => g.Sum(si => si.TotalPrice))
+            .ToList();
+
+        container.Background(Colors.Grey.Lighten4)
+              .Padding(10)
+              .Column(column =>
+              {
+              foreach (var productGroup in groupedSales)
+        {
+          
+                    column.Item().Text(productGroup.Key.Name).FontSize(14).SemiBold().FontColor("#2c3e50");
+
+                    var sellerSales = productGroup
+                        .GroupBy(si => si.Sale.User)
+                        .OrderByDescending(g => g.Sum(si => si.TotalPrice));
+
+                    foreach (var sellerGroup in sellerSales)
+                    {
+                        column.Item().PaddingVertical(5).PaddingHorizontal(010).Text($"Seller: {sellerGroup.Key.UserName}").FontSize(13).Italic().FontColor("#34495e");
+
+                        column.Item().PaddingHorizontal(10).PaddingBottom(010).Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.RelativeColumn();
+                                columns.RelativeColumn();
+                                columns.RelativeColumn();
+                                columns.RelativeColumn();
+                                columns.RelativeColumn();
+                            });
+
+                            table.Header(header =>
+                            {
+                                header.Cell().Text("Quantity");
+                                header.Cell().Text("Unit Price");
+                                header.Cell().Text("Total Sale");
+                                header.Cell().Text("Commission");
+                                header.Cell().Text("Customer");
+                            });
+
+                            foreach (var sale in sellerGroup)
+                            {
+                                decimal profit = sale.TotalPrice - (sale.Product.CostPrice * sale.Quantity);
+                                table.Cell().Text(sale.Quantity.ToString());
+                                table.Cell().Text($"${sale.UnitPrice:F2}");
+                                table.Cell().Text($"${sale.TotalPrice:F2}");
+                                table.Cell().Text($"${profit:F2}"); // Assuming 32.5% commission
+                                table.Cell().Text(sale.Sale.CustomerName);
+                            }
+                        });
+                    }
+        }
+                });
+    }
+
+    void ComposeTopPerformers(IContainer container)
+    {
+        var topProduct = _campaign.Sales.SelectMany(x=>x.SaleItems)
+            .GroupBy(si => si.Product)
+            .OrderByDescending(g => g.Sum(si => si.TotalPrice))
+            .Select(g => new
+            {
+                Product = g.Key,
+                TotalSold = g.Sum(si => si.Quantity),
+                TotalSales = g.Sum(si => si.TotalPrice)
+            })
+            .FirstOrDefault();
+
+        var topSeller = _campaign.Sales
+            .GroupBy(s => s.User)
+            .OrderByDescending(g => g.Sum(s => s.TotalAmount))
+            .Select(g => new
+            {
+                Seller = g.Key,
+                TotalSales = g.Sum(s => s.TotalAmount),
+                Commission = g.Sum(s => s.SaleItems.Sum(si => si.TotalPrice - (si.Product.CostPrice * si.Quantity))),
+            })
+            .FirstOrDefault();
+
+        container.Background(Colors.Green.Lighten4)
+            .Padding(10)
+            .Column(column =>
+            {
+                column.Item().Text("Top Performers").FontSize(18).SemiBold().FontColor("#16a085");
+                if (topProduct != null)
+                {
+                    column.Item().Text($"Top Product: {topProduct.Product.Name} ({topProduct.TotalSold} sold, ${topProduct.TotalSales:F2} in sales)").FontColor("#16a085");
+                }
+                if (topSeller != null)
+                {
+                    column.Item().Text($"Top Seller: {topSeller.Seller.UserName} (${topSeller.TotalSales:F2} in sales, ${topSeller.Commission:F2} commission)").FontColor("#16a085");
+                }
+            });
+    }
+
+    void ComposeSummary(IContainer container)
+    {
+        var totalSales = _campaign.Sales.Sum(s => s.TotalAmount);
+        var totalCommision = _campaign.Sales.Sum(s => s.SaleItems.Sum(si => si.TotalPrice - (si.Product.CostPrice * si.Quantity)));
+        var totalProductsSold = _campaign.Sales.Sum(s => s.SaleItems.Sum(si => si.Quantity));
+        var uniqueCustomers = _campaign.Sales.Select(s => s.CustomerEmail).Distinct().Count();
+        var averageSales = uniqueCustomers == 0 ? 0 : (totalSales / uniqueCustomers);
+        var averageCommision = totalProductsSold == 0 ? 0 : (totalCommision / totalProductsSold);
+
+        container.Background(Colors.Green.Lighten5)
+            .Padding(10)
+            .Column(column =>
+            {
+                column.Item().Text("Summary").FontSize(18).SemiBold().FontColor("#27ae60");
+                    column.Item().Text($"Total Sales: ${totalSales:F2}").FontColor("#27ae60");
+                    column.Item().Text($"Total Commission: ${totalCommision:F2}").FontColor("#27ae60");
+                    column.Item().Text($"Total Products Sold: {totalProductsSold}").FontColor("#27ae60");
+                    column.Item().Text($"Average Sale per Customer: ${averageSales:F2}").FontColor("#27ae60");
+                    column.Item().Text($"Average Commission per Sale: ${averageCommision:F2}").FontColor("#27ae60");
+                    column.Item().Text($"Number of Unique Customers: {uniqueCustomers}").FontColor("#27ae60");
+            });
+    }
+
+    void ComposeFooter(IContainer container)
+    {
+        container.AlignCenter()
+            .Text(x =>
+            {
+                x.Span("Page ");
+                x.CurrentPageNumber();
+                x.Span(" of ");
+                x.TotalPages();
+            });
+    }
 }
 
 public class ExportCampaignsSalesQueryHandler : IRequestHandler<ExportCampaignsSalesQuery, Result<byte[]>>
@@ -25,213 +235,26 @@ public class ExportCampaignsSalesQueryHandler : IRequestHandler<ExportCampaignsS
     private readonly IApplicationDbContext _context;
     private readonly IWebHostEnvironment _webHostEnvironment;
 
-    public ExportCampaignsSalesQueryHandler(IApplicationDbContext context,IWebHostEnvironment webHostEnvironment)
+    public ExportCampaignsSalesQueryHandler(IApplicationDbContext context, IWebHostEnvironment webHostEnvironment)
     {
         _context = context;
         _webHostEnvironment = webHostEnvironment;
     }
-    public record CampaignData(
-    int Id,
-    string Name,
-    string Description,
-    DateTime StartDate,
-    DateTime EndDate,
-    CampaignStatus Status,
-    IEnumerable<SaleData> Sales,
-    string TopSalesperson
-);
+  
 
-    public record SaleData(
-        decimal TotalAmount,
-        IEnumerable<SaleItemData> SaleItems
-    );
-
-    public record SaleItemData(
-        int ProductId,
-        string ProductName,
-        int Quantity,
-        decimal TotalPrice,
-        decimal Profit,
-        decimal UnitPrice
-    );
     public async Task<Result<byte[]>> Handle(ExportCampaignsSalesQuery request, CancellationToken cancellationToken)
     {
-        QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
-        var campaignData =await _context.Campaigns
-            .AsNoTracking()
-            .Where(c => c.Id == request.CampaignId)
-            .Select(c => new CampaignData(
-                c.Id,
-                c.Name,
-                c.Description,
-                c.StartDate,
-                c.EndDate,
-                c.Status,
-                c.Sales.Select(s => new SaleData(
-                    s.TotalAmount,
-                    s.SaleItems.Select(si => new SaleItemData(
-                        si.ProductId,
-                        si.Product.Name,
-                        si.Quantity,
-                    si.TotalPrice,
-                    si.TotalPrice - (si.Quantity * si.Product.CostPrice),
-                    si.UnitPrice
-                    )))),
-                c.CampaignUsers
-                    .OrderByDescending(cu => cu.User.Sales
-                        .Where(s => s.CampaignId == c.Id)
-                        .Sum(s => s.TotalAmount))
-                    .Select(cu => cu.User.UserName)
-                    .FirstOrDefault()
-            ))
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (campaignData == null)
-        {
-            throw new NotFoundException(nameof(Campaign), request.CampaignId);
-        }
-
-        var document = Document.Create(container =>
-        {
-            container.Page(page =>
-            {
-                page.Size(PageSizes.A4);
-                page.Margin(20);
-                page.Header().Element(ComposeHeader);
-                page.Content().Element(element=>ComposeContent(element, campaignData));
-                page.Footer().AlignCenter().Text(x =>
-                {
-                    x.Span("Page ");
-                    x.CurrentPageNumber();
-                });
-            });
-        });
-
-        return Result<byte[]>.Success(document.GeneratePdf());
+        var campaign = await _context.Campaigns
+           .Include(c => c.Sales)
+           .ThenInclude(s => s.SaleItems)
+           .ThenInclude(si => si.Product)
+           .Include(c => c.Sales)
+           .ThenInclude(x=>x.User)
+           .FirstOrDefaultAsync(c => c.Id == request.CampaignId);
+        QuestPDF.Settings.License = LicenseType.Community;
+        var data = new CampaignSalesReport(campaign).GeneratePdf();
+        return Result<byte[]>.Success(data);
     }
 
-    private void ComposeHeader(IContainer container)
-    {
-        var imagePath = Path.Combine(_webHostEnvironment.WebRootPath, "img", "candylogo.png");
-        container.AlignCenter().AlignMiddle().Row(row =>
-        {
-            row.RelativeItem().PaddingLeft(150).AlignCenter().AlignMiddle().Column(column =>
-            {
-                column.Item().Text("Campaign Sales Report").FontSize(20).Bold();
-                column.Item().Text(DateTime.Now.ToString("d")).FontSize(13);
-            });
-            row.ConstantItem(150).Height(120).Image(imagePath);
-        });
-    }
 
-    private void ComposeContent(IContainer container, CampaignData campaignData)
-    {
-        container.PaddingVertical(10).Column(column =>
-        {
-            column.Item().Element(compose => ComposeCampaignDetails(compose, campaignData));
-            column.Item().Element(compose => ComposeSalesTable(compose, campaignData));
-            column.Item().Element(compose => ComposeTopPerformers(compose, campaignData));
-            column.Item().Element(compose => ComposeSummary(compose, campaignData));
-        });
-    }
-
-    private void ComposeCampaignDetails(IContainer container, CampaignData campaignData)
-    {
-        container.Background(Colors.Grey.Lighten3).Padding(10).Column(column =>
-        {
-            column.Item().Padding(3).Text("Campaign Details").Bold();
-            column.Item().Padding(3).Text($"Name: {campaignData.Name}");
-            column.Item().Padding(3).Text($"Description: {campaignData.Description}");
-            column.Item().Padding(3).Text($"Start Date: {campaignData.StartDate:d}");
-            column.Item().Padding(3).Text($"End Date: {campaignData.EndDate:d}");
-            column.Item().Padding(3).Text($"Status: {campaignData.Status}");
-        });
-    }
-
-    private void ComposeSalesTable(IContainer container, CampaignData campaignData)
-    {
-        var salesData = campaignData.Sales.SelectMany(s => s.SaleItems)
-            .GroupBy(si => new { si.ProductId, si.ProductName })
-            .Select(g => new
-            {
-                ProductName = g.Key.ProductName,
-                g.First().UnitPrice,
-                Quantity = g.Sum(si => si.Quantity),
-                TotalSale = g.Sum(si => si.TotalPrice),
-                Commission = g.Sum(si => si.Profit)
-            })
-            .OrderByDescending(x => x.TotalSale)
-            .ToList();
-
-        container.Padding(10).Table(table =>
-        {
-            table.ColumnsDefinition(columns =>
-            {
-                columns.ConstantColumn(200);
-                columns.ConstantColumn(80);
-                columns.ConstantColumn(80);
-                columns.ConstantColumn(80);
-                columns.ConstantColumn(80);
-            });
-
-            table.Header(header =>
-            {
-                header.Cell().Element(CellStyle).Text("Product Name");
-                header.Cell().Element(CellStyle).Text("Quantity");
-                header.Cell().Element(CellStyle).Text("UnitPrice");
-                header.Cell().Element(CellStyle).Text("Total Sale");
-                header.Cell().Element(CellStyle).Text("Commission");
-
-                static IContainer CellStyle(IContainer container)
-                {
-                    return container.DefaultTextStyle(x => x.SemiBold()).PaddingVertical(5).BorderBottom(1).BorderColor(Colors.Black);
-                }
-            });
-
-            foreach (var item in salesData)
-            {
-                table.Cell().Element(CellStyle).Text(item.ProductName);
-                table.Cell().Element(CellStyle).Text(item.Quantity.ToString());
-                table.Cell().Element(CellStyle).Text($"${item.TotalSale:N2}");
-                table.Cell().Element(CellStyle).Text($"${item.UnitPrice:N2}");
-                table.Cell().Element(CellStyle).Text($"${item.Commission:N2}");
-
-                static IContainer CellStyle(IContainer container)
-                {
-                    return container.BorderBottom(1).BorderColor(Colors.Grey.Lighten2).PaddingVertical(5);
-                }
-            }
-        });
-    }
-
-    private void ComposeTopPerformers(IContainer container, CampaignData campaignData)
-    {
-        var topProduct = campaignData.Sales.SelectMany(s => s.SaleItems)
-            .GroupBy(si => new { si.ProductId, si.ProductName })
-            .OrderByDescending(g => g.Sum(si => si.Quantity))
-            .Select(g => g.Key.ProductName)
-            .FirstOrDefault() ?? "N/A";
-
-        container.Background(Colors.Grey.Lighten3).Padding(10).Column(column =>
-        {
-            column.Item().Text("Top Performers").Bold();
-            column.Item().Text($"Top Product: {topProduct}");
-            column.Item().Text($"Top Salesperson: {campaignData.TopSalesperson ?? "N/A"}");
-        });
-    }
-
-    private void ComposeSummary(IContainer container, CampaignData campaignData)
-    {
-        var totalSales = campaignData.Sales.Sum(s => s.TotalAmount);
-        var totalCommission = campaignData.Sales.Sum(s => s.SaleItems.Sum(x => x.Profit));
-        var totalQuantity = campaignData.Sales.SelectMany(s => s.SaleItems).Sum(si => si.Quantity);
-
-        container.Background(Colors.Grey.Lighten3).Padding(10).Column(column =>
-        {
-            column.Item().Text("Summary").Bold();
-            column.Item().Text($"Total Sales: ${totalSales:N2}");
-            column.Item().Text($"Total Commission: ${totalCommission:N2}");
-            column.Item().Text($"Total Products Sold: {totalQuantity}");
-        });
-    }
 }

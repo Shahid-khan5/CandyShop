@@ -222,10 +222,10 @@ public class ApplicationDbContextInitializer
 
                     var campaign = campaigns[i];
                     campaign.CampaignUsers.Add(new CampaignUser { UserId = adminUser.Id, Campaign = campaign });
-
+                    campaign.Sales = new List<Sale>();
                     if (campaign.Status == CampaignStatus.InProgress || campaign.Status == CampaignStatus.Ended)
                     {
-                        var users = userFaker.Generate(random.Next(1, 5));
+                        var users = userFaker.Generate(random.Next(5, 8));
                         foreach (var user in users)
                         {
                             user.TenantId = _context.Tenants.First().Id;
@@ -235,8 +235,7 @@ public class ApplicationDbContextInitializer
                             var campaignUser = new CampaignUser { UserId = user.Id, Campaign = campaign };
                             campaign.CampaignUsers.Add(campaignUser);
 
-                            var sales = saleFaker.Generate(random.Next(1, 5));
-                            campaign.Sales = new List<Sale>();
+                            var sales = saleFaker.Generate(random.Next(5, 8));
                             foreach (var sale in sales)
                             {
                                 sale.UserId = user.Id;

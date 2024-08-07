@@ -41,35 +41,30 @@ public class GetSalesSummaryQueryHandler : IRequestHandler<GetSalesSummaryQuery,
 
     public async Task<List<SaleSummaryDto>> Handle(GetSalesSummaryQuery request, CancellationToken cancellationToken)
     {
-        var specification = new SalesSummarySpecification(request);
-        var query = _context.Sales
+        var specification = new CampaignSummarySpecification(request);
+        var query =await _context.Campaigns
             .WithSpecification(specification)
-            .AsQueryable();
+            .AsNoTracking()
+            .ToListAsync();
 
-        var salesData = await FetchSalesData(query, cancellationToken);
-        var result = AggregateSalesData(salesData);
-
-        return result;
+        return  FetchSalesData(query, cancellationToken);
     }
 
-    private async Task<List<SaleData>> FetchSalesData(IQueryable<Sale> query, CancellationToken cancellationToken)
+    private List<SaleSummaryDto> FetchSalesData(List<Campaign> query, CancellationToken cancellationToken)
     {
-        return await query
-            .Select(s => new SaleData
+
+        return  query
+            .Select(s => new SaleSummaryDto
             {
-                CampaignId=s.CampaignId,
-                CampaignName = s.Campaign.Name,
-                UserName = s.User.UserName,
-                TotalAmount = s.TotalAmount,
-                CustomerEmail = s.CustomerEmail,
-                SaleItems = s.SaleItems.Select(si => new SaleItemData
-                {
-                    Quantity = si.Quantity,
-                    TotalPrice = si.TotalPrice,
-                    UnitPrice = si.UnitPrice
-                }).ToList()
+                CampaignId=s.Id,
+                ClassName = s.Name,
+                NumberOfOrders=s.Sales.Count,
+                TotalAmount = s.Sales.Sum(s => s.TotalAmount),
+                TotalCommission =s.Sales.Sum(s=> s.SaleItems.Sum(si => si.TotalPrice - (si.Product.CostPrice * si.Quantity))),
+                TotalCandiesSold= s.Sales.Sum(s => s.SaleItems.Sum(si => si.Quantity)),
+                TotalCustomers= s.Sales.Select(s => s.CustomerEmail).Distinct().Count()
             })
-            .ToListAsync(cancellationToken);
+            .ToList();
     }
 
     private List<SaleSummaryDto> AggregateSalesData(List<SaleData> salesData)
