@@ -16,7 +16,6 @@ builder.Services
 var app = builder.Build();
 
 app.ConfigureServer(builder.Configuration);
-
 if (app.Environment.IsDevelopment())
     // Initialise and seed database
     using (var scope = app.Services.CreateScope())

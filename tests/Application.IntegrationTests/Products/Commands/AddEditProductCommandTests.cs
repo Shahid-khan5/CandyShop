@@ -33,7 +33,7 @@ internal class AddEditProductCommandTests : TestBase
         find.Should().NotBeNull();
         find.Name.Should().Be("Test");
         find.Brand.Should().Be("Brand");
-        find.Price.Should().Be(100);
+        find.SalePrice.Should().Be(100);
         find.Unit.Should().Be("EA");
     }
 
@@ -58,7 +58,7 @@ internal class AddEditProductCommandTests : TestBase
         updated.Id.Should().Be(find.Id);
         updated.Name.Should().Be("Test1");
         updated.Brand.Should().Be("Brand1");
-        updated.Price.Should().Be(200);
+        updated.SalePrice.Should().Be(200);
         updated.Unit.Should().Be("KG");
     }
 }
