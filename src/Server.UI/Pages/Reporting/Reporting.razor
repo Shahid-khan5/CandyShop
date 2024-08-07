@@ -2,6 +2,7 @@
 
 @using BlazorDownloadFile
 @using CleanArchitecture.Blazor.Application.Features.Campaigns.DTOs
+@using CleanArchitecture.Blazor.Application.Features.Campaigns.Queries.Export
 @using CleanArchitecture.Blazor.Application.Features.Campaigns.Queries.GetAll
 @using CleanArchitecture.Blazor.Application.Features.Sales.Caching
 @using CleanArchitecture.Blazor.Application.Features.Sales.DTOs
@@ -11,6 +12,8 @@
 @using CleanArchitecture.Blazor.Application.Features.Sales.Queries.Export
 @using CleanArchitecture.Blazor.Application.Features.Sales.Queries.Pagination
 @using CleanArchitecture.Blazor.Server.UI.Pages.Sales.Components
+@inject IBlazorDownloadFileService BlazorDownloadFileService;
+@inject IMediator Mediator;
 
 @inject IStringLocalizer<Reporting> L
 @attribute [Authorize(Policy = Permissions.Reporting.View)]
@@ -76,7 +79,7 @@
                 <MudMenu Icon="@Icons.Material.Filled.ImportExport" Variant="Variant.Filled" Size="Size.Small"
                              Dense="true"
                              IconColor="Color.Info" AnchorOrigin="Origin.CenterLeft">
-                             <MudMenuItem>Export To Pdf</MudMenuItem>
+                             <MudMenuItem OnClick="@(()=>OnPdfExport(context.Item))" >Export To Pdf</MudMenuItem>
                     </MudMenu>
             </CellTemplate>
         </TemplateColumn>
@@ -110,6 +113,24 @@
 
 
 @code {
+    async void OnPdfExport(SaleSummaryDto dto)
+    {
+    var request = new ExportCampaignsSalesQuery
+    {
+        CampaignId=dto.CampaignId
+    };
+        var result = await Mediator.Send(request);
+        if (result.Succeeded)
+        {
+            var downloadResult = await BlazorDownloadFileService.DownloadFile($"{dto.ClassName}_SalesReport.pdf", result.Data, "application/octet-stream");
+            Snackbar.Add($"{ConstantString.ExportSuccess}", Severity.Info);
+        }
+        else
+        {
+            Snackbar.Add($"{result.ErrorMessage}", Severity.Error);
+        }
+
+    }
     public string? Title { get; private set; }
     private int _defaultPageSize = 15;
     private HashSet<SaleSummaryDto> _selectedItems = new HashSet<SaleSummaryDto>();
@@ -125,8 +146,6 @@
     private UserProfile? UserProfile { get; set; }
 
     private GetSalesSummaryQuery Query { get; set; } = new();
-    [Inject]
-    private IBlazorDownloadFileService BlazorDownloadFileService { get; set; } = null!;
     private bool _canSearch;
     private bool _canCreate;
     private bool _canEdit;

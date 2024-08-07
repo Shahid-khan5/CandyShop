@@ -12,11 +12,11 @@ internal class ProductsPaginationQueryTests : TestBase
     [SetUp]
     public async Task InitData()
     {
-        await AddAsync(new Product { Name = "Test1", Price = 19, Brand = "Test1", Unit = "EA", Description = "Test1" });
-        await AddAsync(new Product { Name = "Test2", Price = 19, Brand = "Test2", Unit = "EA", Description = "Test1" });
-        await AddAsync(new Product { Name = "Test3", Price = 19, Brand = "Test3", Unit = "EA", Description = "Test1" });
-        await AddAsync(new Product { Name = "Test4", Price = 19, Brand = "Test4", Unit = "EA", Description = "Test1" });
-        await AddAsync(new Product { Name = "Test5", Price = 19, Brand = "Test5", Unit = "EA", Description = "Test1" });
+        await AddAsync(new Product { Name = "Test1", SalePrice = 19, Brand = "Test1", Unit = "EA", Description = "Test1" });
+        await AddAsync(new Product { Name = "Test2", SalePrice = 19, Brand = "Test2", Unit = "EA", Description = "Test1" });
+        await AddAsync(new Product { Name = "Test3", SalePrice = 19, Brand = "Test3", Unit = "EA", Description = "Test1" });
+        await AddAsync(new Product { Name = "Test4", SalePrice = 19, Brand = "Test4", Unit = "EA", Description = "Test1" });
+        await AddAsync(new Product { Name = "Test5", SalePrice = 19, Brand = "Test5", Unit = "EA", Description = "Test1" });
     }
 
     [Test]

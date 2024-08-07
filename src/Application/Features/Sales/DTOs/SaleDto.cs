@@ -51,6 +51,7 @@ public class SaleDto
 
 public class SaleData
 {
+    public int CampaignId { get; set; }
     public string CampaignName { get; set; }
     public string UserName { get; set; }
     public decimal TotalAmount { get; set; }
@@ -63,4 +64,5 @@ public class SaleItemData
     public int Quantity { get; set; }
     public decimal TotalPrice { get; set; }
     public decimal UnitPrice { get; set; }
+    public decimal CostPrice { get; internal set; }
 }

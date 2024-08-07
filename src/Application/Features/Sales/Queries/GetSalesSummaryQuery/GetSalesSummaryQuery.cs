@@ -7,6 +7,7 @@ using Ardalis.Specification.EntityFrameworkCore;
 using CleanArchitecture.Blazor.Application.Features.Sales.Caching;
 using CleanArchitecture.Blazor.Application.Features.Sales.DTOs;
 using CleanArchitecture.Blazor.Application.Features.Sales.Specifications;
+using CleanArchitecture.Blazor.Domain.Entities;
 using DocumentFormat.OpenXml.Wordprocessing;
 using MailKit.Search;
 using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
@@ -56,6 +57,7 @@ public class GetSalesSummaryQueryHandler : IRequestHandler<GetSalesSummaryQuery,
         return await query
             .Select(s => new SaleData
             {
+                CampaignId=s.CampaignId,
                 CampaignName = s.Campaign.Name,
                 UserName = s.User.UserName,
                 TotalAmount = s.TotalAmount,
@@ -73,9 +75,10 @@ public class GetSalesSummaryQueryHandler : IRequestHandler<GetSalesSummaryQuery,
     private List<SaleSummaryDto> AggregateSalesData(List<SaleData> salesData)
     {
         return salesData
-            .GroupBy(s => new { s.CampaignName, s.UserName })
+            .GroupBy(s => new { s.CampaignId,  s.CampaignName, s.UserName })
             .Select(g => new SaleSummaryDto
             {
+                CampaignId=g.Key.CampaignId,
                 ClassName = g.Key.CampaignName,
                 AdminName = g.Key.UserName,
                 TotalCandiesSold = g.Sum(s => s.SaleItems.Sum(si => si.Quantity)),

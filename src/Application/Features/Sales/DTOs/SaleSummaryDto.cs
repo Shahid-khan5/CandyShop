@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 namespace CleanArchitecture.Blazor.Application.Features.Sales.DTOs;
 public class SaleSummaryDto
 {
+    public int CampaignId { get; set; }
     [Description("Class Name")]
     public string ClassName { get; set; }
     [Description("Admin Name")]
