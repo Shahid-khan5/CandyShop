@@ -26,7 +26,7 @@
             <div class="mt-3">
                 <MudTextField @bind-Value="Model.Brand" Label="Brand Name" Variant="Variant.Outlined"></MudTextField>
             </div>
-            <MudGrid Class="pt-3">
+            <MudGrid Class="pt-5 ">
                 <MudItem xs="12" md="6" Class="pt-3">
                     <MudTextField @bind-Value="Model.CostPrice" Label="Cost Price" Variant="Variant.Outlined"></MudTextField>
                 </MudItem>
@@ -97,9 +97,12 @@
         </MudItem>
     </MudGrid>
 </MudForm>
+<div class="d-flex justify-end pa-3">
+
 <MudButton OnClick="Cancel">@ConstantString.Cancel</MudButton>
 @* <MudLoadingButton Loading="@_saving" Color="Color.Primary" OnClick="Submit">@ConstantString.Save</MudLoadingButton> *@
 <MudButton Color="Color.Primary" OnClick="Submit">@ConstantString.Save</MudButton>
+</div>
 
 
 @code {
@@ -250,3 +253,9 @@
     }
 
 }
+
+            <style>
+    .mud-dialog-width-full{
+        overflow-x:hidden;
+    }
+            </style>
