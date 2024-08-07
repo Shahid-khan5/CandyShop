@@ -41,12 +41,6 @@
                     }
                 </MudSelect>
             </MudItem>
-            <MudItem xs="12" sm="6" md="3">
-                <MudDatePicker Variant="Variant.Outlined" @bind-Date="StartDate" Label="Start Date" />
-            </MudItem>
-            <MudItem xs="12" sm="6" md="3">
-                <MudDatePicker Variant="Variant.Outlined" @bind-Date="EndDate" Label="End Date" />
-            </MudItem>
             <MudItem xs="12" sm="6" md="3" Style="margin-top: 25px;">
                 <MudButton Variant="Variant.Filled"
                            Color="Color.Primary"
@@ -163,10 +157,7 @@
         var state = await AuthState;
         _canSearch = (await AuthService.AuthorizeAsync(state.User, Permissions.Sales.Search)).Succeeded;
         _canDelete = (await AuthService.AuthorizeAsync(state.User, Permissions.Sales.Delete)).Succeeded;
-        StartDate = DateTime.Today;
-        EndDate = DateTime.Today;
-        Query.StartDate = StartDate;
-        Query.EndDate = EndDate;
+       
         await LoadCampaigns();
     }
 
@@ -175,6 +166,8 @@
         try
         {
             _loading = true;
+            Query.StartDate=null;
+            Query.EndDate=null;
             var result = await Mediator.Send(Query);
             return new GridData<SaleSummaryDto>() { TotalItems = result.Count, Items = result };
         }
