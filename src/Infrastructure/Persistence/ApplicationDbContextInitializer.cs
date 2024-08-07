@@ -182,11 +182,12 @@ public class ApplicationDbContextInitializer
                     .RuleFor(p => p.Name, f => f.Commerce.ProductName())
                     .RuleFor(p => p.Description, f => f.Commerce.ProductDescription())
                     .RuleFor(p => p.Brand, f => f.Company.CompanyName())
-                    .RuleFor(p => p.Unit, f => "EA")
-                    .RuleFor(p => p.Price, f => f.Random.Decimal(1, 20))
-                    .RuleFor(p => p.Stock, f => f.Random.Int(0, 100))
-                    .RuleFor(p => p.SaleItems, f => new List<SaleItem>())
-                    .RuleFor(p => p.Pictures, f => new List<ProductImage>());
+                    .RuleFor(p => p.CostPrice, f => f.Random.Decimal(1, 20))
+                    .RuleFor(p => p.SalePrice, f => f.Random.Decimal(1, 20))
+                    .RuleFor(p => p.PictureName, f => f.Internet.Avatar())
+                    .RuleFor(p => p.PictureSize, f => f.Random.Int(1, 10))
+                    .RuleFor(p => p.PictureUrl, f => f.Internet.Url())
+                    .RuleFor(p => p.SaleItems, f => new List<SaleItem>());
 
                 var saleFaker = new Faker<Sale>()
                     .RuleFor(s => s.CustomerName, f => f.Name.FullName())
@@ -246,7 +247,7 @@ public class ApplicationDbContextInitializer
                                 {
                                     saleItem.ProductId = candyProducts[random.Next(candyProducts.Count)].Id;
                                     saleItem.Sale = sale;
-                                    saleItem.UnitPrice = candyProducts.First(p => p.Id == saleItem.ProductId).Price;
+                                    saleItem.UnitPrice = candyProducts.First(p => p.Id == saleItem.ProductId).CostPrice;
                                     saleItem.TotalPrice = saleItem.Quantity * saleItem.UnitPrice;
                                     sale.SaleItems.Add(saleItem);
                                 }
