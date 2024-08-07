@@ -14,7 +14,7 @@ public class MenuService : IMenuService
             SectionItems = new List<MenuSectionItemModel>
             {
                 new MenuSectionItemModel { Title = "Dashboard", Icon = CustomIcons.Dashboard, Href = "/" },
-                new MenuSectionItemModel { Title = "Product", Icon =  CustomIcons.ProductIcon, Href = "/Prduct" },
+                new MenuSectionItemModel { Title = "Product", Icon =  CustomIcons.ProductIcon, Href = "/identity/product" },
                 new MenuSectionItemModel { Title = "Users", Icon = CustomIcons.User, Href = "/identity/users" },
                 new MenuSectionItemModel { Title = "Order", Icon = CustomIcons.Orders,  Href = "/identity/order" },
                 new MenuSectionItemModel { Title = "Request", Icon = CustomIcons.User, Href = "/Request" },

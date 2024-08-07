@@ -47,21 +47,8 @@
              Loading="@_loading"
              ServerData="@(ServerReload)">
     <ToolBarContent>
-        <div class="d-flex align-start flex-grow-1">
-            <div class="d-flex gap-4">
-                <MudIcon Icon="@Icons.Material.Filled.SwitchAccount" Size="Size.Large" />
-                <div class="d-flex flex-column">
-                    <MudText Typo="Typo.caption" Class="mb-2">@L[_currentDto.GetClassDescription()]</MudText>
-                    <MudSelect T="string" Style="min-width:120px" ValueChanged="OnChangedListView" Value="@_selectedTenantId" Dense="true" Label="List View">
-                        <MudSelectItem T="string" Value="@(" ")">@L["ALL"]</MudSelectItem>
-                        @foreach (var item in TenantsService.DataSource)
-                        {
-                            <MudSelectItem T="string" Value="@item.Id">@item.Name</MudSelectItem>
-                        }
-                    </MudSelect>
-                </div>
-            </div>
-            <div class="flex-grow-1" />
+        <div class="d-flex align-start justify-space-between flex-grow-1">
+        <p class="fs-24 fw-700">User</p>
             <div class="d-flex flex-column justify-end">
                 <div class="d-flex gap-1">
                     <MudHidden Breakpoint="Breakpoint.SmAndDown">
@@ -150,23 +137,6 @@
                         }
                     </MudHidden>
                 </div>
-                @if (_canSearch)
-                {
-                    <MudStack Row="true" AlignItems="AlignItems.Stretch">
-                        <MudSelect T="string" Placeholder="Search for role name" Value="@_searchRole" Clearable="true" ValueChanged="@(OnSearchRole)" Style="width:150px">
-                            @foreach (var str in _roles)
-                            {
-                                <MudSelectItem Value="@str">@str</MudSelectItem>
-                            }
-                        </MudSelect>
-                        <MudHidden Breakpoint="Breakpoint.SmAndDown">
-                            <MudTextField T="string" Immediate="false" ValueChanged="@(OnSearch)" Value="@_searchString" Placeholder="@ConstantString.Search" Adornment="Adornment.End"
-                                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Small">
-                            </MudTextField>
-                        </MudHidden>
-                    </MudStack>
-                }
-
             </div>
         </div>
     </ToolBarContent>
@@ -218,7 +188,7 @@
                 }
             </CellTemplate>
         </TemplateColumn>
-        <PropertyColumn Property="x => x.TenantId" HeaderStyle="width:260px" Title="@L[_currentDto.GetMemberDescription(x => x.TenantName)]">
+        <PropertyColumn Property="x => x.TenantId" HeaderStyle="width:260px" Title="Student Name">
             <CellTemplate>
                 <div>
                     <MudText Typo="Typo.body2">@context.Item.TenantName</MudText>
@@ -229,7 +199,7 @@
                 @L["Selected"]: @_selectedItems.Count
             </FooterTemplate>
         </PropertyColumn>
-        <PropertyColumn Property="x => x.UserName" Title="@L[_currentDto.GetMemberDescription(x => x.UserName)]">
+        <PropertyColumn Property="x => x.UserName" Title="Class Name">
             <CellTemplate>
                 <div class="d-flex align-items-center">
                     <MudBadge Color="@(IsOnline(context.Item.DisplayName??context.Item.UserName) ? Color.Success : Color.Error)" Overlap="false" Dot="true" Bordered="true">
@@ -251,7 +221,7 @@
                 </div>
             </CellTemplate>
         </PropertyColumn>
-        <PropertyColumn Property="x => x.Email" Title="@L["Display Name / PhoneNumber"]">
+        <PropertyColumn Property="x => x.Email" Title="Phone Number">
             <CellTemplate>
                 <div class="d-flex flex-column">
                     <MudText Typo="Typo.body2">@context.Item.DisplayName</MudText>
@@ -259,53 +229,11 @@
                 </div>
             </CellTemplate>
         </PropertyColumn>
-        <PropertyColumn Property="x => x.SuperiorId" Title="@L[_currentDto.GetMemberDescription(x => x.SuperiorName)]">
+        <PropertyColumn Property="x => x.SuperiorId" Title="Email">
             <CellTemplate>
                 @context.Item.SuperiorName
             </CellTemplate>
         </PropertyColumn>
-        <PropertyColumn Property="x => x.Provider" Title="@L[_currentDto.GetMemberDescription(x => x.Provider)]" />
-
-        <PropertyColumn Sortable="false" Property="x => x.AssignedRoles" Title="@L[_currentDto.GetMemberDescription(x => x.AssignedRoles)]">
-            <CellTemplate>
-                @if (context.Item.AssignedRoles is not null)
-                {
-                    foreach (var str in context.Item.AssignedRoles)
-                    {
-                        <MudChip Size="Size.Small" Variant="Variant.Text">@str</MudChip>
-                    }
-                }
-            </CellTemplate>
-        </PropertyColumn>
-        <PropertyColumn Property="x => x.IsActive" Title="@L[_currentDto.GetMemberDescription(x => x.IsActive)]">
-            <CellTemplate>
-                <div>
-                    @if (context.Item.IsActive)
-                    {
-                        <MudChip Color="Color.Success" Size="Size.Small" Icon="@Icons.Material.Filled.CheckCircleOutline">@L["Active"]</MudChip>
-                        @if (context.Item.LockoutEnd is not null)
-                        {
-                            <div class="d-flex">
-                                <p>@L["Lockout End"]: </p>
-                                <ToLocal DateTime="@context.Item.LockoutEnd.Value.UtcDateTime.ToLocalTime()" Format="dd/mm/yyyy HH:MM:ss"></ToLocal>
-                            </div>
-                        }
-                    }
-                    else
-                    {
-                        <MudChip Class="flex-grow-0" Color="Color.Surface" Size="Size.Small" Icon="@Icons.Material.Filled.HighlightOff">@L["Inactive"]</MudChip>
-                        @if (context.Item.LockoutEnd is not null)
-                        {
-                            <div class="d-flex">
-                                <p>@L["Lockout End"]: </p>
-                                <ToLocal DateTime="@context.Item.LockoutEnd.Value.UtcDateTime.ToLocalTime()" Format="dd/mm/yyyy HH:MM:ss"></ToLocal>
-                            </div>
-                        }
-                    }
-                </div>
-            </CellTemplate>
-        </PropertyColumn>
-
     </Columns>
 
     <PagerContent>
@@ -994,6 +922,17 @@
     .mud-toolbar.mud-toolbar-gutters.mud-table-toolbar {
         overflow: auto !important;
     }
+
+    .fs-24{
+   font-size:24px !important;
+    }
+        .fw-700{
+            font-weight:700;
+        }
+        .mud-container.mud-container-maxwidth-xl.mud-container--gutters.mb-4.mt-4{
+        margin-top: 17px !important;
+        margin-bottom: 0px !important;
+        }
     @@media (max-width: 760px) {
    .mud-table.mud-data-grid.mud-xs-table.mud-table-hover.mud-table-sticky-header.mud-elevation-1{
         height: calc(100vh - 96px) !important;

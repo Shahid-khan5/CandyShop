@@ -1,6 +1,4 @@
-﻿@using MudExtensions
-@using RRSTEK.Server.UI.Components
-@using ResizeMode = SixLabors.ImageSharp.Processing.ResizeMode
+﻿@using ResizeMode = SixLabors.ImageSharp.Processing.ResizeMode
 @using Size = SixLabors.ImageSharp.Size
 @using Image = SixLabors.ImageSharp.Image
 @using SixLabors.ImageSharp.Processing
@@ -17,173 +15,116 @@
 @inject IStringLocalizer<Users> L
 
 <MudForm Model="@Model" @ref="@_form" Validation="@(Validator.ValidateValue(Model))">
-    <input For="@(() => Model.Id)" @bind-value="Model.Id" type="hidden"/>
-    <input For="@(() => Model.ProfilePictureDataUrl)" @bind-value="Model.ProfilePictureDataUrl" type="hidden"/>
-     
-    <MudGrid Spacing="2">
-        <MudItem xs="12" md="6">
-           <MudTextField @bind-Value="TextValue" Label="Product Name" Variant="Variant.Outlined"></MudTextField>
-            <div class="mt-3">
-                <MudTextField T="string" Label="Description" Variant="Variant.Outlined" Text="@sampleText" Lines="3" />
-            </div>
+    <input For="@(() => Model.Id)" @bind-value="Model.Id" type="hidden" />
+    <input For="@(() => Model.ProfilePictureDataUrl)" @bind-value="Model.ProfilePictureDataUrl" type="hidden" />
 
-            <div class="mt-3">
-                <MudTextField @bind-Value="TextValue" Label="Description" Variant="Variant.Outlined"></MudTextField>
-            </div>
-            <div class="mt-3">
-                <MudTextField @bind-Value="TextValue" Label="Brand Name" Variant="Variant.Outlined"></MudTextField>
-            </div>
-            <MudGrid Class="pt-3">
-            <MudItem xs="12" md="6">
-                <MudTextField @bind-Value="TextValue" Label="SKU" Variant="Variant.Outlined"></MudTextField>
-            </MudItem>
-            <MudItem xs="12" md="6">
-                <MudTextField @bind-Value="TextValue" Label="Stock Quantity" Variant="Variant.Outlined"></MudTextField>
-            </MudItem>
-            <MudItem xs="12" md="6" Class="pt-3">
-                <MudTextField @bind-Value="TextValue" Label="Cost Price" Variant="Variant.Outlined"></MudTextField>
-            </MudItem>
-                <MudItem xs="12" md="6" Class="pt-3">
-                <MudTextField @bind-Value="TextValue" Label="Sale Price" Variant="Variant.Outlined"></MudTextField>
-            </MudItem>
-            </MudGrid>
-            <div class="mt-2">
-        <MudChipField WrapChips=true T="string"  FullWidth="true" 
-            Label="ChipField" />
+    <MudGrid Spacing="2">
+        <MudItem sm="12">
+            <div class="d-flex justify-center">
+
+                @if (string.IsNullOrEmpty(Model.ProfilePictureDataUrl))
+                {
+                    <MudAvatar Style="height:128px; width:128px; font-size:2rem;">@Model.UserName.ToUpper().FirstOrDefault()</MudAvatar>
+                }
+                else
+                {
+                    <MudAvatar Style="height:128px; width:128px; font-size:2rem;">
+                        <MudImage Src="@Model.ProfilePictureDataUrl"></MudImage>
+                    </MudAvatar>
+                }
+                <MudTooltip Text="@L["Click upload a image"]">
+                    <MudFileUpload T="IBrowserFile" Accept=".jpg, .jpeg, .png, .webp" FilesChanged="UploadPhoto" Style="margin-top:-10px;margin-left:-15px">
+                        <ActivatorContent>
+                            <MudIconButton Icon="@Icons.Material.Filled.PhotoCamera">
+                            </MudIconButton>
+                        </ActivatorContent>
+                    </MudFileUpload>
+                </MudTooltip>
+
             </div>
         </MudItem>
-        <MudItem xs="12" md="6">
-            <MudStack Style="width: 100%">
-                <MudFileUpload T="IReadOnlyList<IBrowserFile>"
-                               @ref="@_fileUpload"
-                               OnFilesChanged="OnInputFileChanged"
-                                  AppendMultipleFiles
-                                Hidden="@false"
-                                InputClass="absolute mud-width-full mud-height-full overflow-hidden z-10"
-                                InputStyle="opacity:0"
-                                tabindex="-1"
-                                @ondrop="@ClearDragClass"
-                                @ondragenter="@SetDragClass"
-                                @ondragleave="@ClearDragClass"
-                                @ondragend="@ClearDragClass">
-                     <ActivatorContent>
-                         <MudPaper Height="200px"
-                                   Outlined="true"
-                                   Class="@_dragClass"
-                                   Style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
-                             <span>
-                                 @((MarkupString)CustomIcons.ImageDrop)
-                             </span>
-                             <MudText Class="fs-16 mt-3 text-gray">Drop your image here  or browser jpeg,png are allowed</MudText>
-                        </MudPaper>
-                    </ActivatorContent>
-                </MudFileUpload>
+        <MudItem sm="6" xs="12">
+            <MudSelect For="@(() => Model.TenantId)"
+                       T="string"
+                       Label="@L["Select Tenant"]"
+                       Required="true"
+                       ValueChanged="OnTenantIdChanged"
+                       Value="@Model.TenantId">
+                @foreach (var item in TenantsService.DataSource)
+                {
+                    <MudSelectItem T="string" Value="@item.Id">@item.Name</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudTextField For="@(() => Model.Provider)" @bind-Value="Model.Provider" Label="@L["Provider"]" Variant="Variant.Text"></MudTextField>
+        </MudItem>
 
-            </MudStack>
+        <MudItem xs="12" sm="6">
+            <MudTextField For="@(() => Model.UserName)" @bind-Value="Model.UserName" Label="@L["User Name"]" Variant="Variant.Text" Required="true"></MudTextField>
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <PickSuperiorIdAutocomplete For="@(() => Model.SuperiorId)"
+                                        OwnerName="@Model.UserName"
+                                        Clearable="true"
+                                        TenantId="@Model.TenantId"
+                                        Label="@L["Select Superior"]"
+                                        @bind-Value="@Model.SuperiorId">
+            </PickSuperiorIdAutocomplete>
 
-            <div>
-                <MudText Typo="Typo.h6" Class="my-3">Product Gallery</MudText>
-                 <MudStack Style="width: 100%">
-                     <MudFileUpload T="IReadOnlyList<IBrowserFile>"
-                                    @ref="@_fileUpload"
-                                    OnFilesChanged="OnInputFileChanged"
-                                          AppendMultipleFiles
-                                    Hidden="@false"
-                                    InputClass="absolute mud-width-full mud-height-full overflow-hidden z-10"
-                                    InputStyle="opacity:0"
-                                    tabindex="-1"
-                                    @ondrop="@ClearDragClass"
-                                    @ondragenter="@SetDragClass"
-                                    @ondragleave="@ClearDragClass"
-                                    @ondragend="@ClearDragClass">
-                         <ActivatorContent>
-                             <MudPaper Height="150px"
-                                       Outlined="true"
-                                       Class="@_dragClass"
-                                       Style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
-                                 <span>
-                                     @((MarkupString)CustomIcons.ImageDrop)
-                                 </span>
-                                 <MudText Class="fs-16 mt-3 text-gray">Drop your image here  or browser jpeg,png are allowed</MudText>
-                             </MudPaper>
-                         </ActivatorContent>
-                     </MudFileUpload>
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudTextField For="@(() => Model.DisplayName)" @bind-Value="Model.DisplayName" Label="@L["Display Name"]" Variant="Variant.Text"></MudTextField>
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudTextField For="@(() => Model.Email)" @bind-Value="Model.Email" Label="@L["E-mail"]" Variant="Variant.Text" Required="true"></MudTextField>
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudTextField For="@(() => Model.PhoneNumber)" @bind-Value="Model.PhoneNumber" Label="@L["Phone Number"]" Variant="Variant.Text"></MudTextField>
+        </MudItem>
 
-                 </MudStack>
+
+        <MudItem xs="12" sm="6">
+            <MudText Typo="Typo.caption">@L["Status"]</MudText>
+            <div class="d-fex">
+                <MudCheckBox For="@(() => Model.IsActive)" Disabled="@(!string.IsNullOrEmpty(Model.Id))" T="bool" @bind-Value="Model.IsActive" Label="@L["Is Active"]"></MudCheckBox>
             </div>
+        </MudItem>
+        <MudItem xs="12" sm="12">
+            <MudText Typo="Typo.caption">@L["Assign Roles"]</MudText>
+            <MudGrid Class="mt-1" Spacing="2">
+                @if (Roles.Any())
+                {
+                    @for (var i = 0; i < Roles.Count; i++)
+                    {
+                        var x = i;
+                        <MudItem xs="6" sm="6" Class="py-0 my=0">
+                            <MudCheckBox T="bool" Value="@Roles[x].Value" Label="@Roles[x].Key" ValueChanged="@(s => Roles[x].Value = s)"></MudCheckBox>
+                        </MudItem>
+                    }
 
-        </MudItem> 
+                }
+                else
+                {
+                    <MudAlert Class="flex-grow-1" Severity="Severity.Warning">@L["No roles available for this tenant."]</MudAlert>
+                }
+
+            </MudGrid>
+        </MudItem>
     </MudGrid>
 </MudForm>
 
-@code{
+@code {
 
-#nullable enable
-    private const string DefaultDragClass = "relative rounded-lg border-2 border-dashed pa-4 mt-1 mud-width-full mud-height-full";
-    private string _dragClass = DefaultDragClass;
-    private readonly List<string> _fileNames = new();
-    private MudFileUpload<IReadOnlyList<IBrowserFile>>? _fileUpload;
-
-    private async Task ClearAsync()
-    {
-        await (_fileUpload?.ClearAsync() ?? Task.CompletedTask);
-        _fileNames.Clear();
-        ClearDragClass();
-    }
-
-    private Task OpenFilePickerAsync()
-        => _fileUpload?.OpenFilePickerAsync() ?? Task.CompletedTask;
-
-    private void OnInputFileChanged(InputFileChangeEventArgs e)
-    {
-        ClearDragClass();
-        var files = e.GetMultipleFiles();
-        foreach (var file in files)
-        {
-            _fileNames.Add(file.Name);
-        }
-    }
-
-    private void Upload()
-    {
-        // Upload the files here
-        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
-        Snackbar.Add("TODO: Upload your files!");
-    }
-
-    private void SetDragClass()
-        => _dragClass = $"{DefaultDragClass} mud-border-primary";
-
-    private void ClearDragClass()
-        => _dragClass = DefaultDragClass;
-
-
-    string _delimiter = " ";
-    string? _value;
-    List<string>? _values;
-    int _maxChips = 0;
-    int _chipsMaxWidth = 80;
-    Color _color = Color.Default;
-    Variant _chipVariant = Variant.Filled;
-    Variant _variant = Variant.Outlined;
-    bool _wrapChips;
-    bool _disabled;
-    bool _readonly;
-    bool _disableRadius;
-    bool _closeable = true;
-    bool _allowSameValues = false;
-
-    public string TextValue { get; set; }
-    string sampleText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
     public class CheckItem
     {
         public string Key { get; set; } = string.Empty;
         public bool Value { get; set; }
     }
     private RoleManager<ApplicationRole> RoleManager = null!;
-    [EditorRequired] [Parameter] public ApplicationUserDto Model { get; set; } = default!;
+    [EditorRequired][Parameter] public ApplicationUserDto Model { get; set; } = default!;
 
-    [EditorRequired] [Parameter] public EventCallback<ApplicationUserDto> OnFormSubmit { get; set; }
+    [EditorRequired][Parameter] public EventCallback<ApplicationUserDto> OnFormSubmit { get; set; }
 
 
     private MudForm? _form = default!;
@@ -253,17 +194,3 @@
     }
 
 }
-<style>
-    .fs-16{
-        font-size:16px !important
-    }
-
-
-    .text-gray{
-        color: #70706E !important;
-    }
-
-
- 
-
-</style>

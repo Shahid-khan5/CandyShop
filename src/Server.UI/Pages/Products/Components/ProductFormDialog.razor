@@ -1,260 +1,267 @@
-﻿@using CleanArchitecture.Blazor.Server.UI.Components.Fusion
+﻿@using CleanArchitecture.Blazor.Server.UI.Pages.Identity.Users
+@using MudExtensions
+@using RRSTEK.Server.UI.Components
 @using ResizeMode = SixLabors.ImageSharp.Processing.ResizeMode
 @using Size = SixLabors.ImageSharp.Size
 @using Image = SixLabors.ImageSharp.Image
 @using SixLabors.ImageSharp.Processing
 @using SixLabors.ImageSharp
 @using SixLabors.ImageSharp.Formats.Png
-@using CleanArchitecture.Blazor.Application.Features.Products.Commands.AddEdit
+@using CleanArchitecture.Blazor.Application.Features.Identity.DTOs
 @using CleanArchitecture.Blazor.Domain.Common.Enums
-@using CleanArchitecture.Blazor.Server.UI.Services.JsInterop
-@using System.Collections.Immutable
-
-@inject IStringLocalizer<Products> L
+@using CleanArchitecture.Blazor.Domain.Identity
+@using CleanArchitecture.Blazor.Application.Common.Interfaces.MultiTenant
+@inherits OwningComponentBase
+@inject IValidationService Validator
 @inject IUploadService UploadService
+@inject ITenantService TenantsService
+@inject IStringLocalizer<Users> L
 
-<MudDialog>
-    <DialogContent>
-        <ActiveUserSession PageComponent="@($"{nameof(ProductFormDialog)}/{ Model.Id}")" />
-        <MudForm Model="@Model" @ref="@_form" Validation="@(Validator.ValidateValue(Model))">
-            <MudGrid Spacing="2">
-                <MudItem xs="12">
-                    <MudTextField Label="@L["Product Name"]" @bind-Value="Model.Name"
-                                  For="@(() => Model.Name)"
-                                  Required="true"
-                                  RequiredError="@L["product name is required!"]">
-                    </MudTextField>
+<MudForm Model="@Model" @ref="@_form" Validation="@(Validator.ValidateValue(Model))">
+    <input For="@(() => Model.Id)" @bind-value="Model.Id" type="hidden" />
+    <input For="@(() => Model.ProfilePictureDataUrl)" @bind-value="Model.ProfilePictureDataUrl" type="hidden" />
+
+    <MudGrid Spacing="2" Class="px-3 pb-3">
+        <MudItem xs="12" md="6">
+            <MudTextField @bind-Value="TextValue" Label="Product Name" Variant="Variant.Outlined"></MudTextField>
+            <div class="mt-3">
+                <MudTextField T="string" Label="Description" Variant="Variant.Outlined" Text="@sampleText" Lines="3" />
+            </div>
+
+            <div class="mt-3">
+                <MudTextField @bind-Value="TextValue" Label="Description" Variant="Variant.Outlined"></MudTextField>
+            </div>
+            <div class="mt-3">
+                <MudTextField @bind-Value="TextValue" Label="Brand Name" Variant="Variant.Outlined"></MudTextField>
+            </div>
+            <MudGrid Class="pt-3">
+                <MudItem xs="12" md="6">
+                    <MudTextField @bind-Value="TextValue" Label="SKU" Variant="Variant.Outlined"></MudTextField>
                 </MudItem>
-                <MudItem xs="12">
-                    <MudTextField Label="@L["Description"]"
-                                  Lines="3"
-                                  For="@(() => Model.Description)"
-                                  @bind-Value="Model.Description">
-                    </MudTextField>
+                <MudItem xs="12" md="6">
+                    <MudTextField @bind-Value="TextValue" Label="Stock Quantity" Variant="Variant.Outlined"></MudTextField>
                 </MudItem>
-                <MudItem xs="12" sm="4">
-                    <PicklistAutocomplete Picklist="Picklist.Brand"
-                                          Label="@L["Brand Name"]"
-                                          For="@(() => Model.Brand)"
-                                          ResetValueOnEmptyText="true"
-                                          ShowProgressIndicator="true"
-                                          @bind-Value="Model.Brand">
-                        <ProgressIndicatorTemplate>
-                            <MudProgressLinear Size="MudBlazor.Size.Small" Indeterminate="true"/>
-                        </ProgressIndicatorTemplate>
-                    </PicklistAutocomplete>
+                <MudItem xs="12" md="6" Class="pt-3">
+                    <MudTextField @bind-Value="TextValue" Label="Cost Price" Variant="Variant.Outlined"></MudTextField>
                 </MudItem>
-                <MudItem xs="12" sm="4">
-                    <MudNumericField Label="@L["Price"]"
-                                     T="decimal"
-                                     Format="N2"
-                                     For="@(() => Model.Price)"
-                                     Min="0.00m"
-                                     @bind-Value="Model.Price">
-                    </MudNumericField>
-                </MudItem>
-                <MudItem xs="12" sm="4">
-                    <PicklistAutocomplete Picklist="Picklist.Unit"
-                                          Label="@L["Unit"]"
-                                          For="@(() => Model.Unit)"
-                                          ResetValueOnEmptyText="true"
-                                          ShowProgressIndicator="true"
-                                          @bind-Value="Model.Unit">
-                        <ProgressIndicatorTemplate>
-                            <MudProgressLinear Size="MudBlazor.Size.Small" Indeterminate="true"/>
-                        </ProgressIndicatorTemplate>
-                    </PicklistAutocomplete>
-                </MudItem>
-                <MudItem>
-                    <div class="d-flex flex-row gap-4 mb-2">
-                        <MudFileUpload T="IReadOnlyList<IBrowserFile>"
-                                       SuppressOnChangeWhenInvalid="true"
-                                       @bind-Files="Model.UploadPictures" OnFilesChanged="UploadFiles" For="@(() => Model.UploadPictures)">
-                            <ActivatorContent>
-                                <MudLoadingButton Loading="@_uploading"   Disabled="_uploading"
-                                                  Variant="Variant.Filled"
-                                                  Color="Color.Primary"
-                                                  >
-                                    @(L["Upload picture"])
-                                </MudLoadingButton>
-                            </ActivatorContent>
-                        </MudFileUpload>
-                    </div>
-                    <MudText Typo="Typo.body2">@L["The recommended size for uploading images is 640X320"]</MudText>
-                    <div class="d-fex">
-                        @if (Model.Pictures is not null)
-                        {
-                            foreach (var img in Model.Pictures)
-                            {
-                                <div style="float:left; position: relative; width: 160px; height: 80px; margin: 10px;">
-                                    <MudTooltip Delay="500" Text="@img.Name">
-                                        <MudImage ObjectFit="ObjectFit.Cover" Height="80" Width="160" Src="@img.Url" Alt="@img.Name" Elevation="25" Class="mr-2 rounded-lg"/>
-                                    </MudTooltip>
-                                    <div style="position: absolute;top: 0px;left: 0px; z-index: 2990;">
-                                        <MudIconButton OnClick="@(() => PreviewImage(img.Url, Model.Pictures))" Icon="@Icons.Material.Filled.Image" aria-label="preview" Color="Color.Info" Size="MudBlazor.Size.Small"></MudIconButton>
-                                    </div>
-                                    <div style="position: absolute;top: 0px;right: 0px; z-index: 2990;">
-                                        <MudIconButton OnClick="@(() => DeleteImage(img))" Icon="@Icons.Material.Filled.Delete" aria-label="delete" Color="Color.Error" Size="MudBlazor.Size.Small"></MudIconButton>
-                                    </div>
-                                </div>
-                            }
-                        }
-                    </div>
+                <MudItem xs="12" md="6" Class="pt-3">
+                    <MudTextField @bind-Value="TextValue" Label="Sale Price" Variant="Variant.Outlined"></MudTextField>
                 </MudItem>
             </MudGrid>
-        </MudForm>
- 
-    </DialogContent>
-    <DialogActions>
-        <MudButton OnClick="Cancel">@ConstantString.Cancel</MudButton>
-        <MudLoadingButton Loading="@_saveingnew" OnClick="SaveAndNew">@ConstantString.SaveAndNew</MudLoadingButton>
-        <MudLoadingButton Loading="@_saving" OnClick="Submit">@ConstantString.Save</MudLoadingButton>
-    </DialogActions>
-</MudDialog>
+            <div class="mt-2">
+                <MudChipField WrapChips=true T="string" FullWidth="true"
+                              Label="ChipField" />
+            </div>
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudStack Style="width: 100%">
+                <MudFileUpload T="IReadOnlyList<IBrowserFile>"
+                               @ref="@_fileUpload"
+                               OnFilesChanged="OnInputFileChanged"
+                               AppendMultipleFiles
+                               Hidden="@false"
+                               InputClass="absolute mud-width-full mud-height-full overflow-hidden z-10"
+                               InputStyle="opacity:0"
+                               tabindex="-1"
+                               @ondrop="@ClearDragClass"
+                               @ondragenter="@SetDragClass"
+                               @ondragleave="@ClearDragClass"
+                               @ondragend="@ClearDragClass">
+                    <ActivatorContent>
+                        <MudPaper Height="200px"
+                                  Outlined="true"
+                                  Class="@_dragClass"
+                                  Style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                            <span>
+                                @((MarkupString)CustomIcons.ImageDrop)
+                            </span>
+                            <MudText Class="fs-16 mt-3 text-gray">Drop your image here  or browser jpeg,png are allowed</MudText>
+                        </MudPaper>
+                    </ActivatorContent>
+                </MudFileUpload>
+
+            </MudStack>
+
+            <div>
+                <MudText Typo="Typo.h6" Class="my-3">Product Gallery</MudText>
+                <MudStack Style="width: 100%">
+                    <MudFileUpload T="IReadOnlyList<IBrowserFile>"
+                                   @ref="@_fileUpload"
+                                   OnFilesChanged="OnInputFileChanged"
+                                   AppendMultipleFiles
+                                   Hidden="@false"
+                                   InputClass="absolute mud-width-full mud-height-full overflow-hidden z-10"
+                                   InputStyle="opacity:0"
+                                   tabindex="-1"
+                                   @ondrop="@ClearDragClass"
+                                   @ondragenter="@SetDragClass"
+                                   @ondragleave="@ClearDragClass"
+                                   @ondragend="@ClearDragClass">
+                        <ActivatorContent>
+                            <MudPaper Height="150px"
+                                      Outlined="true"
+                                      Class="@_dragClass"
+                                      Style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                                <span>
+                                    @((MarkupString)CustomIcons.ImageDrop)
+                                </span>
+                                <MudText Class="fs-16 mt-3 text-gray">Drop your image here  or browser jpeg,png are allowed</MudText>
+                            </MudPaper>
+                        </ActivatorContent>
+                    </MudFileUpload>
+
+                </MudStack>
+            </div>
+
+        </MudItem>
+    </MudGrid>
+</MudForm>
 
 @code {
-    [CascadingParameter] private MudDialogInstance MudDialog { get; set; } = default!;
 
-    [EditorRequired] [Parameter] public AddEditProductCommand Model { get; set; } = default!;
+#nullable enable
+    private const string DefaultDragClass = "relative rounded-lg border-2 border-dashed pa-4 mt-1 mud-width-full mud-height-full";
+    private string _dragClass = DefaultDragClass;
+    private readonly List<string> _fileNames = new();
+    private MudFileUpload<IReadOnlyList<IBrowserFile>>? _fileUpload;
 
-    [Parameter] public Action? Refresh { get; set; }
-
-    private MudForm? _form;
-    private bool _saving;
-    private bool _saveingnew;
-    private bool _uploading;
-    
-    private const long MaxAllowedSize = 3145728;
-
-    private async Task DeleteImage(ProductImage picture)
+    private async Task ClearAsync()
     {
-        if (Model.Pictures != null)
-        {
-            var parameters = new DialogParameters<ConfirmationDialog>
-            {
-                { x => x.ContentText, $"{L["Are you sure you want to erase this image?"]}" }
-            };
-            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true};
-            var dialog = DialogService.Show<ConfirmationDialog>($"{L["Erase imatge"]}", parameters, options);
-            var state = await dialog.Result;
+        await (_fileUpload?.ClearAsync() ?? Task.CompletedTask);
+        _fileNames.Clear();
+        ClearDragClass();
+    }
 
-            if (state is not null && !state.Canceled)
-            {
-                Model.Pictures.Remove(picture);
-            }
+    private Task OpenFilePickerAsync()
+        => _fileUpload?.OpenFilePickerAsync() ?? Task.CompletedTask;
+
+    private void OnInputFileChanged(InputFileChangeEventArgs e)
+    {
+        ClearDragClass();
+        var files = e.GetMultipleFiles();
+        foreach (var file in files)
+        {
+            _fileNames.Add(file.Name);
         }
     }
 
-    private async Task PreviewImage(string url, IEnumerable<ProductImage> images)
+    private void Upload()
     {
-        await new Fancybox(JS).Preview(url, images);
+        // Upload the files here
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
+        Snackbar.Add("TODO: Upload your files!");
     }
 
-    private async Task UploadFiles(InputFileChangeEventArgs e)
+    private void SetDragClass()
+        => _dragClass = $"{DefaultDragClass} mud-border-primary";
+
+    private void ClearDragClass()
+        => _dragClass = DefaultDragClass;
+
+
+    string _delimiter = " ";
+    string? _value;
+    List<string>? _values;
+    int _maxChips = 0;
+    int _chipsMaxWidth = 80;
+    Color _color = Color.Default;
+    Variant _chipVariant = Variant.Filled;
+    Variant _variant = Variant.Outlined;
+    bool _wrapChips;
+    bool _disabled;
+    bool _readonly;
+    bool _disableRadius;
+    bool _closeable = true;
+    bool _allowSameValues = false;
+
+    public string TextValue { get; set; }
+    string sampleText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
+    public class CheckItem
     {
-        try
-        {
-            _uploading = true;
-            var list = new List<ProductImage>();
-            foreach (var file in e.GetMultipleFiles())
-            {
-                try
-                {
-                    var filestream = file.OpenReadStream(GlobalVariable.MaxAllowedSize);
-                    var imgStream = new MemoryStream();
-                    await filestream.CopyToAsync(imgStream);
-                    imgStream.Position = 0;
-                    using (var outStream = new MemoryStream())
-                    {
-                        using (var image = Image.Load(imgStream))
-                        {
-                            image.Mutate(
-                                i => i.Resize(new ResizeOptions { Mode = ResizeMode.Crop, Size = new Size(640, 320) }));
-                            image.Save(outStream, PngFormat.Instance);
-                            var filename = file.Name;
-                            var fi = new FileInfo(filename);
-                            var ext = fi.Extension;
-                            var result = await UploadService.UploadAsync(new UploadRequest(Guid.NewGuid() + ext, UploadType.Product, outStream.ToArray()));
-                            list.Add(new ProductImage { Name = filename, Size = outStream.Length, Url = result });
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Snackbar.Add($"{ex.Message}", Severity.Error);
-                }
-            }
-
-            Snackbar.Add(L["Upload pictures successfully"], Severity.Info);
-
-            if (Model.Pictures is null)
-                Model.Pictures = list;
-            else
-                Model.Pictures.AddRange(list);
-        }
-        finally
-        {
-            _uploading = false;
-        }
+        public string Key { get; set; } = string.Empty;
+        public bool Value { get; set; }
     }
+    private RoleManager<ApplicationRole> RoleManager = null!;
+    [EditorRequired][Parameter] public ApplicationUserDto Model { get; set; } = default!;
 
-    private async Task Submit()
+    [EditorRequired][Parameter] public EventCallback<ApplicationUserDto> OnFormSubmit { get; set; }
+
+
+    private MudForm? _form = default!;
+    private List<CheckItem> Roles { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
     {
-        try
+        RoleManager = ScopedServices.GetRequiredService<RoleManager<ApplicationRole>>();
+        await GetRoles(Model.TenantId);
+    }
+    private async Task GetRoles(string? tenantId)
+    {
+        Roles = new();
+        var array = await RoleManager.Roles.Where(x => x.TenantId == Model.TenantId).Select(x => x.Name).ToListAsync();
+        foreach (var role in array)
         {
-            _saving = true;
-            await _form!.Validate().ConfigureAwait(false);
-
-            if (!_form!.IsValid)
-                return;
-
-            var result = await Mediator.Send(Model);
-
-            if (result.Succeeded)
+            if (Model.AssignedRoles != null && Model.AssignedRoles.Contains(role))
             {
-                MudDialog.Close(DialogResult.Ok(true));
-                Snackbar.Add(ConstantString.SaveSuccess, Severity.Info);
+                Roles.Add(new CheckItem { Key = role!, Value = true });
             }
             else
             {
-                Snackbar.Add(result.ErrorMessage, Severity.Error);
+                Roles.Add(new CheckItem { Key = role!, Value = false });
             }
         }
-        finally
+    }
+    private async Task OnTenantIdChanged(string tenantId)
+    {
+        Model.TenantId = tenantId;
+        await GetRoles(Model.TenantId);
+    }
+    private async Task UploadPhoto(IBrowserFile file)
+    {
+        var filestream = file.OpenReadStream(GlobalVariable.MaxAllowedSize);
+        var imgStream = new MemoryStream();
+        await filestream.CopyToAsync(imgStream);
+        imgStream.Position = 0;
+        using (var outStream = new MemoryStream())
         {
-            _saving = false;
+            using (var image = Image.Load(imgStream))
+            {
+                image.Mutate(
+                    i => i.Resize(new ResizeOptions { Mode = ResizeMode.Crop, Size = new Size(128, 128) }));
+                image.Save(outStream, PngFormat.Instance);
+                var filename = file.Name;
+                var fi = new FileInfo(filename);
+                var ext = fi.Extension;
+                var result = await UploadService.UploadAsync(new UploadRequest(Guid.NewGuid() + ext, UploadType.ProfilePicture, outStream.ToArray()));
+                Model.ProfilePictureDataUrl = result;
+                //Do your validations here
+                Snackbar.Add(ConstantString.UploadSuccess, Severity.Info);
+            }
         }
     }
 
-    private async Task SaveAndNew()
+    public async Task Submit()
     {
-        try
+        if (_form is not null)
         {
-            _saveingnew = true;
-            await _form!.Validate().ConfigureAwait(false);
-            if (!_form!.IsValid)
-                return;
-            var result = await Mediator.Send(Model);
-            if (result.Succeeded)
+            await _form.Validate();
+            if (_form.IsValid)
             {
-                Snackbar.Add(ConstantString.SaveSuccess, Severity.Info);
-                Refresh?.Invoke();
-                Model = new AddEditProductCommand();
+                Model.AssignedRoles = Roles.Where(x => x.Value).Select(x => x.Key).ToArray();
+                await OnFormSubmit.InvokeAsync(Model);
             }
-            else
-            {
-                Snackbar.Add(result.ErrorMessage, Severity.Error);
-            }
-        }
-        finally
-        {
-            _saveingnew = false;
         }
     }
 
-    private void Cancel()
-    {
-        MudDialog.Cancel();
-    }
-    
 }
+<style>
+    .fs-16 {
+        font-size: 16px !important
+    }
+
+
+    .text-gray {
+        color: #70706E !important;
+    }
+
+</style>
