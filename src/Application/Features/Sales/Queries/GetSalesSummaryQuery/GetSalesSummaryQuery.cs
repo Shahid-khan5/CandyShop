@@ -42,27 +42,28 @@ public class GetSalesSummaryQueryHandler : IRequestHandler<GetSalesSummaryQuery,
     public async Task<List<SaleSummaryDto>> Handle(GetSalesSummaryQuery request, CancellationToken cancellationToken)
     {
         var specification = new CampaignSummarySpecification(request);
-        var query =await _context.Campaigns
+        var query = await _context.Campaigns
             .WithSpecification(specification)
             .AsNoTracking()
             .ToListAsync();
 
-        return  FetchSalesData(query, cancellationToken);
+        return FetchSalesData(query, cancellationToken);
     }
 
     private List<SaleSummaryDto> FetchSalesData(List<Campaign> query, CancellationToken cancellationToken)
     {
 
-        return  query
+        return query
             .Select(s => new SaleSummaryDto
             {
-                CampaignId=s.Id,
+                CampaignId = s.Id,
                 ClassName = s.Name,
-                NumberOfOrders=s.Sales.Count,
+                AdminName = s.CampaignUsers.FirstOrDefault()?.User?.UserName ?? "",
+                NumberOfOrders = s.Sales.Count,
                 TotalAmount = s.Sales.Sum(s => s.TotalAmount),
-                TotalCommission =s.Sales.Sum(s=> s.SaleItems.Sum(si => si.TotalPrice - (si.Product.CostPrice * si.Quantity))),
-                TotalCandiesSold= s.Sales.Sum(s => s.SaleItems.Sum(si => si.Quantity)),
-                TotalCustomers= s.Sales.Select(s => s.CustomerEmail).Distinct().Count()
+                TotalCommission = s.Sales.Sum(s => s.SaleItems.Sum(si => si.TotalPrice - (si.Product.CostPrice * si.Quantity))),
+                TotalCandiesSold = s.Sales.Sum(s => s.SaleItems.Sum(si => si.Quantity)),
+                TotalCustomers = s.Sales.Select(s => s.CustomerEmail).Distinct().Count()
             })
             .ToList();
     }
@@ -70,10 +71,10 @@ public class GetSalesSummaryQueryHandler : IRequestHandler<GetSalesSummaryQuery,
     private List<SaleSummaryDto> AggregateSalesData(List<SaleData> salesData)
     {
         return salesData
-            .GroupBy(s => new { s.CampaignId,  s.CampaignName, s.UserName })
+            .GroupBy(s => new { s.CampaignId, s.CampaignName, s.UserName })
             .Select(g => new SaleSummaryDto
             {
-                CampaignId=g.Key.CampaignId,
+                CampaignId = g.Key.CampaignId,
                 ClassName = g.Key.CampaignName,
                 AdminName = g.Key.UserName,
                 TotalCandiesSold = g.Sum(s => s.SaleItems.Sum(si => si.Quantity)),
