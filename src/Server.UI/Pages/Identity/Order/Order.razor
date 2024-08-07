@@ -56,7 +56,7 @@
     </ToolBarContent>
     <Columns>
         <SelectColumn ShowInFooter="false"></SelectColumn>
-        <TemplateColumn CellStyle="width:60px" Title="@ConstantString.Actions" Sortable="false">
+        <TemplateColumn CellStyle="width:60px" Title="Product" Sortable="false">
             <CellTemplate>
                 @if (_canEdit || _canDelete || _canManageRoles || _canRestPassword || _canActive || _canManagePermissions)
                 {
@@ -102,7 +102,7 @@
                 }
             </CellTemplate>
         </TemplateColumn>
-        <PropertyColumn Property="x => x.TenantId" HeaderStyle="width:260px" Title="@L[_currentDto.GetMemberDescription(x => x.TenantName)]">
+        <PropertyColumn Property="x => x.TenantId" HeaderStyle="width:260px" Title="Order ID">
             <CellTemplate>
                 <div>
                     <MudText Typo="Typo.body2">@context.Item.TenantName</MudText>
@@ -113,7 +113,7 @@
                 @L["Selected"]: @_selectedItems.Count
             </FooterTemplate>
         </PropertyColumn>
-        <PropertyColumn Property="x => x.UserName" Title="@L[_currentDto.GetMemberDescription(x => x.UserName)]">
+        <PropertyColumn Property="x => x.UserName" Title="Date">
             <CellTemplate>
                 <div class="d-flex align-items-center">
                     <MudBadge Color="@(IsOnline(context.Item.DisplayName??context.Item.UserName) ? Color.Success : Color.Error)" Overlap="false" Dot="true" Bordered="true">
@@ -135,7 +135,7 @@
                 </div>
             </CellTemplate>
         </PropertyColumn>
-        <PropertyColumn Property="x => x.Email" Title="@L["Display Name / PhoneNumber"]">
+        <PropertyColumn Property="x => x.Email" Title="Customer Name">
             <CellTemplate>
                 <div class="d-flex flex-column">
                     <MudText Typo="Typo.body2">@context.Item.DisplayName</MudText>
@@ -143,52 +143,12 @@
                 </div>
             </CellTemplate>
         </PropertyColumn>
-        <PropertyColumn Property="x => x.SuperiorId" Title="@L[_currentDto.GetMemberDescription(x => x.SuperiorName)]">
+        <PropertyColumn Property="x => x.SuperiorId" Title="Status">
             <CellTemplate>
                 @context.Item.SuperiorName
             </CellTemplate>
         </PropertyColumn>
-        <PropertyColumn Property="x => x.Provider" Title="@L[_currentDto.GetMemberDescription(x => x.Provider)]" />
-
-        <PropertyColumn Sortable="false" Property="x => x.AssignedRoles" Title="@L[_currentDto.GetMemberDescription(x => x.AssignedRoles)]">
-            <CellTemplate>
-                @if (context.Item.AssignedRoles is not null)
-                {
-                    foreach (var str in context.Item.AssignedRoles)
-                    {
-                        <MudChip Size="Size.Small" Variant="Variant.Text">@str</MudChip>
-                    }
-                }
-            </CellTemplate>
-        </PropertyColumn>
-        <PropertyColumn Property="x => x.IsActive" Title="@L[_currentDto.GetMemberDescription(x => x.IsActive)]">
-            <CellTemplate>
-                <div>
-                    @if (context.Item.IsActive)
-                    {
-                        <MudChip Color="Color.Success" Size="Size.Small" Icon="@Icons.Material.Filled.CheckCircleOutline">@L["Active"]</MudChip>
-                        @if (context.Item.LockoutEnd is not null)
-                        {
-                            <div class="d-flex">
-                                <p>@L["Lockout End"]: </p>
-                                <ToLocal DateTime="@context.Item.LockoutEnd.Value.UtcDateTime.ToLocalTime()" Format="dd/mm/yyyy HH:MM:ss"></ToLocal>
-                            </div>
-                        }
-                    }
-                    else
-                    {
-                        <MudChip Class="flex-grow-0" Color="Color.Surface" Size="Size.Small" Icon="@Icons.Material.Filled.HighlightOff">@L["Inactive"]</MudChip>
-                        @if (context.Item.LockoutEnd is not null)
-                        {
-                            <div class="d-flex">
-                                <p>@L["Lockout End"]: </p>
-                                <ToLocal DateTime="@context.Item.LockoutEnd.Value.UtcDateTime.ToLocalTime()" Format="dd/mm/yyyy HH:MM:ss"></ToLocal>
-                            </div>
-                        }
-                    }
-                </div>
-            </CellTemplate>
-        </PropertyColumn>
+        <PropertyColumn Property="x => x.Provider" Title="Amount" />
 
     </Columns>
 

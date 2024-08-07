@@ -71,29 +71,6 @@
                                 @ConstantString.Export
                             </MudLoadingButton>
                         }
-                        @if (_canImport)
-                        {
-                            <MudFileUpload T="IBrowserFile" FilesChanged="OnImportData" Accept=".xlsx" Style="margin-top:0px">
-                                <ActivatorContent>
-                                    <MudButton HtmlTag="label"
-                                               Size="Size.Small"
-                                               Variant="Variant.Outlined"
-                                               Color="Color.Primary"
-                                               Disabled="@_loading"
-                                               StartIcon="@Icons.Material.Filled.Upload">
-                                        @if (_uploading)
-                                        {
-                                            <MudProgressCircular Size="Size.Small" Indeterminate="true" />
-                                            @ConstantString.Uploading
-                                        }
-                                        else
-                                        {
-                                            @ConstantString.Import
-                                        }
-                                    </MudButton>
-                                </ActivatorContent>
-                            </MudFileUpload>
-                        }
                     </MudHidden>
                 </div>
                 @if (_canSearch)
@@ -152,7 +129,6 @@
     private bool _canCreate;
     private bool _canEdit;
     private bool _canDelete;
-    private bool _canImport;
     private bool _canExport;
 
     protected override async Task OnInitializedAsync()
@@ -161,7 +137,6 @@
         var state = await AuthState;
         _canSearch = (await AuthService.AuthorizeAsync(state.User, Permissions.Sales.Search)).Succeeded;
         _canDelete = (await AuthService.AuthorizeAsync(state.User, Permissions.Sales.Delete)).Succeeded;
-        _canImport = (await AuthService.AuthorizeAsync(state.User, Permissions.Sales.Import)).Succeeded;
         _canExport = (await AuthService.AuthorizeAsync(state.User, Permissions.Sales.Export)).Succeeded;
     }
     private async Task<GridData<SaleDto>> ServerReload(GridState<SaleDto> state)

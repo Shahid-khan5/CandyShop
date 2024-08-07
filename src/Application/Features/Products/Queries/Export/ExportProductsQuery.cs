@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 
@@ -59,8 +59,8 @@ public class ExportProductsQueryHandler :
                     { _localizer["Brand Name"], item => item.Brand },
                     { _localizer["Product Name"], item => item.Name },
                     { _localizer["Description"], item => item.Description },
-                    { _localizer["Price of unit"], item => item.Price },
-                    { _localizer["Unit"], item => item.Unit }
+                    { _localizer["SalePrice of unit"], item => item.SalePrice },
+                    { _localizer["CostPrice of unit"], item => item.CostPrice }
                     //{ _localizer["Pictures"], item => string.Join(",",item.Pictures??new string[]{ }) },
                 };
                 result = await _pdfService.ExportAsync(data, mappers, _localizer["Products"], true);
@@ -71,9 +71,8 @@ public class ExportProductsQueryHandler :
                     { _localizer["Brand Name"], item => item.Brand },
                     { _localizer["Product Name"], item => item.Name },
                     { _localizer["Description"], item => item.Description },
-                    { _localizer["Price of unit"], item => item.Price },
-                    { _localizer["Unit"], item => item.Unit },
-                    { _localizer["Pictures"], item => _serializer.Serialize(item.Pictures) }
+                    { _localizer["SalePrice of unit"], item => item.SalePrice },
+                    { _localizer["CostPrice of unit"], item => item.CostPrice }
                 };
                 result = await _excelService.ExportAsync(data, mappers, _localizer["Products"]);
                 break;

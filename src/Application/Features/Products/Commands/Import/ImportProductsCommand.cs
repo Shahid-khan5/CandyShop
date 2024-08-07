@@ -77,16 +77,13 @@ public class ImportProductsCommandHandler :
                     _localizer["Description"],
                     (row, item) => item.Description = row[_localizer["Description"]].ToString()
                 },
-                { _localizer["Unit"], (row, item) => item.Unit = row[_localizer["Unit"]].ToString() },
                 {
-                    _localizer["Price of unit"],
-                    (row, item) => item.Price = row.FieldDecimalOrDefault(_localizer["Price of unit"])
+                    _localizer["SalePrice of unit"],
+                    (row, item) => item.SalePrice = row.FieldDecimalOrDefault(_localizer["SalePrice of unit"])
                 },
                 {
-                    _localizer["Pictures"],
-                    (row, item) => item.Pictures = string.IsNullOrEmpty(row[_localizer["Pictures"]].ToString())
-                        ? new List<ProductImage>()
-                        : _serializer.Deserialize<List<ProductImage>>(row[_localizer["Pictures"]].ToString())
+                    _localizer["CostPrice of unit"],
+                    (row, item) => item.CostPrice = row.FieldDecimalOrDefault(_localizer["CostPrice of unit"])
                 }
             }, _localizer["Products"]);
         if (!result.Succeeded) return await Result<int>.FailureAsync(result.Errors);
