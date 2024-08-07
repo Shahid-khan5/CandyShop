@@ -68,6 +68,8 @@ public class CampaignSummarySpecification : Specification<Campaign>
         }
         Query.Include(s => s.Sales)
              .ThenInclude(s => s.SaleItems)
-             .ThenInclude(s => s.Product);
+             .ThenInclude(s => s.Product)
+             .Include(x => x.CampaignUsers)
+             .ThenInclude(x => x.User);
     }
 }

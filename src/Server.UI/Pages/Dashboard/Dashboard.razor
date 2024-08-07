@@ -12,37 +12,8 @@
         <MudItem xs="12" md="7">
             <MudPaper Class="pa-4">
                 <span class="fw-700 fs-16">Live Sales Tracker</span>
-                @*  <MudChart ChartType="ChartType.Bar" ChartSeries="@Series" XAxisLabels="@XAxisLabels" Width="100%" Height="100%">
-                </MudChart> *@
-                <MudSwitch T="bool" @bind-Checked="@showAllCampaigns" Color="Color.Primary" Label="Show All Campaigns" @onclick="@(() => StateHasChanged())" />
-
-                <MudChart ChartType="ChartType.Bar" ChartSeries="@Series" XAxisLabels="@XAxisLabels" Width="100%" Height="500px">
-                    <CustomGraphics>
-                        @foreach (var (label, index) in XAxisLabels.Select((l, i) => (l, i)))
-                        {
-                            <g transform="translate(@((index + 0.5) * (100.0 / XAxisLabels.Length))%, 100%) rotate(-45)">
-                                <text text-anchor="end" dy="-0.5em">
-                                    @((MarkupString)label)
-                                </text>
-                            </g>
-                        }
-                    </CustomGraphics>
+                <MudChart ChartType="ChartType.Bar" ChartSeries="@Series" XAxisLabels="@XAxisLabels" Width="100%" Height="100%">
                 </MudChart>
-                <MudTable Items="@campaignRevenue" Hover="true" Breakpoint="Breakpoint.Sm" LoadingProgressColor="Color.Info" Pagination="true" RowsPerPage="10">
-                    <HeaderContent>
-                        <MudTh>Campaign Name</MudTh>
-                        <MudTh>Total Revenue</MudTh>
-                        <MudTh>Total Commission</MudTh>
-                    </HeaderContent>
-                    <RowTemplate>
-                        <MudTd DataLabel="Campaign Name">@context.CampaignName</MudTd>
-                        <MudTd DataLabel="Total Revenue">@context.TotalRevenue.ToString("C")</MudTd>
-                        <MudTd DataLabel="Total Commission">@context.TotalCommission.ToString("C")</MudTd>
-                    </RowTemplate>
-                    <PagerContent>
-                        <MudTablePager />
-                    </PagerContent>
-                </MudTable>
             </MudPaper>
             <MudPaper class="mt-5 pa-10">
                 <DashboardTotals></DashboardTotals>
@@ -320,11 +291,9 @@
 @code
 {
     private readonly bool IsMobile = false;
-    public List<ChartSeries> Series { get; set; } = new();
-    public string[] XAxisLabels { get; set; } = Array.Empty<string>();
+    // public List<ChartSeries> Series { get; set; } = new();
+    // public string[] XAxisLabels { get; set; } = Array.Empty<string>();
     private List<CampaignRevenueDto> campaignRevenue = new();
-    private List<CampaignRevenueDto> ChartData = new();
-    private bool showAllCampaigns = false;
     public string Title { get; set; } = "Dashboard";
 
     protected string ContentClassNames => new CssBuilder("flex-grow-1 flex-shrink-1")
@@ -335,41 +304,39 @@
     protected override async Task OnInitializedAsync()
     {
         Title = L["Dashboard"];
-        await LoadDataAsync();
-        // var query = new GetCampaignRevenueQuery
-        //     {
-        //         StartDate = DateTime.Now.AddMonths(-6),
-        //         EndDate = DateTime.Now
-        //     };
-        // campaignRevenue = await Mediator.Send(query);
+        // await LoadDataAsync();
     }
 
-    private async Task LoadDataAsync()
-    {
-        var query = new GetCampaignRevenueQuery
-            {
-                StartDate = DateTime.Now.AddYears(-1),
-                EndDate = DateTime.Now
-            };
-        campaignRevenue = await Mediator.Send(query);
-        ChartData = showAllCampaigns ? campaignRevenue : campaignRevenue.Take(10).ToList();
-
-        Series = new List<ChartSeries>
-        {
-             new ChartSeries { Name = "Revenue", Data = ChartData.Select(c => (double)c.TotalRevenue).ToArray() },
-        new ChartSeries { Name = "Commission", Data = ChartData.Select(c => (double)c.TotalCommission).ToArray() }
-        };
-
-        XAxisLabels = ChartData.Select(r => $"Class\n<b>{r.CampaignName}</b>").ToArray();
-    }
-
-    // public List<ChartSeries> Series = new List<ChartSeries>()
+    // private async Task LoadDataAsync()
     // {
-    //     new ChartSeries() { Name = "United States", Data = new double[] { 40, 20, 25, 27, 46, 60, 48, 80, 15 } },
-    //     new ChartSeries() { Name = "Germany", Data = new double[] { 19, 24, 35, 13, 28, 15, 13, 16, 31 } },
-    //     new ChartSeries() { Name = "Sweden", Data = new double[] { 8, 6, 11, 13, 4, 16, 10, 16, 18 } },
-    // };
-    // public string[] XAxisLabels = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep" };
+    //     var query = new GetCampaignRevenueQuery
+    //         {
+    //             StartDate = DateTime.Now.AddYears(-1),
+    //             EndDate = DateTime.Now
+    //         };
+    //     campaignRevenue = await Mediator.Send(query);
+    //     var limitedCampaignRevenue = campaignRevenue
+    //     .OrderByDescending(c => c.TotalRevenue)
+    //     .Take(10)
+    //     .ToList();
+
+    //     Series = new List<ChartSeries>
+    //     {
+    //     new ChartSeries { Name = "Revenue", Data = limitedCampaignRevenue.Select(c => (double)c.TotalRevenue).ToArray() },
+    //     new ChartSeries { Name = "Commission", Data = limitedCampaignRevenue.Select(c => (double)c.TotalCommission).ToArray() }
+    //     };
+
+    //     XAxisLabels = limitedCampaignRevenue.Select(r => r.CampaignName).ToArray();
+    // }
+
+    public List<ChartSeries> Series = new List<ChartSeries>()
+    {
+        new ChartSeries() { Name = "United States", Data = new double[] { 40, 20, 25, 27, 46, 60, 48, 80, 15 } },
+        new ChartSeries() { Name = "Germany", Data = new double[] { 19, 24, 35, 13, 28, 15, 13, 16, 31 } },
+        new ChartSeries() { Name = "Sweden", Data = new double[] { 8, 6, 11, 13, 4, 16, 10, 16, 18 } },
+    };
+    public string[] XAxisLabels = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep" };
+
 }
 
 <style>
@@ -380,7 +347,7 @@
     }
 
     .mud-chart g text {
-        font-size: 10px; /* Slightly smaller font for rotated labels */
+        font-size: 10px;
     }
 
     .custom-color-yellow {

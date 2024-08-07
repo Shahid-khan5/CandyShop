@@ -23,32 +23,6 @@ public class GetCampaignRevenueQueryHandler : IRequestHandler<GetCampaignRevenue
 
     public async Task<List<CampaignRevenueDto>> Handle(GetCampaignRevenueQuery request, CancellationToken cancellationToken)
     {
-        //var salesData = await _context.Sales
-        //   .Where(s => (!request.StartDate.HasValue || s.SaleDate >= request.StartDate) &&
-        //               (!request.EndDate.HasValue || s.SaleDate <= request.EndDate))
-        //   .Select(s => new
-        //   {
-        //       s.CampaignId,
-        //       s.Campaign.Name,
-        //       Revenue = s.TotalAmount,
-        //       Commission = s.SaleItems.Sum(si => si.TotalPrice - (si.Product.CostPrice * si.Quantity))
-        //   })
-        //   .ToListAsync(cancellationToken);
-
-        //// Then, group by campaign
-        //var result = salesData
-        //    .GroupBy(s => new { s.CampaignId, s.Name })
-        //    .Select(g => new CampaignRevenueDto
-        //    {
-        //        CampaignId = g.Key.CampaignId,
-        //        CampaignName = g.Key.Name,
-        //        TotalRevenue = g.Sum(s => s.Revenue),
-        //        TotalCommission = g.Sum(s => s.Commission)
-        //    })
-        //    .OrderByDescending(c => c.TotalRevenue)
-        //    .ToList();
-
-        //return result;
         var result = await _context.Campaigns
            .Where(c => c.Sales.Any(s =>
                (!request.StartDate.HasValue || s.SaleDate >= request.StartDate) &&
