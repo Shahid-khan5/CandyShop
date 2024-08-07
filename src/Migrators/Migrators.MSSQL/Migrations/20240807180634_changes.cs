@@ -5,7 +5,7 @@
 namespace CleanArchitecture.Blazor.Migrators.MSSQL.Migrations
 {
     /// <inheritdoc />
-    public partial class addColInProductTbl : Migration
+    public partial class changes : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -22,18 +22,6 @@ namespace CleanArchitecture.Blazor.Migrators.MSSQL.Migrations
                 name: "Unit",
                 table: "Products",
                 newName: "PictureUrl");
-
-            migrationBuilder.RenameColumn(
-                name: "Price",
-                table: "Products",
-                newName: "SalePrice");
-
-            migrationBuilder.AddColumn<decimal>(
-                name: "CostPrice",
-                table: "Products",
-                type: "decimal(18,2)",
-                nullable: false,
-                defaultValue: 0m);
 
             migrationBuilder.AddColumn<string>(
                 name: "PictureName",
@@ -53,21 +41,12 @@ namespace CleanArchitecture.Blazor.Migrators.MSSQL.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "CostPrice",
-                table: "Products");
-
-            migrationBuilder.DropColumn(
                 name: "PictureName",
                 table: "Products");
 
             migrationBuilder.DropColumn(
                 name: "PictureSize",
                 table: "Products");
-
-            migrationBuilder.RenameColumn(
-                name: "SalePrice",
-                table: "Products",
-                newName: "Price");
 
             migrationBuilder.RenameColumn(
                 name: "PictureUrl",

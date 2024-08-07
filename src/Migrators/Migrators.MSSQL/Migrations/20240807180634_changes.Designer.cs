@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CleanArchitecture.Blazor.Migrators.MSSQL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240807164151_addColInProductTbl")]
-    partial class addColInProductTbl
+    [Migration("20240807180634_changes")]
+    partial class changes
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
