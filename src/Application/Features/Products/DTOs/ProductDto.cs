@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 namespace CleanArchitecture.Blazor.Application.Features.Products.DTOs;
@@ -12,13 +12,15 @@ public class ProductDto
 
     [Description("Description")] public string? Description { get; set; }
 
-    [Description("Unit")] public string? Unit { get; set; }
-
     [Description("Brand Name")] public string? Brand { get; set; }
 
-    [Description("Price")] public decimal Price { get; set; }
+    [Description("CostPrice")] public decimal CostPrice { get; set; }
 
-    [Description("Pictures")] public List<ProductImage>? Pictures { get; set; }
+    [Description("SalePrice")] public decimal SalePrice { get; set; }
+
+    [Description("Picture")] public string? PictureName { get; set; }
+    [Description("Size")] public decimal? PictureSize { get; set; }
+    [Description("Url")] public string? PictureUrl { get; set; }
 
     private class Mapping : Profile
     {

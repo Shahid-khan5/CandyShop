@@ -25,8 +25,7 @@ internal class AddEditProductCommandTests : TestBase
     {
         var addCommand = new AddEditProductCommand
         {
-            Name = "Test", Brand = "Brand", Price = 100m, Unit = "EA", Description = "Description",
-            Pictures = new List<ProductImage> { new() { Name = "test.jpg", Url = "test.jpg", Size = 1 } }
+            Name = "Test", Brand = "Brand", CostPrice = 100m, SalePrice = 100m, Description = "Description", PictureName = "test.jpg",PictureUrl= "test.jpg",PictureSize=1
         };
         var result = await SendAsync(addCommand);
         var find = await FindAsync<Product>(result.Data);
@@ -34,7 +33,7 @@ internal class AddEditProductCommandTests : TestBase
         find.Name.Should().Be("Test");
         find.Brand.Should().Be("Brand");
         find.SalePrice.Should().Be(100);
-        find.Unit.Should().Be("EA");
+        find.CostPrice.Should().Be(50);
     }
 
     [Test]
@@ -42,14 +41,13 @@ internal class AddEditProductCommandTests : TestBase
     {
         var addCommand = new AddEditProductCommand
         {
-            Name = "Test", Brand = "Brand", Price = 100m, Unit = "EA", Description = "Description",
-            Pictures = new List<ProductImage> { new() { Name = "test.jpg", Url = "test.jpg", Size = 1 } }
+            Name = "Test", Brand = "Brand", CostPrice = 100m, SalePrice = 100m, Description = "Description", PictureName = "test.jpg", PictureUrl = "test.jpg", PictureSize = 1
         };
         var result = await SendAsync(addCommand);
         var find = await FindAsync<Product>(result.Data);
         var editCommand = new AddEditProductCommand
         {
-            Id = find.Id, Name = "Test1", Brand = "Brand1", Price = 200m, Unit = "KG", Pictures = addCommand.Pictures,
+            Id = find.Id, Name = "Test1", Brand = "Brand1", CostPrice = 100m, SalePrice = 100m, PictureName = "test.jpg", PictureUrl = "test.jpg", PictureSize = 1,
             Description = "Description1"
         };
         await SendAsync(editCommand);
@@ -58,7 +56,7 @@ internal class AddEditProductCommandTests : TestBase
         updated.Id.Should().Be(find.Id);
         updated.Name.Should().Be("Test1");
         updated.Brand.Should().Be("Brand1");
-        updated.SalePrice.Should().Be(200);
-        updated.Unit.Should().Be("KG");
+        find.SalePrice.Should().Be(200);
+        find.CostPrice.Should().Be(100);
     }
 }

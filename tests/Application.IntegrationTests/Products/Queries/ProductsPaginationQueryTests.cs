@@ -12,11 +12,11 @@ internal class ProductsPaginationQueryTests : TestBase
     [SetUp]
     public async Task InitData()
     {
-        await AddAsync(new Product { Name = "Test1", SalePrice = 19, Brand = "Test1", Unit = "EA", Description = "Test1" });
-        await AddAsync(new Product { Name = "Test2", SalePrice = 19, Brand = "Test2", Unit = "EA", Description = "Test1" });
-        await AddAsync(new Product { Name = "Test3", SalePrice = 19, Brand = "Test3", Unit = "EA", Description = "Test1" });
-        await AddAsync(new Product { Name = "Test4", SalePrice = 19, Brand = "Test4", Unit = "EA", Description = "Test1" });
-        await AddAsync(new Product { Name = "Test5", SalePrice = 19, Brand = "Test5", Unit = "EA", Description = "Test1" });
+        await AddAsync(new Product { Name = "Test1", CostPrice = 19, SalePrice= 20, Brand = "Test1", Description = "Test1" });
+        await AddAsync(new Product { Name = "Test2", CostPrice = 19, SalePrice = 20, Brand = "Test2", Description = "Test2" });
+        await AddAsync(new Product { Name = "Test3", CostPrice = 19, SalePrice = 20, Brand = "Test3", Description = "Test3" });
+        await AddAsync(new Product { Name = "Test4", CostPrice = 19, SalePrice = 20, Brand = "Test4", Description = "Test1" });
+        await AddAsync(new Product { Name = "Test5", CostPrice = 19, SalePrice = 20, Brand = "Test5", Description = "Test5" });
     }
 
     [Test]
@@ -38,7 +38,7 @@ internal class ProductsPaginationQueryTests : TestBase
     [Test]
     public async Task ShouldNotEmptySpecificationQuery()
     {
-        var query = new ProductsWithPaginationQuery { Keyword = "1", Brand = "Test1", Unit = "EA", Name = "Test1" };
+        var query = new ProductsWithPaginationQuery { Keyword = "1", Brand = "Test1", Name = "Test1" };
         var result = await SendAsync(query);
         Assert.Equals(1, result.TotalItems);
     }
