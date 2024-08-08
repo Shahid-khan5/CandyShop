@@ -47,7 +47,6 @@ public class MailService : IMailService
     {
         try
         {
-
             return _fluentEmail
                 .To(to)
                 .Subject(subject)
