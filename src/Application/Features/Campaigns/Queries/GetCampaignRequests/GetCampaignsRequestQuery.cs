@@ -6,7 +6,7 @@ using CleanArchitecture.Blazor.Application.Features.Campaigns.Caching;
 
 namespace CleanArchitecture.Blazor.Application.Features.Campaigns.Queries.GetAll;
 
-public class GetCampaignsRequestQuery : ICacheableRequest<IEnumerable<CampaignDto>>
+public class GetCampaignsRequestQuery : IRequest<IEnumerable<CampaignDto>>
 {
    public string CacheKey => CampaignCacheKey.GetAllCacheKey;
    public MemoryCacheEntryOptions? Options => CampaignCacheKey.MemoryCacheEntryOptions;

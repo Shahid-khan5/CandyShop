@@ -8,8 +8,17 @@ public class CampaignDto
 {
     [Description("Id")]
     public int Id { get; set; }
-        [Description("Name")]
+
+
+    [Description("Email")]
+    public string Email { get; set; }
+    public string ContactNo { get; set; }
+
+
+
+    [Description("Name")]
     public string Name {get;set;} = String.Empty; 
+    public string StudentName {get;set;} = String.Empty; 
     [Description("Description")]
     public string? Description {get;set;} 
     [Description("Start Date")]

@@ -20,6 +20,10 @@ public static class DashboardCacheKey
         new MemoryCacheEntryOptions().AddExpirationToken(new CancellationChangeToken(GetOrCreateTokenSource().Token));
 
     public const string DashboardTotalsCacheKey = nameof(DashboardTotalsCacheKey);
+    public const string DashbaordCampaignRevenueCacheKey = nameof(DashbaordCampaignRevenueCacheKey);
+    public const string DashbaordStudentPerformanceCacheKey = nameof(DashbaordStudentPerformanceCacheKey);
+    public const string DashbaordGetTopSellersCacheKey = nameof(DashbaordGetTopSellersCacheKey);
+    public const string DashbaordTopProductSellersCacheKey = nameof(DashbaordTopProductSellersCacheKey);
 
     
     /// <summary>
