@@ -1,0 +1,61 @@
+﻿<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fundraising Request Update</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            max-width: 600px;
+            margin: auto;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .button {
+            display: inline-block;
+            background-color: #007bff;
+            color: #ffffff;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Update on Your Fundraising Request</h2>
+        <p>Dear @Model.UserName,</p>
+        <p>Thank you for your interest in using our platform for your school fundraising project. We appreciate the time and effort you put into submitting your request.</p>
+        <p>After careful consideration, we regret to inform you that we are unable to approve your fundraising request at this time. This decision was based on several factors and our current platform guidelines.</p>
+        <p>While we couldn't accommodate your request on this occasion, we encourage you to:</p>
+        <ul>
+            <li>Review our fundraising guidelines to ensure your project aligns with our criteria</li>
+            <li>Consider adjusting your fundraising goals or project scope</li>
+            <li>Reach out to our support team for more specific feedback on your application</li>
+        </ul>
+        <p>We value your interest in our platform and would be happy to review a revised request if you choose to submit one in the future.</p>
+        <a href="@Model.GuidelinesUrl" class="button">Review Fundraising Guidelines</a>
+        <p>If you have any questions about this decision or need further clarification, please don't hesitate to contact our support team. We're here to help and provide any additional information you might need.</p>
+        <p>Thank you for your understanding. We wish you the best in your fundraising efforts.</p>
+        <p>Best regards,</p>
+        <p>@Model.Company Support Team</p>
+    </div>
+</body>
+</html>
