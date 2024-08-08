@@ -1,4 +1,6 @@
 ﻿@page "/"
+@using CleanArchitecture.Blazor.Application.Features.Campaigns.DTOs
+@using CleanArchitecture.Blazor.Application.Features.Campaigns.Queries.GetAll
 @using CleanArchitecture.Blazor.Application.Features.Dashboard.DTOs
 @using CleanArchitecture.Blazor.Application.Features.Dashboard.Queries
 @using CleanArchitecture.Blazor.Application.Features.Dashboard.Queries.GetCampaignRevenueQuery
@@ -16,12 +18,19 @@
 <MudContainer MaxWidth="MaxWidth.Large" Class="mb-0">
     <div class="d-flex  justify-space-between pe-4 pb-1" style=" width:100% !important; padding-left:18px !important; background:#469ec5;">
         <div class="d-flex align-center">
-            <span class="text-white"> class 8 A </span>
-            <MudMenu Class="fielter" Icon="@Icons.Material.Filled.ArrowDropDown">
+            <span class="text-white"> @SelectedCampaignName </span>
+            @* <MudMenu Class="fielter" Icon="@Icons.Material.Filled.ArrowDropDown">
                 <MudMenuItem>Profile</MudMenuItem>
                 <MudMenuItem>My account</MudMenuItem>
                 <MudMenuItem>Logout</MudMenuItem>
-            </MudMenu>
+            </MudMenu> *@
+            <MudSelect Variant="Variant.Outlined" T="int?" Value="@SelectedCampaignId" ValueChanged="GetDashboardTotalsAsync" Class="fielter" AnchorOrigin="Origin.BottomCenter">
+                <MudSelectItem Value="@((int?)null)">All Classes</MudSelectItem>
+                @foreach (var campaign in Campaigns)
+                {
+                    <MudSelectItem T="int?" Value="@campaign.Id">@campaign.Name</MudSelectItem>
+                }
+            </MudSelect>
         </div>
         <div>
             <MudSelect T="double" Class="w-200 fielter " Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
@@ -366,6 +375,9 @@
     private DashboardTotalsDto? dashboardTotals = new();
     private DateTime CurrentMonth { get; set; } = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
     private int CurrentYear { get; set; } = DateTime.UtcNow.Year;
+    private IEnumerable<CampaignDto> Campaigns { get; set; } = new List<CampaignDto>();
+    private int? SelectedCampaignId { get; set; }
+    private string? SelectedCampaignName { get; set; }
 
     public string Title { get; set; } = "Dashboard";
 
@@ -381,7 +393,7 @@
         await GetStudentPerformanceAsync();
         await GetTopSellerAsync();
         await GetTopProductSellerAsync();
-        await GetGetDashboardTotalsAsync();
+        await LoadCampaigns();
     }
 
     private async Task GetCampaignRevenueAsync()
@@ -437,10 +449,18 @@
         topProductSellers = await Mediator.Send(query);
     }
 
-    private async Task GetGetDashboardTotalsAsync()
+    private async Task GetDashboardTotalsAsync(int? campaignId)
     {
         var query = new GetDashboardTotalsQuery();
+        query.CampaignId = campaignId ?? 0;
         dashboardTotals = await Mediator.Send(query);
+        SelectedCampaignName = Campaigns.Where(x => x.Id == campaignId).FirstOrDefault().Name;
+    }
+
+    private async Task LoadCampaigns()
+    {
+        var query = new GetAllCampaignsQuery();
+        Campaigns = await Mediator.Send(query);
     }
 
     // public List<ChartSeries> Series = new List<ChartSeries>()
