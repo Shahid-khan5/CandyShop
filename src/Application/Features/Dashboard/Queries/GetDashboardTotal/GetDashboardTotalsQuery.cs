@@ -1,7 +1,6 @@
-﻿
-using CleanArchitecture.Blazor.Application.Features.Dashboard.Caching;
+﻿using CleanArchitecture.Blazor.Application.Features.Dashboard.Caching;
 
-namespace CleanArchitecture.Blazor.Application.Features.Dashboard.GetDashboardTotal;
+namespace CleanArchitecture.Blazor.Application.Features.Dashboard.Queries.GetDashboardTotal;
 
 public record GetDashboardTotalsQuery : ICacheableRequest<DashboardTotalsDto>
 {
@@ -22,8 +21,8 @@ public class GetDashboardTotalsQueryHandler : IRequestHandler<GetDashboardTotals
     public async Task<DashboardTotalsDto> Handle(GetDashboardTotalsQuery request, CancellationToken cancellationToken)
     {
         var totalCampaigns = await _context.Campaigns.CountAsync(cancellationToken);
-        var totalSales = await _context.Sales.SumAsync(x=>x.TotalAmount, cancellationToken);
-        var totalStudents =( await _context.Campaigns
+        var totalSales = await _context.Sales.SumAsync(x => x.TotalAmount, cancellationToken);
+        var totalStudents = (await _context.Campaigns
             .Select(u => u.CampaignUsers.Count)
             .ToListAsync()).Sum();
         var totalCompletedOrders = await _context.Sales.CountAsync(cancellationToken);
