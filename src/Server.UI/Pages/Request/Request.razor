@@ -74,6 +74,7 @@
                 <MudStack Row="true">
                     <MudButton Size="@Size.Small" OnClick="@(()=>OnAccept(context.Item))" Variant="@Variant.Filled" Color="@Color.Tertiary" Class="me-3">Accept</MudButton>
                     <MudButton Size="@Size.Small" OnClick="@(()=>OnReject(context.Item))" Variant="@Variant.Filled" Color="@Color.Error">Reject</MudButton>
+                    <MudButton Size="@Size.Small" OnClick="@(()=>OnReject(context.Item))" Variant="@Variant.Filled" Color="@Color.Error">Delete</MudButton>
                 </MudStack>
             </CellTemplate>
         </TemplateColumn>
@@ -136,7 +137,7 @@
                 EmailConfirmed = true,
             };
 #if DEBUG == false
-       
+
         var result = await UserManager.CreateAsync(user, pwd);
         string message = "";
         if (!result.Succeeded)
@@ -159,11 +160,15 @@
 
     }
 
-    public async Task OnReject(CampaignDto campaignDto)
+    public async Task DeleteAsync()
     {
         var cmd = new DeleteCampaignCommand([campaignDto.Id]);
 
         await Mediator.Send(cmd);
+    }
+    public async Task OnReject(CampaignDto campaignDto)
+    {
+        
 
         await SendDenyEmail(
 #if DEBUG 
