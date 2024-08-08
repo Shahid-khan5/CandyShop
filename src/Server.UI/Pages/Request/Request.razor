@@ -74,7 +74,7 @@
                 <MudStack Row="true">
                     <MudButton Size="@Size.Small" OnClick="@(()=>OnAccept(context.Item))" Variant="@Variant.Filled" Color="@Color.Tertiary" Class="me-3">Accept</MudButton>
                     <MudButton Size="@Size.Small" OnClick="@(()=>OnReject(context.Item))" Variant="@Variant.Filled" Color="@Color.Error">Reject</MudButton>
-                    <MudButton Size="@Size.Small" OnClick="@(()=>OnReject(context.Item))" Variant="@Variant.Filled" Color="@Color.Error">Delete</MudButton>
+                    <MudButton Size="@Size.Small" OnClick="@(()=>DeleteAsync(context.Item))" Variant="@Variant.Filled" Color="@Color.Error">Delete</MudButton>
                 </MudStack>
             </CellTemplate>
         </TemplateColumn>
@@ -160,11 +160,12 @@
 
     }
 
-    public async Task DeleteAsync()
+    public async Task DeleteAsync(CampaignDto campaignDto)
     {
         var cmd = new DeleteCampaignCommand([campaignDto.Id]);
 
         await Mediator.Send(cmd);
+        await MudGrid!.ReloadServerData();
     }
     public async Task OnReject(CampaignDto campaignDto)
     {
@@ -177,7 +178,7 @@
             campaignDto.Email, 
      #endif       
             campaignDto.StudentName);
-        await MudGrid!.ReloadServerData();
+            await DeleteAsync(campaignDto);
     }
 
     private GetCampaignsRequestQuery Query = new();
