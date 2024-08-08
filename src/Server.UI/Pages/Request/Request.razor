@@ -1,4 +1,4 @@
-﻿@page "/identity/request"
+﻿@page "/pages/request"
 @using ActualLab.Fusion
 @using CleanArchitecture.Blazor.Server.UI.Pages.Identity.Users
 @using CleanArchitecture.Blazor.Server.UI.Pages.Products.Components
@@ -49,13 +49,12 @@
              Loading="@_loading"
              ServerData="@(ServerReload)">
     <ToolBarContent>
-        <div class="d-flex justify-space-between w-100 align-center">
+        <div class="d-flex justify-space-between  align-center w-100" >
             <MudText Typo="Typo.h6">Request</MudText>
             <MudIconButton Icon="@Icons.Material.Filled.MoreVert" />
         </div>
     </ToolBarContent>
     <Columns>
-        <SelectColumn ShowInFooter="false"></SelectColumn>
         <TemplateColumn CellStyle="width:60px" Title="Class Name" Sortable="false">
             <CellTemplate>
                 @if (_canEdit || _canDelete || _canManageRoles || _canRestPassword || _canActive || _canManagePermissions)
@@ -147,7 +146,7 @@
             <CellTemplate>
                 <MudStack Row="true">
                     <MudButton Size="@Size.Small" Variant="@Variant.Filled" Color="@Color.Tertiary" Class="me-3">Action</MudButton>
-                    <MudButton Size="@Size.Small" Variant="@Variant.Filled" Color="@Color.Primary">Request</MudButton>
+                    <MudButton Size="@Size.Small" Variant="@Variant.Filled" Color="@Color.Error">Request</MudButton>
                 </MudStack>
             </CellTemplate>
         </PropertyColumn>
@@ -862,6 +861,20 @@
             padding-bottom: 0 !important;
             margin-bottom: 0 !important;
         }
+
     }
 
+    .mud-container-maxwidth-xl{
+        max-width:100% !important;
+    }
+    .w-100{
+        width:100% !important;
+    }
+    .mud-button-filled.mud-button-filled-error{
+        background:#d92020 !important;
+    }
+
+    .mud-button-filled.mud-button-filled-tertiary{
+        background:#8ddd86 !important;
+    }
 </style>
