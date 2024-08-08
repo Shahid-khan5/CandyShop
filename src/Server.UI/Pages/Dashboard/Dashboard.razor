@@ -7,13 +7,73 @@
 @using CleanArchitecture.Blazor.Application.Features.Dashboard.Queries.GetTopSellersQuery
 @using CleanArchitecture.Blazor.Server.UI.Pages.Dashboard.Components
 @using MudBlazor.Utilities
+@using RRSTEK.Server.UI.Components
 @inject IStringLocalizer<Dashboard> L
 @inject IMediator Mediator
 <PageTitle>@Title</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="mb-0">
-    <MudGrid>
-        <MudItem xs="12" md="7">
+    <div class="d-flex  justify-space-between pe-4 pb-1" style=" width:100% !important; padding-left:18px !important; background:#469ec5;">
+        <div class="d-flex align-center">
+            <span class="text-white"> class 8 A </span>
+            <MudMenu Class="fielter" Icon="@Icons.Material.Filled.ArrowDropDown">
+                <MudMenuItem>Profile</MudMenuItem>
+                <MudMenuItem>My account</MudMenuItem>
+                <MudMenuItem>Logout</MudMenuItem>
+            </MudMenu>
+        </div>
+        <div>
+            <MudSelect T="double" Class="w-200 fielter " Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+                <MudSelectItem T="double" Value="4.50" />
+                <MudSelectItem T="double" Value="4.99" />
+                <MudSelectItem T="double" Value="3.60" />
+            </MudSelect>
+        </div>
+    </div>
+    <MudGrid Class="pa-4">
+  <MudItem xs="12" md="4">
+            <MudPaper>
+              <MudCardHeader>
+                  Total Sales
+              </MudCardHeader>
+              <MudCardContent Class="d-flex pt-0 justify-space-between">
+                    <div>
+                        <MudText Typo="Typo.h3" Class="mb-2">401.K </MudText>
+                      <span class="text-gray">We have solid 123 items</span>
+                  </div>
+                    @((MarkupString)CustomIcons.FCProgressBar)
+              </MudCardContent>
+            </MudPaper>
+  </MudItem>
+        <MudItem xs="12" md="4">
+            <MudPaper>
+                <MudCardHeader>
+                    Total commission
+                </MudCardHeader>
+                <MudCardContent Class="d-flex pt-0 justify-space-between">
+                    <div>
+                        <MudText Typo="Typo.h3" Class="mb-2">$8.2k </MudText>
+                        <span class="text-gray">Available to payout</span>
+                    </div>
+                    @((MarkupString)CustomIcons.SCProgressBar)
+                </MudCardContent>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" md="4">
+            <MudPaper>
+                <MudCardHeader>
+                    Total Order
+                </MudCardHeader>
+                <MudCardContent Class="d-flex pt-0 justify-space-between">
+                    <div>
+                        <MudText Typo="Typo.h3" Class="mb-2">1300 </MudText>
+                        <span class="text-gray">Available to payout</span>
+                    </div>
+                    @((MarkupString)CustomIcons.TCProgressBar)
+                </MudCardContent>
+            </MudPaper>
+        </MudItem>
+   @*      <MudItem xs="12" md="7">
             <MudPaper Class="pa-4">
                 <span class="fw-700 fs-16">Live Sales Tracker</span>
                 <MudChart ChartType="ChartType.Bar" ChartSeries="@Series" XAxisLabels="@XAxisLabels" Width="100%" Height="100%">
@@ -209,7 +269,7 @@
             <MudPaper class="mt-5 px-5 py-8">
                 <SalesDayLeftCampaignComponent />
             </MudPaper>
-        </MudItem>
+        </MudItem> *@
 
     </MudGrid>
 
@@ -441,5 +501,31 @@
 
     .border-10 {
         border-radius: 10px !important;
+    }
+
+    .mud-container.mud-container-maxwidth-lg.mud-container--gutters.mb-0{
+        padding:0 !important;
+    }
+    .w-200{
+        width:200px !important;
+    }
+
+    span.text-white{
+        color:white !important;
+    }
+
+    .mud-input.mud-input-outlined.mud-input-adorned-end.mud-shrink.mud-typography-input.mud-select-input {
+        height: 40px;
+    }
+
+    .mud-container.mud-container-maxwidth-xl.mud-container--gutters.mb-4.mt-4{
+        margin-top:0 !important;
+    }
+    .fielter{
+        filter: brightness(5) !important;
+    }
+
+    .mud-input-control.mud-select.w-200.fielter .mud-input > input.mud-input-root-outlined.mud-input-root-adorned-end, div.mud-input-slot.mud-input-root-outlined.mud-input-root-adorned-end{
+        color:white !important;
     }
 </style>
