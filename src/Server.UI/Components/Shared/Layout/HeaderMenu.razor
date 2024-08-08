@@ -22,21 +22,11 @@
     <MudHidden Breakpoint="Breakpoint.SmAndDown">
         <MudText Typo="Typo.h5" Class="fw-700 text-gray">Overview</MudText>
         <MudSpacer />
-        <MudTextField @bind-Value="_normalText"  Label="Search" Variant="Variant.Outlined" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search"  Style="max-width:250px;"/>
-        <MudSpacer />
         <NotificationMenu/>
   
     </MudHidden>
     <MudHidden Breakpoint="Breakpoint.SmAndDown" Invert="true">
         <MudText Typo="Typo.h5" Class="fw-700">Overview</MudText>
-        <MudSpacer/>
-        <MudTooltip Arrow="true"
-                    Text="@L["Search (Cmd + K)"]">
-            <MudIconButton Color="Color.Default"
-                           Edge="Edge.Start"
-                           Icon="@Icons.Material.Filled.Search"
-                           OnClick="OpenSearchDialog" />
-        </MudTooltip>
         <MudSpacer/>
         <NotificationMenu/>
     </MudHidden>
