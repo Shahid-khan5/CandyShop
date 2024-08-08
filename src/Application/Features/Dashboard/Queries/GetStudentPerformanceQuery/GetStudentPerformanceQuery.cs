@@ -29,8 +29,7 @@ public class GetStudentPerformanceQueryHandler : IRequestHandler<GetStudentPerfo
     public async Task<List<StudentPerformanceDto>> Handle(GetStudentPerformanceQuery request, CancellationToken cancellationToken)
     {
         var sales = await GetSalesForPeriod(request.Year, request.Month, cancellationToken);
-        var studentPerformance = CalculateStudentPerformance(sales);
-        return studentPerformance;
+        return CalculateStudentPerformance(sales);
     }
 
     private async Task<List<Sale>> GetSalesForPeriod(int year, int month, CancellationToken cancellationToken)

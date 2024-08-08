@@ -23,6 +23,7 @@ public static class DashboardCacheKey
     public const string DashbaordCampaignRevenueCacheKey = nameof(DashbaordCampaignRevenueCacheKey);
     public const string DashbaordStudentPerformanceCacheKey = nameof(DashbaordStudentPerformanceCacheKey);
     public const string DashbaordGetTopSellersCacheKey = nameof(DashbaordGetTopSellersCacheKey);
+    public const string DashbaordTopProductSellersCacheKey = nameof(DashbaordTopProductSellersCacheKey);
 
     
     /// <summary>

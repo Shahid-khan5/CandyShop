@@ -26,16 +26,14 @@ public class GetCampaignRevenueQueryHandler : IRequestHandler<GetCampaignRevenue
 
     public async Task<List<CampaignRevenueDto>> Handle(GetCampaignRevenueQuery request, CancellationToken cancellationToken)
     {
-        var result = await _context.Campaigns
+        return await _context.Campaigns
             .GroupBy(c => c.Name)
             .Select(g => new CampaignRevenueDto
             {
                 CampaignName = g.Key,
                 TotalRevenue = g.SelectMany(c => c.Sales).Sum(s => s.TotalAmount),
                 TotalCommission = g.SelectMany(c => c.Sales).Sum(s => s.TotalAmount * 0.1m)
-             })
+            })
             .ToListAsync(cancellationToken);
-
-        return result;
     }
 }

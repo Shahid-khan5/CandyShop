@@ -27,8 +27,7 @@ public class GetTopSellersQueryHandler : IRequestHandler<GetTopSellersQuery, Lis
     public async Task<List<TopSellerDto>> Handle(GetTopSellersQuery request, CancellationToken cancellationToken)
     {
         var sales = await GetSalesForPeriod(request.Year, request.Month, cancellationToken);
-        var topSellers = CalculateTopSellers(sales);
-        return topSellers;
+        return CalculateTopSellers(sales);
     }
 
     private async Task<List<Sale>> GetSalesForPeriod(int year, int month, CancellationToken cancellationToken)
