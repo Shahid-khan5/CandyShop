@@ -20,27 +20,22 @@ public class GetDashboardTotalsQueryHandler : IRequestHandler<GetDashboardTotals
 
     public async Task<DashboardTotalsDto> Handle(GetDashboardTotalsQuery request, CancellationToken cancellationToken)
     {
-        var totalCampaigns = await _context.Campaigns.CountAsync(cancellationToken);
         var totalSales = await _context.Sales.SumAsync(x => x.TotalAmount, cancellationToken);
-        var totalStudents = (await _context.Campaigns
-            .Select(u => u.CampaignUsers.Count)
-            .ToListAsync()).Sum();
         var totalCompletedOrders = await _context.Sales.CountAsync(cancellationToken);
+        var totalCommission = totalSales * 0.1m;
 
         return new DashboardTotalsDto
         {
-            TotalCampaigns = totalCampaigns,
             TotalSales = totalSales,
-            TotalStudents = totalStudents,
-            TotalCompletedOrders = totalCompletedOrders
+            TotalCompletedOrders = totalCompletedOrders,
+            TotalCommission = totalCommission
         };
     }
 }
 
 public class DashboardTotalsDto
 {
-    public int TotalCampaigns { get; set; }
     public decimal TotalSales { get; set; }
-    public int TotalStudents { get; set; }
+    public decimal TotalCommission { get; set; }
     public int TotalCompletedOrders { get; set; }
 }
