@@ -14,11 +14,11 @@ public class MenuService : IMenuService
             SectionItems = new List<MenuSectionItemModel>
             {
                 new MenuSectionItemModel { Title = "Dashboard", Icon = CustomIcons.Dashboard, Href = "/" },
-                new MenuSectionItemModel { Title = "Product", Icon =  CustomIcons.ProductIcon, Href = "/identity/product" },
+                new MenuSectionItemModel { Title = "Product", Icon =  CustomIcons.ProductIcon, Href = "/pages/products" },
                 new MenuSectionItemModel { Title = "Users", Icon = CustomIcons.User, Href = "/identity/users" },
-                new MenuSectionItemModel { Title = "Order", Icon = CustomIcons.Orders,  Href = "/identity/order" },
+                new MenuSectionItemModel { Title = "Order", Icon = CustomIcons.Orders,  Href = "/pages/orders" },
                 new MenuSectionItemModel { Title = "Request", Icon = CustomIcons.User, Href = "/Request" },
-                new MenuSectionItemModel { Title = "Reports", Icon = CustomIcons.User, Href = "/identity/report" },
+                new MenuSectionItemModel { Title = "Reports", Icon = CustomIcons.User, Href = "/pages/reports" },
                 new MenuSectionItemModel { Title = "Setting", Icon = CustomIcons.setting, Href = "/Setting" },
                 new MenuSectionItemModel { Title = "Logout", Icon = CustomIcons.Logout, Href = "/pages/authentication/login" },
             }

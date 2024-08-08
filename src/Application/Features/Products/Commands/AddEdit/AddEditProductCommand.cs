@@ -13,12 +13,13 @@ public class AddEditProductCommand : ICacheInvalidatorRequest<Result<int>>
     public int Id { get; set; }
     public string? Name { get; set; }
     public string? Description { get; set; }
-    public string? Unit { get; set; }
     public string? Brand { get; set; }
-    public decimal Price { get; set; }
-    public List<ProductImage>? Pictures { get; set; }
-
-    public IReadOnlyList<IBrowserFile>? UploadPictures { get; set; }
+    public decimal CostPrice { get; set; }
+    public decimal SalePrice { get; set; }
+    public string? PictureName { get; set; }
+    public decimal? PictureSize { get; set; }
+    public string? PictureUrl { get; set; }
+    //public IReadOnlyList<IBrowserFile>? UploadPictures { get; set; }
     public string CacheKey => ProductCacheKey.GetAllCacheKey;
     public CancellationTokenSource? SharedExpiryTokenSource => ProductCacheKey.GetOrCreateTokenSource();
 

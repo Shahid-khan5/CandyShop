@@ -1,4 +1,4 @@
-﻿@using CleanArchitecture.Blazor.Server.UI.Pages.Identity.Users
+﻿@using CleanArchitecture.Blazor.Server.UI.Components.Fusion
 @using MudExtensions
 @using RRSTEK.Server.UI.Components
 @using ResizeMode = SixLabors.ImageSharp.Processing.ResizeMode
@@ -7,57 +7,39 @@
 @using SixLabors.ImageSharp.Processing
 @using SixLabors.ImageSharp
 @using SixLabors.ImageSharp.Formats.Png
-@using CleanArchitecture.Blazor.Application.Features.Identity.DTOs
+@using CleanArchitecture.Blazor.Application.Features.Products.Commands.AddEdit
 @using CleanArchitecture.Blazor.Domain.Common.Enums
-@using CleanArchitecture.Blazor.Domain.Identity
-@using CleanArchitecture.Blazor.Application.Common.Interfaces.MultiTenant
-@inherits OwningComponentBase
-@inject IValidationService Validator
+@using CleanArchitecture.Blazor.Server.UI.Services.JsInterop
+@using System.Collections.Immutable
+
+@inject IStringLocalizer<Products> L
 @inject IUploadService UploadService
-@inject ITenantService TenantsService
-@inject IStringLocalizer<Users> L
 
 <MudForm Model="@Model" @ref="@_form" Validation="@(Validator.ValidateValue(Model))">
     <input For="@(() => Model.Id)" @bind-value="Model.Id" type="hidden" />
-    <input For="@(() => Model.ProfilePictureDataUrl)" @bind-value="Model.ProfilePictureDataUrl" type="hidden" />
-
     <MudGrid Spacing="2" Class="px-3 pb-3">
         <MudItem xs="12" md="6">
-            <MudTextField @bind-Value="TextValue" Label="Product Name" Variant="Variant.Outlined"></MudTextField>
+            <MudTextField @bind-Value="Model.Name" Label="Product Name" Variant="Variant.Outlined"></MudTextField>
             <div class="mt-3">
-                <MudTextField T="string" Label="Description" Variant="Variant.Outlined" Text="@sampleText" Lines="3" />
-            </div>
-
-            <div class="mt-3">
-                <MudTextField @bind-Value="TextValue" Label="Description" Variant="Variant.Outlined"></MudTextField>
+                <MudTextField T="string" @bind-Value="Model.Description" Label="Description" Variant="Variant.Outlined" Lines="3" />
             </div>
             <div class="mt-3">
-                <MudTextField @bind-Value="TextValue" Label="Brand Name" Variant="Variant.Outlined"></MudTextField>
+                <MudTextField @bind-Value="Model.Brand" Label="Brand Name" Variant="Variant.Outlined"></MudTextField>
             </div>
-            <MudGrid Class="pt-3">
-                <MudItem xs="12" md="6">
-                    <MudTextField @bind-Value="TextValue" Label="SKU" Variant="Variant.Outlined"></MudTextField>
-                </MudItem>
-                <MudItem xs="12" md="6">
-                    <MudTextField @bind-Value="TextValue" Label="Stock Quantity" Variant="Variant.Outlined"></MudTextField>
+            <MudGrid Class="pt-5 ">
+                <MudItem xs="12" md="6" Class="pt-3">
+                    <MudTextField @bind-Value="Model.CostPrice" Label="Cost Price" Variant="Variant.Outlined"></MudTextField>
                 </MudItem>
                 <MudItem xs="12" md="6" Class="pt-3">
-                    <MudTextField @bind-Value="TextValue" Label="Cost Price" Variant="Variant.Outlined"></MudTextField>
-                </MudItem>
-                <MudItem xs="12" md="6" Class="pt-3">
-                    <MudTextField @bind-Value="TextValue" Label="Sale Price" Variant="Variant.Outlined"></MudTextField>
+                    <MudTextField @bind-Value="Model.SalePrice" Label="Sale Price" Variant="Variant.Outlined"></MudTextField>
                 </MudItem>
             </MudGrid>
-            <div class="mt-2">
-                <MudChipField WrapChips=true T="string" FullWidth="true"
-                              Label="ChipField" />
-            </div>
         </MudItem>
         <MudItem xs="12" md="6">
             <MudStack Style="width: 100%">
-                <MudFileUpload T="IReadOnlyList<IBrowserFile>"
+                <MudFileUpload T="IBrowserFile"
                                @ref="@_fileUpload"
-                               OnFilesChanged="OnInputFileChanged"
+                               OnFilesChanged="@(e => OnInputFileChanged(e))"
                                AppendMultipleFiles
                                Hidden="@false"
                                InputClass="absolute mud-width-full mud-height-full overflow-hidden z-10"
@@ -81,141 +63,94 @@
                 </MudFileUpload>
 
             </MudStack>
+            @* <div>
+            <MudText Typo="Typo.h6" Class="my-3">Product Gallery</MudText>
+            <MudStack Style="width: 100%">
+            <MudFileUpload T="IReadOnlyList<IBrowserFile>"
+            @ref="@_fileUpload"
+            OnFilesChanged="OnInputFileChanged"
+            AppendMultipleFiles
+            Hidden="@false"
+            InputClass="absolute mud-width-full mud-height-full overflow-hidden z-10"
+            InputStyle="opacity:0"
+            tabindex="-1"
+            @ondrop="@ClearDragClass"
+            @ondragenter="@SetDragClass"
+            @ondragleave="@ClearDragClass"
+            @ondragend="@ClearDragClass">
+            <ActivatorContent>
+            <MudPaper Height="150px"
+            Outlined="true"
+            Class="@_dragClass"
+            Style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
+            <span>
+            @((MarkupString)CustomIcons.ImageDrop)
+            </span>
+            <MudText Class="fs-16 mt-3 text-gray">Drop your image here  or browser jpeg,png are allowed</MudText>
+            </MudPaper>
+            </ActivatorContent>
+            </MudFileUpload>
 
-            <div>
-                <MudText Typo="Typo.h6" Class="my-3">Product Gallery</MudText>
-                <MudStack Style="width: 100%">
-                    <MudFileUpload T="IReadOnlyList<IBrowserFile>"
-                                   @ref="@_fileUpload"
-                                   OnFilesChanged="OnInputFileChanged"
-                                   AppendMultipleFiles
-                                   Hidden="@false"
-                                   InputClass="absolute mud-width-full mud-height-full overflow-hidden z-10"
-                                   InputStyle="opacity:0"
-                                   tabindex="-1"
-                                   @ondrop="@ClearDragClass"
-                                   @ondragenter="@SetDragClass"
-                                   @ondragleave="@ClearDragClass"
-                                   @ondragend="@ClearDragClass">
-                        <ActivatorContent>
-                            <MudPaper Height="150px"
-                                      Outlined="true"
-                                      Class="@_dragClass"
-                                      Style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
-                                <span>
-                                    @((MarkupString)CustomIcons.ImageDrop)
-                                </span>
-                                <MudText Class="fs-16 mt-3 text-gray">Drop your image here  or browser jpeg,png are allowed</MudText>
-                            </MudPaper>
-                        </ActivatorContent>
-                    </MudFileUpload>
-
-                </MudStack>
-            </div>
+            </MudStack>
+            </div> *@
 
         </MudItem>
     </MudGrid>
 </MudForm>
+<div class="d-flex justify-end pa-3">
+
+<MudButton OnClick="Cancel">@ConstantString.Cancel</MudButton>
+@* <MudLoadingButton Loading="@_saving" Color="Color.Primary" OnClick="Submit">@ConstantString.Save</MudLoadingButton> *@
+<MudButton Color="Color.Primary" OnClick="Submit">@ConstantString.Save</MudButton>
+</div>
+
 
 @code {
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; } = default!;
 
-#nullable enable
+    [EditorRequired][Parameter] public AddEditProductCommand Model { get; set; } = default!;
+
+    [Parameter] public Action? Refresh { get; set; }
+
+    private List<string> Tags { get; set; } = new List<string>();
+
     private const string DefaultDragClass = "relative rounded-lg border-2 border-dashed pa-4 mt-1 mud-width-full mud-height-full";
     private string _dragClass = DefaultDragClass;
-    private readonly List<string> _fileNames = new();
-    private MudFileUpload<IReadOnlyList<IBrowserFile>>? _fileUpload;
+    private IBrowserFile File = null;
+    private MudFileUpload<IBrowserFile>? _fileUpload;
 
-    private async Task ClearAsync()
+    private MudForm? _form;
+    private bool _saving;
+    private bool _saveingnew;
+    private bool _uploading;
+
+    private const long MaxAllowedSize = 3145728;
+
+    // private async Task DeleteImage(ProductImage picture)
+    private async Task DeleteImage()
     {
-        await (_fileUpload?.ClearAsync() ?? Task.CompletedTask);
-        _fileNames.Clear();
-        ClearDragClass();
+        // if (Model.Pictures != null)
+        // {
+        //     var parameters = new DialogParameters<ConfirmationDialog>
+        //     {
+        //         { x => x.ContentText, $"{L["Are you sure you want to erase this image?"]}" }
+        //     };
+        //     var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true};
+        //     var dialog = DialogService.Show<ConfirmationDialog>($"{L["Erase imatge"]}", parameters, options);
+        //     var state = await dialog.Result;
+
+        //     if (state is not null && !state.Canceled)
+        //     {
+        //         Model.Pictures.Remove(picture);
+        //     }
+        // }
     }
 
-    private Task OpenFilePickerAsync()
-        => _fileUpload?.OpenFilePickerAsync() ?? Task.CompletedTask;
+    // private async Task PreviewImage(string url, IEnumerable<ProductImage> images)
+    // {
+    //     await new Fancybox(JS).Preview(url, images);
+    // }
 
-    private void OnInputFileChanged(InputFileChangeEventArgs e)
-    {
-        ClearDragClass();
-        var files = e.GetMultipleFiles();
-        foreach (var file in files)
-        {
-            _fileNames.Add(file.Name);
-        }
-    }
-
-    private void Upload()
-    {
-        // Upload the files here
-        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
-        Snackbar.Add("TODO: Upload your files!");
-    }
-
-    private void SetDragClass()
-        => _dragClass = $"{DefaultDragClass} mud-border-primary";
-
-    private void ClearDragClass()
-        => _dragClass = DefaultDragClass;
-
-
-    string _delimiter = " ";
-    string? _value;
-    List<string>? _values;
-    int _maxChips = 0;
-    int _chipsMaxWidth = 80;
-    Color _color = Color.Default;
-    Variant _chipVariant = Variant.Filled;
-    Variant _variant = Variant.Outlined;
-    bool _wrapChips;
-    bool _disabled;
-    bool _readonly;
-    bool _disableRadius;
-    bool _closeable = true;
-    bool _allowSameValues = false;
-
-    public string TextValue { get; set; }
-    string sampleText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
-    public class CheckItem
-    {
-        public string Key { get; set; } = string.Empty;
-        public bool Value { get; set; }
-    }
-    private RoleManager<ApplicationRole> RoleManager = null!;
-    [EditorRequired][Parameter] public ApplicationUserDto Model { get; set; } = default!;
-
-    [EditorRequired][Parameter] public EventCallback<ApplicationUserDto> OnFormSubmit { get; set; }
-
-
-    private MudForm? _form = default!;
-    private List<CheckItem> Roles { get; set; } = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        RoleManager = ScopedServices.GetRequiredService<RoleManager<ApplicationRole>>();
-        await GetRoles(Model.TenantId);
-    }
-    private async Task GetRoles(string? tenantId)
-    {
-        Roles = new();
-        var array = await RoleManager.Roles.Where(x => x.TenantId == Model.TenantId).Select(x => x.Name).ToListAsync();
-        foreach (var role in array)
-        {
-            if (Model.AssignedRoles != null && Model.AssignedRoles.Contains(role))
-            {
-                Roles.Add(new CheckItem { Key = role!, Value = true });
-            }
-            else
-            {
-                Roles.Add(new CheckItem { Key = role!, Value = false });
-            }
-        }
-    }
-    private async Task OnTenantIdChanged(string tenantId)
-    {
-        Model.TenantId = tenantId;
-        await GetRoles(Model.TenantId);
-    }
     private async Task UploadPhoto(IBrowserFile file)
     {
         var filestream = file.OpenReadStream(GlobalVariable.MaxAllowedSize);
@@ -232,36 +167,95 @@
                 var filename = file.Name;
                 var fi = new FileInfo(filename);
                 var ext = fi.Extension;
-                var result = await UploadService.UploadAsync(new UploadRequest(Guid.NewGuid() + ext, UploadType.ProfilePicture, outStream.ToArray()));
-                Model.ProfilePictureDataUrl = result;
+                var result = await UploadService.UploadAsync(new UploadRequest(Guid.NewGuid() + ext, UploadType.Product, outStream.ToArray()));
+                Model.PictureUrl = result;
+                Model.PictureName = filename;
+                Model.PictureSize = outStream.Length;
                 //Do your validations here
                 Snackbar.Add(ConstantString.UploadSuccess, Severity.Info);
             }
         }
     }
 
-    public async Task Submit()
+    private void OnInputFileChanged(InputFileChangeEventArgs e)
     {
-        if (_form is not null)
+        File = e.File;
+        // ClearDragClass();
+    }
+
+    private void SetDragClass()
+    => _dragClass = $"{DefaultDragClass} mud-border-primary";
+
+    private void ClearDragClass()
+        => _dragClass = DefaultDragClass;
+
+    private async Task Submit()
+    {
+        try
         {
-            await _form.Validate();
-            if (_form.IsValid)
+            _saving = true;
+            await _form!.Validate().ConfigureAwait(false);
+
+            if (!_form!.IsValid)
+                return;
+
+            if (File != null)
             {
-                Model.AssignedRoles = Roles.Where(x => x.Value).Select(x => x.Key).ToArray();
-                await OnFormSubmit.InvokeAsync(Model);
+                await UploadPhoto(File);
             }
+            var result = await Mediator.Send(Model);
+
+            if (result.Succeeded)
+            {
+                MudDialog.Close(DialogResult.Ok(true));
+                Snackbar.Add(ConstantString.SaveSuccess, Severity.Info);
+            }
+            else
+            {
+                Snackbar.Add(result.ErrorMessage, Severity.Error);
+            }
+        }
+        finally
+        {
+            _saving = false;
         }
     }
 
+    private async Task SaveAndNew()
+    {
+        try
+        {
+            _saveingnew = true;
+            await _form!.Validate().ConfigureAwait(false);
+            if (!_form!.IsValid)
+                return;
+            var result = await Mediator.Send(Model);
+            if (result.Succeeded)
+            {
+                Snackbar.Add(ConstantString.SaveSuccess, Severity.Info);
+                Refresh?.Invoke();
+                Model = new AddEditProductCommand();
+            }
+            else
+            {
+                Snackbar.Add(result.ErrorMessage, Severity.Error);
+            }
+        }
+        finally
+        {
+            _saveingnew = false;
+        }
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
 }
-<style>
-    .fs-16 {
-        font-size: 16px !important
+
+            <style>
+    .mud-dialog-width-full{
+        overflow-x:hidden;
     }
-
-
-    .text-gray {
-        color: #70706E !important;
-    }
-
-</style>
+            </style>

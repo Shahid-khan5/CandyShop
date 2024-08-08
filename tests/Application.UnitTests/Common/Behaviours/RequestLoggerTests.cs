@@ -1,4 +1,4 @@
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using CleanArchitecture.Blazor.Application.Common.Interfaces;
 using CleanArchitecture.Blazor.Application.Common.Interfaces.Identity;
@@ -29,7 +29,7 @@ public class RequestLoggerTests
         _currentUserService.Setup(x => x.UserId).Returns("Administrator");
         var requestLogger = new LoggingPreProcessor<AddEditProductCommand>(_logger.Object, _currentUserService.Object);
         await requestLogger.Process(
-            new AddEditProductCommand { Brand = "Brand", Name = "Brand", Price = 1.0m, Unit = "EA" },
+            new AddEditProductCommand { Brand = "Brand", Name = "Brand", SalePrice = 1.0m, CostPrice = 1.0m},
             new CancellationToken());
         _currentUserService.Verify(i => i.UserName, Times.Once);
     }
@@ -39,7 +39,7 @@ public class RequestLoggerTests
     {
         var requestLogger = new LoggingPreProcessor<AddEditProductCommand>(_logger.Object, _currentUserService.Object);
         await requestLogger.Process(
-            new AddEditProductCommand { Brand = "Brand", Name = "Brand", Price = 1.0m, Unit = "EA" },
+            new AddEditProductCommand { Brand = "Brand", Name = "Brand", SalePrice = 1.0m, CostPrice = 1.0m },
             new CancellationToken());
         _identityService.Verify(i => i.GetUserNameAsync(It.IsAny<string>(), CancellationToken.None), Times.Never);
     }

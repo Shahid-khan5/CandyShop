@@ -16,7 +16,8 @@ public class Campaign : BaseEntity
     public DateTime EndDate { get; set; }
     public CampaignStatus Status { get; set; }
     public required ICollection<CampaignUser> CampaignUsers { get; set; }
-    public ICollection<Sale>? Sales { get; set; }
+    public ICollection<Sale> Sales { get; set; }
+    = new List<Sale>();
 }
 public enum CampaignStatus
 {

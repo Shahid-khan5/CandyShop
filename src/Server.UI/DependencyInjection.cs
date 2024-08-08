@@ -196,7 +196,6 @@ public static class DependencyInjection
         app.MapHub<ServerHub>(ISignalRHub.Url);
 
         //QuestPDF License configuration
-        Settings.License = LicenseType.Community;
 
         // Add additional endpoints required by the Identity /Account Razor components.
         app.MapAdditionalIdentityEndpoints();
