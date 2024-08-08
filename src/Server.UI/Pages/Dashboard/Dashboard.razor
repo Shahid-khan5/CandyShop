@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using CleanArchitecture.Blazor.Application.Features.Dashboard.DTOs
 @using CleanArchitecture.Blazor.Application.Features.Dashboard.Queries
+@using CleanArchitecture.Blazor.Application.Features.Dashboard.Queries.GetStudentPerformanceQueryHandler
 @using CleanArchitecture.Blazor.Server.UI.Pages.Dashboard.Components
 @using MudBlazor.Utilities
 @inject IStringLocalizer<Dashboard> L
@@ -12,7 +13,7 @@
         <MudItem xs="12" md="7">
             <MudPaper Class="pa-4">
                 <span class="fw-700 fs-16">Live Sales Tracker</span>
-                <MudChart ChartType="ChartType.Bar" ChartSeries="@Series" XAxisLabels="@XAxisLabels" Width="100%" Height="100%">
+                <MudChart ChartType="ChartType.Bar" ChartSeries="@Series"  XAxisLabels="@XAxisLabels" Width="100%" Height="100%">
                 </MudChart>
             </MudPaper>
             <MudPaper class="mt-5 pa-10">
@@ -291,9 +292,11 @@
 @code
 {
     private readonly bool IsMobile = false;
-    // public List<ChartSeries> Series { get; set; } = new();
-    // public string[] XAxisLabels { get; set; } = Array.Empty<string>();
+     public List<ChartSeries> Series { get; set; } = new();
+     public string[] XAxisLabels { get; set; } = Array.Empty<string>();
+    private string[] YAxisLabels { get; set; } = new string[] { "Revenues", "Commissions" }; // Translated labels
     private List<CampaignRevenueDto> campaignRevenue = new();
+    private List<StudentPerformanceDto> studentPerformances = new();
     public string Title { get; set; } = "Dashboard";
 
     protected string ContentClassNames => new CssBuilder("flex-grow-1 flex-shrink-1")
@@ -304,38 +307,50 @@
     protected override async Task OnInitializedAsync()
     {
         Title = L["Dashboard"];
-        // await LoadDataAsync();
+        await GetCampaignRevenueAsync();
+        await GetStudentPerformanceAsync();
     }
 
-    // private async Task LoadDataAsync()
-    // {
-    //     var query = new GetCampaignRevenueQuery
-    //         {
-    //             StartDate = DateTime.Now.AddYears(-1),
-    //             EndDate = DateTime.Now
-    //         };
-    //     campaignRevenue = await Mediator.Send(query);
-    //     var limitedCampaignRevenue = campaignRevenue
-    //     .OrderByDescending(c => c.TotalRevenue)
-    //     .Take(10)
-    //     .ToList();
-
-    //     Series = new List<ChartSeries>
-    //     {
-    //     new ChartSeries { Name = "Revenue", Data = limitedCampaignRevenue.Select(c => (double)c.TotalRevenue).ToArray() },
-    //     new ChartSeries { Name = "Commission", Data = limitedCampaignRevenue.Select(c => (double)c.TotalCommission).ToArray() }
-    //     };
-
-    //     XAxisLabels = limitedCampaignRevenue.Select(r => r.CampaignName).ToArray();
-    // }
-
-    public List<ChartSeries> Series = new List<ChartSeries>()
+    private async Task GetCampaignRevenueAsync()
     {
-        new ChartSeries() { Name = "United States", Data = new double[] { 40, 20, 25, 27, 46, 60, 48, 80, 15 } },
-        new ChartSeries() { Name = "Germany", Data = new double[] { 19, 24, 35, 13, 28, 15, 13, 16, 31 } },
-        new ChartSeries() { Name = "Sweden", Data = new double[] { 8, 6, 11, 13, 4, 16, 10, 16, 18 } },
-    };
-    public string[] XAxisLabels = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep" };
+        var query = new GetCampaignRevenueQuery
+            {
+                StartDate = DateTime.Now.AddYears(-1),
+                EndDate = DateTime.Now
+            };
+        campaignRevenue = await Mediator.Send(query);
+
+        var limitedCampaignRevenue = campaignRevenue
+        .OrderByDescending(c => c.TotalRevenue)
+        .Take(10)
+        .ToList();
+
+        Series = new List<ChartSeries>
+        {
+        new ChartSeries { Name = "Revenue", Data = limitedCampaignRevenue.Select(c => (double)c.TotalRevenue).ToArray() },
+        new ChartSeries { Name = "Commission", Data = limitedCampaignRevenue.Select(c => (double)c.TotalCommission).ToArray() }
+        };
+
+        XAxisLabels = limitedCampaignRevenue.Select(r => r.CampaignName.Length > 10 ? r.CampaignName.Substring(0, 10) + "..." : r.CampaignName).ToArray();
+    }
+
+    private async Task GetStudentPerformanceAsync()
+    {
+        var query = new GetStudentPerformanceQuery
+            {
+                Year = DateTime.UtcNow.Year,
+                Month = DateTime.UtcNow.Month
+            };
+        studentPerformances = await Mediator.Send(query);
+    }
+
+    // public List<ChartSeries> Series = new List<ChartSeries>()
+    // {
+    //     new ChartSeries() { Name = "United States", Data = new double[] { 40, 20, 25, 27, 46, 60, 48, 80, 15 } },
+    //     new ChartSeries() { Name = "Germany", Data = new double[] { 19, 24, 35, 13, 28, 15, 13, 16, 31 } },
+    //     new ChartSeries() { Name = "Sweden", Data = new double[] { 8, 6, 11, 13, 4, 16, 10, 16, 18 } },
+    // };
+    // public string[] XAxisLabels = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep" };
 
 }
 
