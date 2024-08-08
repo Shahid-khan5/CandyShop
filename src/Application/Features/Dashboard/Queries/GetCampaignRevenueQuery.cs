@@ -49,7 +49,7 @@ public class GetCampaignRevenueQueryHandler : IRequestHandler<GetCampaignRevenue
         //   .OrderByDescending(c => c.TotalRevenue)
         //   .ToListAsync(cancellationToken);
         var result = await _context.Campaigns
-    .GroupBy(c => c.Name) // Group by campaign name
+    .GroupBy(c => c.Name)
     .Select(g => new CampaignRevenueDto
     {
         CampaignName = g.Key,

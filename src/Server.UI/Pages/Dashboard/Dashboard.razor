@@ -2,6 +2,7 @@
 @using CleanArchitecture.Blazor.Application.Features.Dashboard.DTOs
 @using CleanArchitecture.Blazor.Application.Features.Dashboard.Queries
 @using CleanArchitecture.Blazor.Application.Features.Dashboard.Queries.GetStudentPerformanceQueryHandler
+@using CleanArchitecture.Blazor.Application.Features.Dashboard.Queries.GetTopSellersQuery
 @using CleanArchitecture.Blazor.Server.UI.Pages.Dashboard.Components
 @using MudBlazor.Utilities
 @inject IStringLocalizer<Dashboard> L
@@ -13,7 +14,7 @@
         <MudItem xs="12" md="7">
             <MudPaper Class="pa-4">
                 <span class="fw-700 fs-16">Live Sales Tracker</span>
-                <MudChart ChartType="ChartType.Bar" ChartSeries="@Series"  XAxisLabels="@XAxisLabels" Width="100%" Height="100%">
+                <MudChart ChartType="ChartType.Bar" ChartSeries="@Series" XAxisLabels="@XAxisLabels" Width="100%" Height="100%">
                 </MudChart>
             </MudPaper>
             <MudPaper class="mt-5 pa-10">
@@ -292,11 +293,15 @@
 @code
 {
     private readonly bool IsMobile = false;
-     public List<ChartSeries> Series { get; set; } = new();
-     public string[] XAxisLabels { get; set; } = Array.Empty<string>();
+    public List<ChartSeries> Series { get; set; } = new();
+    public string[] XAxisLabels { get; set; } = Array.Empty<string>();
     private string[] YAxisLabels { get; set; } = new string[] { "Revenues", "Commissions" }; // Translated labels
     private List<CampaignRevenueDto> campaignRevenue = new();
     private List<StudentPerformanceDto> studentPerformances = new();
+    private List<TopSellerDto> topSellers = new();
+    private DateTime CurrentMonth { get; set; } = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
+    private int CurrentYear { get; set; } = DateTime.UtcNow.Year;
+
     public string Title { get; set; } = "Dashboard";
 
     protected string ContentClassNames => new CssBuilder("flex-grow-1 flex-shrink-1")
@@ -309,6 +314,7 @@
         Title = L["Dashboard"];
         await GetCampaignRevenueAsync();
         await GetStudentPerformanceAsync();
+        await GetTopSellerAsync();
     }
 
     private async Task GetCampaignRevenueAsync()
@@ -338,10 +344,20 @@
     {
         var query = new GetStudentPerformanceQuery
             {
-                Year = DateTime.UtcNow.Year,
-                Month = DateTime.UtcNow.Month
+                Year = CurrentYear,
+                Month = CurrentMonth.Month
             };
         studentPerformances = await Mediator.Send(query);
+    }
+
+    private async Task GetTopSellerAsync()
+    {
+        var query = new GetTopSellersQuery
+            {
+                Year = CurrentYear,
+                Month = CurrentMonth.Month
+            };
+        topSellers = await Mediator.Send(query);
     }
 
     // public List<ChartSeries> Series = new List<ChartSeries>()
