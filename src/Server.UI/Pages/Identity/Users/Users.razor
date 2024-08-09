@@ -1,5 +1,6 @@
 ﻿@page "/identity/users"
 @using ActualLab.Fusion
+@using CleanArchitecture.Blazor.Application.Features.Identity.Queries
 @using CleanArchitecture.Blazor.Server.UI.Services.Fusion
 @using Microsoft.AspNetCore.WebUtilities
 @using CleanArchitecture.Blazor.Domain.Identity
@@ -33,7 +34,8 @@
 @inject IMailService MailService
 @inject IStringLocalizer<Users> L
 @inject ILogger<Users> Logger
- 
+@inject IMediator Mediator
+
 <PageTitle>@Title</PageTitle>
 
 <MudDataGrid @ref="_table"
@@ -48,7 +50,7 @@
              ServerData="@(ServerReload)">
     <ToolBarContent>
         <div class="d-flex align-start justify-space-between flex-grow-1">
-        <p class="fs-24 fw-700">User</p>
+            <p class="fs-24 fw-700">User</p>
             <div class="d-flex flex-column justify-end">
                 <div class="d-flex gap-1">
                     <MudHidden Breakpoint="Breakpoint.SmAndDown">
@@ -286,12 +288,17 @@
     private bool _uploading;
     private List<string?> _roles = new();
     private string? _searchRole;
+    public string UserRole = string.Empty;
+    [CascadingParameter]
+    private UserProfile? UserProfile { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         Title = L[_currentDto.GetClassDescription()];
         InitializeServices();
         var state = await AuthState;
+        var user = state.User;
+        UserRole = GetUserRole(user);
         _canCreate = (await AuthService.AuthorizeAsync(state.User, Permissions.Users.Create)).Succeeded;
         _canSearch = (await AuthService.AuthorizeAsync(state.User, Permissions.Users.Search)).Succeeded;
         _canEdit = (await AuthService.AuthorizeAsync(state.User, Permissions.Users.Edit)).Succeeded;
@@ -303,28 +310,34 @@
         _canImport = (await AuthService.AuthorizeAsync(state.User, Permissions.Users.Import)).Succeeded;
         _canExport = (await AuthService.AuthorizeAsync(state.User, Permissions.Users.Export)).Succeeded;
         _roles = await RoleManager.Roles.Select(x => x.Name).ToListAsync();
-       
-
     }
+
+    private string GetUserRole(ClaimsPrincipal user)
+    {
+        if (user.IsInRole("SuperAdmin")) return "SuperAdmin";
+        if (user.IsInRole("Admin")) return "Admin";
+        return "Student";
+    }
+
     private void InitializeServices()
     {
         RoleManager = ScopedServices.GetRequiredService<RoleManager<ApplicationRole>>();
         UserManager = ScopedServices.GetRequiredService<UserManager<ApplicationUser>>();
         PermissionHelper = ScopedServices.GetRequiredService<PermissionHelper>();
     }
-    private  async Task OnInvalidated(IComputed state)
+    private async Task OnInvalidated(IComputed state)
     {
         await InvokeAsync(StateHasChanged);
     }
     public void Dispose()
     {
-       
+
     }
     private bool IsOnline(string username)
     {
         return UsersStateContainer.UsersByConnectionId.Any(x => x.Value.Equals(username, StringComparison.OrdinalIgnoreCase));
     }
-   
+
     private Expression<Func<ApplicationUser, bool>> CreateSearchPredicate()
     {
         return x =>
@@ -336,26 +349,37 @@
             (_searchRole == null || (_searchRole != null && x.UserRoles.Any(x => x.Role.Name == _searchRole))) &&
             (_selectedTenantId == " " || (_selectedTenantId != " " && x.TenantId == _selectedTenantId));
     }
+
     private async Task<GridData<ApplicationUserDto>> ServerReload(GridState<ApplicationUserDto> state)
     {
         try
         {
             _loading = true;
-            var total = await UserManager.Users.CountAsync(CreateSearchPredicate());
-            var query = UserManager.Users.Where(CreateSearchPredicate());
-            var items = await query
-                .Include(x => x.UserRoles).ThenInclude(ur => ur.Role)
-                .Include(x => x.Superior)
-                .EfOrderBySortDefinitions(state)
-                .Skip(state.Page * state.PageSize).Take(state.PageSize).ProjectTo<ApplicationUserDto>(Mapper.ConfigurationProvider).ToListAsync();
-           
-            return new GridData<ApplicationUserDto> { TotalItems = total, Items = items };
+            if (UserRole == "SuperAdmin")
+            {
+                var total = await UserManager.Users.CountAsync(CreateSearchPredicate());
+                var superAdminQuery = UserManager.Users.Where(CreateSearchPredicate());
+                var items = await superAdminQuery
+                    .Include(x => x.UserRoles).ThenInclude(ur => ur.Role)
+                    .Include(x => x.Superior)
+                    .EfOrderBySortDefinitions(state)
+                    .Skip(state.Page * state.PageSize).Take(state.PageSize).ProjectTo<ApplicationUserDto>(Mapper.ConfigurationProvider).ToListAsync();
+                return new GridData<ApplicationUserDto> { TotalItems = total, Items = items };
+            }
+            else if (UserRole == "Admin")
+            {
+                var adminQuery = new CampaignUsersWithPaginationQuery() { UserId = UserProfile.UserId };
+                var result = await Mediator.Send(adminQuery).ConfigureAwait(false);
+                return new GridData<ApplicationUserDto> { TotalItems = result.TotalItems, Items = result.Items };
+            }
+            return new GridData<ApplicationUserDto>();
         }
         finally
         {
             _loading = false;
         }
     }
+
     private async Task OnChangedListView(string tenantId)
     {
         _selectedTenantId = tenantId;
@@ -698,7 +722,7 @@
         return Task.CompletedTask;
     }
 
-    
+
 
     private async Task OnAssignAllChangedHandler(List<PermissionModel> models)
     {
@@ -817,7 +841,7 @@
     {
         return await ExcelService.ExportAsync(items,
             new Dictionary<string, Func<ApplicationUserDto, object?>>
-                    {
+                                                    {
                 { L["Id"], item => item.Id },
                 { L["User Name"], item => item.UserName },
                 { L["Display Name"], item => item.DisplayName },
@@ -825,7 +849,7 @@
                 { L["Phone Number"], item => item.PhoneNumber },
                 { L["Tenant Id"], item => item.TenantId },
                 { L["Tenant Name"], item => item.TenantName }
-                    }, L["Users"]);
+                                                    }, L["Users"]);
     }
 
     private async Task OnImportData(IBrowserFile file)
@@ -914,8 +938,8 @@
 
 }
 
-    <style>
-    .mud-table.mud-data-grid.mud-xs-table.mud-table-hover.mud-table-sticky-header.mud-elevation-1{
+<style>
+    .mud-table.mud-data-grid.mud-xs-table.mud-table-hover.mud-table-sticky-header.mud-elevation-1 {
         height: calc(100vh - 112px) !important;
     }
 
@@ -923,27 +947,29 @@
         overflow: auto !important;
     }
 
-    .fs-24{
-   font-size:24px !important;
+    .fs-24 {
+        font-size: 24px !important;
     }
-        .fw-700{
-            font-weight:700;
-        }
-        .mud-container.mud-container-maxwidth-xl.mud-container--gutters.mb-4.mt-4{
+
+    .fw-700 {
+        font-weight: 700;
+    }
+
+    .mud-container.mud-container-maxwidth-xl.mud-container--gutters.mb-4.mt-4 {
         margin-top: 17px !important;
         margin-bottom: 0px !important;
-        }
-    @@media (max-width: 760px) {
-   .mud-table.mud-data-grid.mud-xs-table.mud-table-hover.mud-table-sticky-header.mud-elevation-1{
-        height: calc(100vh - 96px) !important;
     }
+
+    @@media (max-width: 760px) {
+        .mud-table.mud-data-grid.mud-xs-table.mud-table-hover.mud-table-sticky-header.mud-elevation-1 {
+            height: calc(100vh - 96px) !important;
+        }
 
         .mud-drawer-close-mini-md-left .mud-main-content {
             margin-left: var(--mud-drawer-width-mini-left);
             scroll-padding-top: auto;
             padding-top: 66px;
         }
-}
+    }
 
-
-    </style>
+</style>

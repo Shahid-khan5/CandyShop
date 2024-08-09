@@ -14,7 +14,7 @@ using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
 namespace CleanArchitecture.Blazor.Application.Features.Sales.Queries.GetSalesSummaryQuery;
 //public class GetSalesSummaryQuery : IRequest<List<SaleSummaryDto>>
-public class GetSalesSummaryQuery : ICacheableRequest<List<SaleSummaryDto>>
+public class GetSalesSummaryQuery : PaginationFilter, ICacheableRequest<PaginatedData<SaleSummaryDto>>
 {
     public int? CampaignId { get; set; }
     public DateTime? StartDate { get; set; }
@@ -23,31 +23,50 @@ public class GetSalesSummaryQuery : ICacheableRequest<List<SaleSummaryDto>>
     public bool? OnlyEndedCampaigns { get; set; }
     public override string ToString()
     {
-        return $"CampaignId:{CampaignId}, StartDate:{StartDate}, EndDate:{EndDate}, UserId:{UserId}, OnlyEndedCampaigns:{OnlyEndedCampaigns}";
+        return $"CampaignId:{CampaignId}, StartDate:{StartDate}, EndDate:{EndDate}, UserId:{UserId},PageNumber:{PageNumber},PageSize:{PageSize},OrderBy:{OrderBy},SortDirection:{SortDirection},Keyword:{Keyword}";
     }
     public string CacheKey => SaleCacheKey.GetSalesSummaryCacheKey($"{this}");
     public MemoryCacheEntryOptions? Options => SaleCacheKey.MemoryCacheEntryOptions;
 
 }
 
-public class GetSalesSummaryQueryHandler : IRequestHandler<GetSalesSummaryQuery, List<SaleSummaryDto>>
+public class GetSalesSummaryQueryHandler : IRequestHandler<GetSalesSummaryQuery, PaginatedData<SaleSummaryDto>>
 {
     private readonly IApplicationDbContext _context;
+    private readonly IMapper _mapper;
 
-    public GetSalesSummaryQueryHandler(IApplicationDbContext context)
+    public GetSalesSummaryQueryHandler(IApplicationDbContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
-    public async Task<List<SaleSummaryDto>> Handle(GetSalesSummaryQuery request, CancellationToken cancellationToken)
+    public async Task<PaginatedData<SaleSummaryDto>> Handle(GetSalesSummaryQuery request, CancellationToken cancellationToken)
     {
-        var specification = new CampaignSummarySpecification(request);
-        var query = await _context.Campaigns
-            .WithSpecification(specification)
-            .AsNoTracking()
-            .ToListAsync();
+        //var specification = new CampaignSummarySpecification(request);
+        //var query = await _context.Campaigns
+        //    .WithSpecification(specification)
+        //    .AsNoTracking()
+        //    .ToListAsync();
 
-        return FetchSalesData(query, cancellationToken);
+        //return FetchSalesData(query, cancellationToken);
+        var specification = new CampaignSummarySpecification(request);
+
+        var query = _context.Campaigns
+            .WithSpecification(specification)
+            .AsNoTracking();
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var paginatedCampaigns = await query
+            .OrderBy($"{request.OrderBy} {request.SortDirection}")
+            .Skip((request.PageNumber - 1) * request.PageSize)
+            .Take(request.PageSize)
+            .ToListAsync(cancellationToken);
+
+        var saleSummaries = FetchSalesData(paginatedCampaigns, cancellationToken);
+
+        return new PaginatedData<SaleSummaryDto>(saleSummaries, totalCount, request.PageNumber, request.PageSize);
     }
 
     private List<SaleSummaryDto> FetchSalesData(List<Campaign> query, CancellationToken cancellationToken)
@@ -68,21 +87,4 @@ public class GetSalesSummaryQueryHandler : IRequestHandler<GetSalesSummaryQuery,
             .ToList();
     }
 
-    private List<SaleSummaryDto> AggregateSalesData(List<SaleData> salesData)
-    {
-        return salesData
-            .GroupBy(s => new { s.CampaignId, s.CampaignName, s.UserName })
-            .Select(g => new SaleSummaryDto
-            {
-                CampaignId = g.Key.CampaignId,
-                ClassName = g.Key.CampaignName,
-                AdminName = g.Key.UserName,
-                TotalCandiesSold = g.Sum(s => s.SaleItems.Sum(si => si.Quantity)),
-                TotalCommission = g.Sum(s => s.SaleItems.Sum(si => si.TotalPrice) - s.SaleItems.Sum(si => si.UnitPrice * si.Quantity)),
-                TotalAmount = g.Sum(s => s.TotalAmount),
-                NumberOfOrders = g.Count(),
-                TotalCustomers = g.Select(s => s.CustomerEmail).Distinct().Count()
-            })
-            .ToList();
-    }
 }

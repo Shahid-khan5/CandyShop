@@ -22,4 +22,5 @@ public class SaleSummaryDto
     public int NumberOfOrders { get; set; } // Count of distinct orders
     [Description("TotalCustomers")]
     public int TotalCustomers { get; set; } // Count of distinct customers
+
 }

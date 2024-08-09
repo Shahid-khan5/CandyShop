@@ -2,6 +2,7 @@
 @using RRSTEK.Server.UI.Components
 @using System.Security.Claims
 @inject IMediator Mediator
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 @if (IsBusy)
 {
@@ -37,7 +38,7 @@ else
 @code {
     [Parameter] public int? CampaignId { get; set; }
     [Parameter] public required string UserRole { get; set; }
-    [Parameter] public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
+    // [Parameter] public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
     private IEnumerable<TopSellerDto> Sellers { get; set; } = new List<TopSellerDto>();
     private bool IsBusy { get; set; }
 
@@ -88,6 +89,6 @@ else
 
     private async Task<string> GetCurrentUserId()
     {
-        return (await AuthenticationStateProvider.GetAuthenticationStateAsync()).User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        return (await AuthenticationStateProvider.GetAuthenticationStateAsync()).User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
     }
 }

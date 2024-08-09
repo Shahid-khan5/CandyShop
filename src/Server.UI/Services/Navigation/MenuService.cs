@@ -13,12 +13,12 @@ public class MenuService : IMenuService
         {
             SectionItems = new List<MenuSectionItemModel>
             {
-                new MenuSectionItemModel { Title = "Dashboard", Icon = CustomIcons.Dashboard, Href = "/" },
-                new MenuSectionItemModel { Title = "Product", Icon =  CustomIcons.ProductIcon, Href = "/pages/products" },
-                new MenuSectionItemModel { Title = "Users", Icon = CustomIcons.User, Href = "/identity/users" },
-                new MenuSectionItemModel { Title = "Order", Icon = CustomIcons.Orders,  Href = "/pages/orders" },
-                new MenuSectionItemModel { Title = "Request", Icon = Icons.Material.Outlined.RequestQuote, Href = "/pages/request" },
-                new MenuSectionItemModel { Title = "Reports", Icon = Icons.Material.Outlined.Summarize, Href = "/pages/reports" },
+                new MenuSectionItemModel { Title = "Dashboard", Icon = CustomIcons.Dashboard, Href = "/",Roles = ["SuperAdmin", "Users", "Admin"] },
+                new MenuSectionItemModel { Title = "Product", Icon =  CustomIcons.ProductIcon, Href = "/pages/products",Roles = ["SuperAdmin"] },
+                new MenuSectionItemModel { Title = "Users", Icon = CustomIcons.User, Href = "/identity/users",Roles = ["SuperAdmin", "Admin"] },
+                new MenuSectionItemModel { Title = "Order", Icon = CustomIcons.Orders,  Href = "/pages/orders",Roles = ["SuperAdmin", "Admin", "Users"] },
+                new MenuSectionItemModel { Title = "Request", Icon = Icons.Material.Outlined.RequestQuote, Href = "/pages/request",Roles = ["SuperAdmin"] },
+                new MenuSectionItemModel { Title = "Reports", Icon = Icons.Material.Outlined.Summarize, Href = "/pages/reports",Roles = ["SuperAdmin"] },
                 new MenuSectionItemModel { Title = "Logout", Icon = CustomIcons.Logout, Href = "/pages/authentication/login" },
             }
         }

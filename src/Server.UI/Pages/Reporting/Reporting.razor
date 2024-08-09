@@ -168,8 +168,12 @@
             _loading = true;
             Query.StartDate=null;
             Query.EndDate=null;
+            Query.OrderBy = state.SortDefinitions.FirstOrDefault()?.SortBy ?? "Id";
+            Query.SortDirection = state.SortDefinitions.FirstOrDefault()?.Descending ?? true ? SortDirection.Descending.ToString() : SortDirection.Ascending.ToString();
+            Query.PageNumber = state.Page + 1;
+            Query.PageSize = state.PageSize;
             var result = await Mediator.Send(Query);
-            return new GridData<SaleSummaryDto>() { TotalItems = result.Count, Items = result };
+            return new GridData<SaleSummaryDto>() { TotalItems = result.TotalItems, Items = result.Items };
         }
         finally
         {
