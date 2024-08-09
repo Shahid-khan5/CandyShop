@@ -31,9 +31,9 @@
     private List<ChartDataPoint> chartData;
 
     [Parameter]
-    public int? CampaignId{ get; set; }        
+    public int? CampaignId{ get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected async override Task OnParametersSetAsync()
     {
         isLoading = true;
         await FetchDataAsync();
@@ -65,10 +65,10 @@
             // Handle other roles or unauthorized access
         }
         chartData = chartData.Where(x => x.Revenue > 0).ToList();
-        CreateConfig();
+        await CreateConfigAsync();
     }
 
-    private void CreateConfig()
+    private async Task CreateConfigAsync()
     {
         chartJsConfig = new ChartJsConfig()
         {
@@ -121,5 +121,9 @@
         }
         chartJsConfig.Data.Datasets.Add(revenueDataset);
         chartJsConfig.Data.Datasets.Add(profitDataset);
+        if (chartComponent != null)
+        {
+            chartJsConfig.ReinitializeChart();
+        }
     }
 }
