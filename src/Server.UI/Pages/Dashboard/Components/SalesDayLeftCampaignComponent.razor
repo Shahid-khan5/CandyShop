@@ -34,7 +34,7 @@
                 <div class="mt-10">
                     <div class="d-flex justify-space-between">
                         <span class="fs-14 fw-600">@campaign.Name</span>
-                        <span class="fs-14 fw-600">@GetDaysLeft(campaign.EndDate) days left</span>
+                        <span class="fs-14 fw-600 text-nowrap ms-3">@GetDaysLeft(campaign.EndDate) days left</span>
                     </div>
                     <MudProgressLinear Color="@GetColorForCampaign(campaign)" Size="Size.Medium" Value="@GetProgressValue(campaign)" Class="my-7" />
                     <div class="d-flex justify-end">
@@ -89,3 +89,8 @@
         return Color.Secondary;
     }
 }
+<style>
+    .text-nowrap{
+        text-wrap: nowrap;
+    }
+</style>
