@@ -3,8 +3,42 @@
 
 using CleanArchitecture.Blazor.Application.Features.Campaigns.DTOs;
 using CleanArchitecture.Blazor.Application.Features.Campaigns.Caching;
+using static CleanArchitecture.Blazor.Application.Features.Campaigns.Queries.GetAll.GetAllCampaignsQueryHandler;
 
 namespace CleanArchitecture.Blazor.Application.Features.Campaigns.Queries.GetAll;
+
+public class GetCampaignIdByUserQuery : IRequest<int>
+{
+    public string UserId { get; set; }
+    public string CacheKey => CampaignCacheKey.GetAllCacheKey;
+    public MemoryCacheEntryOptions? Options => CampaignCacheKey.MemoryCacheEntryOptions;
+}
+public class GetCampaignIdByUserQueryHandler :
+     IRequestHandler<GetCampaignIdByUserQuery, int>
+{
+    private readonly IApplicationDbContext _context;
+    private readonly IMapper _mapper;
+    private readonly IStringLocalizer<GetAllCampaignsQueryHandler> _localizer;
+
+    public GetCampaignIdByUserQueryHandler(
+        IApplicationDbContext context,
+        IMapper mapper,
+        IStringLocalizer<GetAllCampaignsQueryHandler> localizer
+        )
+    {
+        _context = context;
+        _mapper = mapper;
+        _localizer = localizer;
+    }
+
+    public async Task<int> Handle(GetCampaignIdByUserQuery request, CancellationToken cancellationToken)
+    {
+        return await _context.CampaignUsers.Where(x => x.UserId == request.UserId).Select(x => x.CampaignId)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+}
+
+
 
 public class GetAllCampaignsQuery : ICacheableRequest<IEnumerable<CampaignDto>>
 {

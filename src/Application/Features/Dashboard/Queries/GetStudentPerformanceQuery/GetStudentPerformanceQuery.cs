@@ -3,15 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Ardalis.Specification.EntityFrameworkCore;
 using CleanArchitecture.Blazor.Application.Common.Interfaces;
+using CleanArchitecture.Blazor.Application.Features.Campaigns.Specifications;
 using CleanArchitecture.Blazor.Application.Features.Dashboard.Caching;
 using CleanArchitecture.Blazor.Application.Features.Dashboard.DTOs;
+using CleanArchitecture.Blazor.Application.Features.Dashboard.Queries.GetCampaignRevenueQuery;
 
 namespace CleanArchitecture.Blazor.Application.Features.Dashboard.Queries.GetStudentPerformanceQueryHandler;
-public class GetStudentPerformanceQuery : ICacheableRequest<List<StudentPerformanceDto>>
+public class GetStudentPerformanceQuery :CampaignFilter, ICacheableRequest<List<StudentPerformanceDto>>
 {
-    public int Month { get; set; }
-    public int Year { get; set; }
+    public DashboardSpecification<Sale> Specification => new(this);
     public MemoryCacheEntryOptions? Options => DashboardCacheKey.MemoryCacheEntryOptions;
     public string CacheKey => DashboardCacheKey.DashbaordStudentPerformanceCacheKey;
 }
@@ -28,18 +30,15 @@ public class GetStudentPerformanceQueryHandler : IRequestHandler<GetStudentPerfo
 
     public async Task<List<StudentPerformanceDto>> Handle(GetStudentPerformanceQuery request, CancellationToken cancellationToken)
     {
-        var sales = await GetSalesForPeriod(request.Year, request.Month, cancellationToken);
-        return CalculateStudentPerformance(sales);
-    }
+        var sales = 
 
-    private async Task<List<Sale>> GetSalesForPeriod(int year, int month, CancellationToken cancellationToken)
-    {
-        return await _context.Sales
-            .Where(s => s.SaleDate.Year >= year && s.SaleDate.Month <= month)
+            await _context.Sales
+            .WithSpecification(request.Specification)
             .Include(s => s.User)
             .Include(s => s.SaleItems)
             .ThenInclude(si => si.Product)
             .ToListAsync(cancellationToken);
+        return CalculateStudentPerformance(sales);
     }
 
     private List<StudentPerformanceDto> CalculateStudentPerformance(List<Sale> sales)
@@ -50,11 +49,10 @@ public class GetStudentPerformanceQueryHandler : IRequestHandler<GetStudentPerfo
                 StudentName = g.Key.UserName ?? "",
                 SalesAmount = g.Sum(s => s.TotalAmount),
                 ProductSold = g.Sum(s => s.SaleItems.Sum(si => si.Quantity)),
-                Commission = g.Sum(s => s.TotalAmount * 0.1m),
+                Commission = g.Sum(s => s.TotalAmount - (s.SaleItems.Sum(x=>x.Quantity * x.Product.CostPrice)) ),
                 Performance = g.Sum(s => s.TotalAmount) >= 1000 ? "Good" : "Bad"
             })
             .OrderByDescending(sp => sp.SalesAmount)
-            .Take(5)
             .ToList();
     }
 }

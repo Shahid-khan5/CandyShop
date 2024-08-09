@@ -13,9 +13,9 @@ public class CampaignFilter
     public int? CampaignId { get; set; }
 }
 
-public class DashboardSuperAdminSpecification : Specification<Campaign>
+public class CampaignSpecification : Specification<Campaign>
 {
-    public DashboardSuperAdminSpecification(CampaignFilter filter)
+    public CampaignSpecification(CampaignFilter filter)
     {
         Query
                .Where(x => x.Id == filter.CampaignId, filter.CampaignId > 0);
@@ -24,7 +24,7 @@ public class DashboardSuperAdminSpecification : Specification<Campaign>
 public class GetCampaignRevenueAndProfitQuery : CampaignFilter, ICacheableRequest<List<ChartDataPoint>>
 {
     public MemoryCacheEntryOptions? Options => DashboardCacheKey.MemoryCacheEntryOptions;
-    public DashboardSuperAdminSpecification Specification => new(this);
+    public CampaignSpecification Specification => new(this);
     public string CacheKey => DashboardCacheKey.CampaignRevenueAndProfitKey(CampaignId);
 }
 

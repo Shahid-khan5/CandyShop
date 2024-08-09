@@ -1,0 +1,115 @@
+﻿@using CleanArchitecture.Blazor.Application.Features.Dashboard.Queries.GetStatistics
+@using CleanArchitecture.Blazor.Infrastructure.Constants.Role
+@using RRSTEK.Server.UI.Components
+@using System.Security.Claims
+@inject IMediator Mediator
+@inject AuthenticationStateProvider AuthenticationStateProvider
+<CompositeViewBaseComponent IsBusy="@IsBusy">
+    <ChildContent>
+
+        <MudGrid>
+            <MudItem xs="12" md="4">
+                <MudPaper>
+                    <MudCardHeader>
+                        Total Sales
+                    </MudCardHeader>
+                    <MudCardContent Class="d-flex pt-0 justify-space-between">
+                        <div>
+                            <MudText Typo="Typo.h3" Class="mb-2">@($"{DashboardStatistics.TotalSales:N2}K") </MudText>
+                            <span class="text-gray">sold @DashboardStatistics.TotalItems items</span>
+                        </div>
+                        @((MarkupString)CustomIcons.FCProgressBar)
+                    </MudCardContent>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" md="4">
+                <MudPaper>
+                    <MudCardHeader>
+                        Total Commission
+                    </MudCardHeader>
+                    <MudCardContent Class="d-flex pt-0 justify-space-between">
+                        <div>
+                            <MudText Typo="Typo.h3" Class="mb-2">$@($"{DashboardStatistics.TotalCommission:N2}k") </MudText>
+                            <span class="text-gray">Available commission</span>
+                        </div>
+                        @((MarkupString)CustomIcons.SCProgressBar)
+                    </MudCardContent>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" md="4">
+                <MudPaper>
+                    <MudCardHeader>
+                        Total Orders
+                    </MudCardHeader>
+                    <MudCardContent Class="d-flex pt-0 justify-space-between">
+                        <div>
+                            <MudText Typo="Typo.h3" Class="mb-2">@DashboardStatistics.TotalOrders </MudText>
+                            <span class="text-gray">Total number of orders</span>
+                        </div>
+                        @((MarkupString)CustomIcons.TCProgressBar)
+                    </MudCardContent>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </ChildContent>
+    <BusyView>
+        <MudProgressCircular Indeterminate="true"></MudProgressCircular>
+    </BusyView>
+</CompositeViewBaseComponent>
+
+@code {
+    [Parameter] public int? CampaignId { get; set; }
+    private DashboardStatisticsDto DashboardStatistics { get; set; } = new DashboardStatisticsDto();
+    private string UserRole { get; set; } = string.Empty;
+    private string UserId { get; set; } = string.Empty;
+    private bool IsBusy { get; set; } = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            UserRole = GetUserRole(user);
+            UserId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            IsBusy = true;
+
+            await LoadStatistics();
+            StateHasChanged();
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private async Task LoadStatistics()
+    {
+        var query = new GetDashboardStatisticsQuery
+            {
+                UserId = UserId,
+                UserRole = UserRole,
+                CampaignId = CampaignId
+            };
+
+        DashboardStatistics = await Mediator.Send(query);
+    }
+
+    private string GetUserRole(ClaimsPrincipal user)
+    {
+        if (user.IsInRole(RoleName.SuperAdmin)) return RoleName.SuperAdmin;
+        if (user.IsInRole(RoleName.Admin)) return RoleName.Admin;
+        return RoleName.Users;
+    }
+}

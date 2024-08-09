@@ -25,7 +25,7 @@
     <div class="d-flex  justify-space-between pe-4 pb-1" style=" width:100% !important; padding-left:18px !important; background:#469ec5;">
 
         <div class="d-flex align-center">
-            <MudSelect Variant="Variant.Outlined" T="int?" Value="@SelectedCampaignId" Class="fielter" AnchorOrigin="Origin.BottomCenter">
+            <MudSelect Variant="Variant.Outlined" T="int?" Value="@SelectedCampaignId" Class="fielter" ValueChanged="OnSelectedCampaignChanged" AnchorOrigin="Origin.BottomCenter">
                 <MudSelectItem Value="@((int?)null)">All Classes</MudSelectItem>
                 @foreach (var campaign in Campaigns)
                 {
@@ -37,48 +37,7 @@
     </div>
         }
     <MudGrid Class="pa-4">
-        <MudItem xs="12" md="4">
-            <MudPaper>
-                <MudCardHeader>
-                    Total Sales
-                </MudCardHeader>
-                <MudCardContent Class="d-flex pt-0 justify-space-between">
-                    <div>
-                        <MudText Typo="Typo.h3" Class="mb-2">401.K </MudText>
-                        <span class="text-gray">We have solid 123 items</span>
-                    </div>
-                    @((MarkupString)CustomIcons.FCProgressBar)
-                </MudCardContent>
-            </MudPaper>
-        </MudItem>
-        <MudItem xs="12" md="4">
-            <MudPaper>
-                <MudCardHeader>
-                    Total commission
-                </MudCardHeader>
-                <MudCardContent Class="d-flex pt-0 justify-space-between">
-                    <div>
-                        <MudText Typo="Typo.h3" Class="mb-2">$8.2k </MudText>
-                        <span class="text-gray">Available to payout</span>
-                    </div>
-                    @((MarkupString)CustomIcons.SCProgressBar)
-                </MudCardContent>
-            </MudPaper>
-        </MudItem>
-        <MudItem xs="12" md="4">
-            <MudPaper>
-                <MudCardHeader>
-                    Total Order
-                </MudCardHeader>
-                <MudCardContent Class="d-flex pt-0 justify-space-between">
-                    <div>
-                        <MudText Typo="Typo.h3" Class="mb-2">1300 </MudText>
-                        <span class="text-gray">Available to payout</span>
-                    </div>
-                    @((MarkupString)CustomIcons.TCProgressBar)
-                </MudCardContent>
-            </MudPaper>
-        </MudItem>
+      <Statistics CampaignId="@SelectedCampaignId"></Statistics>
         <MudItem xs="12" md="7">
             <MudPaper Class="pa-4 h-416">
                 <span class="fw-700 fs-16">Live Sales Tracker</span>
@@ -205,6 +164,11 @@
 
 @code
 {
+    void OnSelectedCampaignChanged(int? id)
+    {
+        SelectedCampaignId=id;
+        StateHasChanged();
+    }
     private readonly bool IsMobile = false;
     public List<ChartSeries> Series { get; set; } = new();
     public string[] XAxisLabels { get; set; } = Array.Empty<string>();
@@ -227,78 +191,31 @@
     protected override async Task OnInitializedAsync()
     {
         Title = L["Dashboard"];
-        await GetCampaignRevenueAsync();
-        await GetStudentPerformanceAsync();
-        await GetTopProductSellerAsync();
-        await LoadCampaigns();
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
+        await LoadCampaigns();
         UserRole = GetUserRole(user);
+        if (UserRole != RoleName.SuperAdmin)
+        {
+            var query = new GetCampaignIdByUserQuery() { UserId = user.GetUserId()! };
+            SelectedCampaignId = await Mediator.Send(query);
+        }      
+
     }
     private string GetUserRole(ClaimsPrincipal user)
     {
-        if (user.IsInRole("SuperAdmin")) return "SuperAdmin";
-        if (user.IsInRole("Admin")) return "Admin";
-        return "Student";
+        if (user.IsInRole(RoleName.SuperAdmin)) return RoleName.SuperAdmin;
+        if (user.IsInRole(RoleName.Admin)) return RoleName.Admin;
+        return RoleName.Users;
     }
 
-
-    private async Task GetCampaignRevenueAsync()
-    {
-        var query = new GetCampaignRevenueQuery
-            {
-                StartDate = DateTime.Now.AddYears(-1),
-                EndDate = DateTime.Now
-            };
-        campaignRevenue = await Mediator.Send(query);
-
-        var limitedCampaignRevenue = campaignRevenue
-        .OrderByDescending(c => c.TotalRevenue)
-        .Take(10)
-        .ToList();
-
-        Series = new List<ChartSeries>
-        {
-        new ChartSeries { Name = "Revenue", Data = limitedCampaignRevenue.Select(c => (double)c.TotalRevenue).ToArray() },
-        new ChartSeries { Name = "Commission", Data = limitedCampaignRevenue.Select(c => (double)c.TotalCommission).ToArray() }
-        };
-
-        XAxisLabels = limitedCampaignRevenue.Select(r => r.CampaignName.Length > 10 ? r.CampaignName.Substring(0, 10) + "..." : r.CampaignName).ToArray();
-    }
-
-    private async Task GetStudentPerformanceAsync()
-    {
-        var query = new GetStudentPerformanceQuery
-            {
-                Year = CurrentYear,
-                Month = CurrentMonth.Month
-            };
-        studentPerformances = await Mediator.Send(query);
-    }
-
-
-    private async Task GetTopProductSellerAsync()
-    {
-        var query = new GetTopProductSellersQuery
-            {
-                Year = CurrentYear,
-                Month = CurrentMonth.Month
-            };
-        topProductSellers = await Mediator.Send(query);
-    }
+  
     private async Task LoadCampaigns()
     {
         var query = new GetAllCampaignsQuery();
         Campaigns = await Mediator.Send(query);
     }
-    // public List<ChartSeries> Series = new List<ChartSeries>()
-    // {
-    //     new ChartSeries() { Name = "United States", Data = new double[] { 40, 20, 25, 27, 46, 60, 48, 80, 15 } },
-    //     new ChartSeries() { Name = "Germany", Data = new double[] { 19, 24, 35, 13, 28, 15, 13, 16, 31 } },
-    //     new ChartSeries() { Name = "Sweden", Data = new double[] { 8, 6, 11, 13, 4, 16, 10, 16, 18 } },
-    // };
-    // public string[] XAxisLabels = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep" };
-
+   
 }
 
 <style>

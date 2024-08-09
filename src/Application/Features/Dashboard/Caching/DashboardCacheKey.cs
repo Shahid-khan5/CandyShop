@@ -64,5 +64,10 @@ public static class DashboardCacheKey
             }
         }
     }
+
+    internal static string GetDashboardStatisticsKey(string userId, string userRole, int? campaignId)
+    {
+        return $"{nameof(GetDashboardStatisticsKey)}_{userId}_{userRole}_{campaignId}";
+    }
 }
 
