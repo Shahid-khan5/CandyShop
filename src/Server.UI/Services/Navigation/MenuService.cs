@@ -17,9 +17,8 @@ public class MenuService : IMenuService
                 new MenuSectionItemModel { Title = "Product", Icon =  CustomIcons.ProductIcon, Href = "/pages/products" },
                 new MenuSectionItemModel { Title = "Users", Icon = CustomIcons.User, Href = "/identity/users" },
                 new MenuSectionItemModel { Title = "Order", Icon = CustomIcons.Orders,  Href = "/pages/orders" },
-                new MenuSectionItemModel { Title = "Request", Icon = CustomIcons.User, Href = "/pages/request" },
-                new MenuSectionItemModel { Title = "Reports", Icon = CustomIcons.User, Href = "/pages/reports" },
-                new MenuSectionItemModel { Title = "Setting", Icon = CustomIcons.setting, Href = "/Setting" },
+                new MenuSectionItemModel { Title = "Request", Icon = Icons.Material.Outlined.RequestQuote, Href = "/pages/request" },
+                new MenuSectionItemModel { Title = "Reports", Icon = Icons.Material.Outlined.Summarize, Href = "/pages/reports" },
                 new MenuSectionItemModel { Title = "Logout", Icon = CustomIcons.Logout, Href = "/pages/authentication/login" },
             }
         }
