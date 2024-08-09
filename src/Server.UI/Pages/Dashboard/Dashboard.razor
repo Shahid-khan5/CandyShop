@@ -38,14 +38,14 @@
         }
     <MudGrid Class="pa-4">
       <Statistics CampaignId="@SelectedCampaignId"></Statistics>
-        <MudItem xs="12" md="7">
+        <MudItem xs="12" md="7" Class="pt-0">
             <MudPaper Class="pa-4 h-416">
                 <span class="fw-700 fs-16">Live Sales Tracker</span>
                 <DashboardProfitChart CampaignId="@SelectedCampaignId"></DashboardProfitChart>
             </MudPaper>
         </MudItem>
 
-        <MudItem xs="12" md="5">
+        <MudItem xs="12" md="5" Class="pt-0">
             <MudPaper Class="pa-4 h-416  overflow-auto">
                 <TopSellersComponent CampaignId="@SelectedCampaignId"></TopSellersComponent>
             </MudPaper>
@@ -57,7 +57,7 @@
         {
 
 
-            <MudItem xs="12" md="7">
+            <MudItem xs="12" md="7" Class="pt-0">
                 <MudPaper Class="pa-4">
                     <span class="fw-700 mb-3 d-block fs-16 text-gray">Student Performance</span>
                     <MudDataGrid Items="@Enumerable.Range(0,3)">
@@ -66,15 +66,14 @@
                             <PropertyColumn Property="x => x" Title="Sales Amount" />
                             <PropertyColumn Property="x => x" Title="Products Sold" />
                             <PropertyColumn Property="x => x" Title="Commission" />
-                            <PropertyColumn Property="x => x" Title="Molar mass" />
                             <PropertyColumn Property="x => x" Title="Performance" />
-                            <PropertyColumn Property="x => x" Title="Contactss" />
+                            <PropertyColumn Property="x => x" Title="Contact" />
                         </Columns>
                     </MudDataGrid>
                 </MudPaper>
             </MudItem>
 
-            <MudItem xs="12" md="5">
+            <MudItem xs="12" md="5" Class="pt-0">
                 <MudPaper Class="pa-4">
                     <SalesDayLeftCampaignComponent />
                 </MudPaper>

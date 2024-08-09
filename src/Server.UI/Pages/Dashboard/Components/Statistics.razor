@@ -7,7 +7,6 @@
 <CompositeViewBaseComponent IsBusy="@IsBusy">
     <ChildContent>
 
-        <MudGrid>
             <MudItem xs="12" md="4">
                 <MudPaper>
                     <MudCardHeader>
@@ -15,7 +14,7 @@
                     </MudCardHeader>
                     <MudCardContent Class="d-flex pt-0 justify-space-between">
                         <div>
-                            <MudText Typo="Typo.h3" Class="mb-2">@($"{DashboardStatistics.TotalSales:N2}K") </MudText>
+                            <MudText Typo="Typo.h3" Class="mb-2">$@($"{DashboardStatistics.TotalSales:N2}") </MudText>
                             <span class="text-gray">sold @DashboardStatistics.TotalItems items</span>
                         </div>
                         @((MarkupString)CustomIcons.FCProgressBar)
@@ -29,7 +28,7 @@
                     </MudCardHeader>
                     <MudCardContent Class="d-flex pt-0 justify-space-between">
                         <div>
-                            <MudText Typo="Typo.h3" Class="mb-2">$@($"{DashboardStatistics.TotalCommission:N2}k") </MudText>
+                            <MudText Typo="Typo.h3" Class="mb-2">$@($"{DashboardStatistics.TotalCommission:N2}") </MudText>
                             <span class="text-gray">Available commission</span>
                         </div>
                         @((MarkupString)CustomIcons.SCProgressBar)
@@ -43,14 +42,14 @@
                     </MudCardHeader>
                     <MudCardContent Class="d-flex pt-0 justify-space-between">
                         <div>
-                            <MudText Typo="Typo.h3" Class="mb-2">@DashboardStatistics.TotalOrders </MudText>
+                            <MudText Typo="Typo.h3" Class="mb-2">$@DashboardStatistics.TotalOrders </MudText>
                             <span class="text-gray">Total number of orders</span>
                         </div>
                         @((MarkupString)CustomIcons.TCProgressBar)
                     </MudCardContent>
                 </MudPaper>
             </MudItem>
-        </MudGrid>
+        
     </ChildContent>
     <BusyView>
         <MudProgressCircular Indeterminate="true"></MudProgressCircular>

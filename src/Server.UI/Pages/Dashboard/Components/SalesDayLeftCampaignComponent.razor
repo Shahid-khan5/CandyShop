@@ -7,8 +7,8 @@
     <HeaderView>
         <div class="d-flex justify-space-between align-center">
             <div>
-                <p class="fs-30 fw-700">Top Product</p>
-                <span class="text-gray fs-14">Information about Sales day Left</span>
+                <p class="fs-30 fw-700">Top campaigns</p>
+                <span class="text-gray fs-14">Information about campaigns day Left</span>
             </div>
             <span>
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -31,7 +31,7 @@
         {
             @foreach (var campaign in campaigns)
             {
-                <div class="mt-10">
+                <div class="mt-6">
                     <div class="d-flex justify-space-between">
                         <span class="fs-14 fw-600">@campaign.Name</span>
                         <span class="fs-14 fw-600 text-nowrap ms-3">@GetDaysLeft(campaign.EndDate) days left</span>
