@@ -19,25 +19,25 @@
 <PageTitle>@Title</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="mb-0">
-      @if (UserRole == RoleName.SuperAdmin)
-        {
+    @if (UserRole == RoleName.SuperAdmin)
+    {
 
-    <div class="d-flex  justify-space-between pe-4 pb-1" style=" width:100% !important; padding-left:18px !important; background:#469ec5;">
+        <div class="d-flex  justify-space-between pe-4 pb-1" style=" width:100% !important; padding-left:18px !important; background:#469ec5;">
 
-        <div class="d-flex align-center">
-            <MudSelect Variant="Variant.Outlined" T="int?" Value="@SelectedCampaignId" Class="fielter" ValueChanged="OnSelectedCampaignChanged" AnchorOrigin="Origin.BottomCenter">
-                <MudSelectItem Value="@((int?)null)">All Classes</MudSelectItem>
-                @foreach (var campaign in Campaigns)
-                {
-                    <MudSelectItem T="int?" Value="@campaign.Id">@campaign.Name</MudSelectItem>
-                }
-            </MudSelect>
+            <div class="d-flex align-center">
+                <MudSelect Variant="Variant.Outlined" T="int?" Value="@SelectedCampaignId" Class="fielter" ValueChanged="OnSelectedCampaignChanged" AnchorOrigin="Origin.BottomCenter">
+                    <MudSelectItem Value="@((int?)null)">All Classes</MudSelectItem>
+                    @foreach (var campaign in Campaigns)
+                    {
+                        <MudSelectItem T="int?" Value="@campaign.Id">@campaign.Name</MudSelectItem>
+                    }
+                </MudSelect>
+            </div>
+
         </div>
-     
-    </div>
-        }
+    }
     <MudGrid Class="pa-4">
-      <Statistics CampaignId="@SelectedCampaignId"></Statistics>
+        <Statistics CampaignId="@SelectedCampaignId"></Statistics>
         <MudItem xs="12" md="7" Class="pt-0">
             <MudPaper Class="pa-4 h-416">
                 <span class="fw-700 fs-16">Live Sales Tracker</span>
@@ -66,14 +66,15 @@
                             <PropertyColumn Property="x => x" Title="Sales Amount" />
                             <PropertyColumn Property="x => x" Title="Products Sold" />
                             <PropertyColumn Property="x => x" Title="Commission" />
+                            <PropertyColumn Property="x => x" Title="Molar mass" />
                             <PropertyColumn Property="x => x" Title="Performance" />
-                            <PropertyColumn Property="x => x" Title="Contact" />
+                            <PropertyColumn Property="x => x" Title="Contactss" />
                         </Columns>
                     </MudDataGrid>
                 </MudPaper>
             </MudItem>
 
-            <MudItem xs="12" md="5" Class="pt-0">
+            <MudItem xs="12" md="5">
                 <MudPaper Class="pa-4">
                     <SalesDayLeftCampaignComponent />
                 </MudPaper>
@@ -165,7 +166,7 @@
 {
     void OnSelectedCampaignChanged(int? id)
     {
-        SelectedCampaignId=id;
+        SelectedCampaignId = id;
         StateHasChanged();
     }
     private readonly bool IsMobile = false;
@@ -198,7 +199,7 @@
         {
             var query = new GetCampaignIdByUserQuery() { UserId = user.GetUserId()! };
             SelectedCampaignId = await Mediator.Send(query);
-        }      
+        }
 
     }
     private string GetUserRole(ClaimsPrincipal user)
@@ -208,13 +209,13 @@
         return RoleName.Users;
     }
 
-  
+
     private async Task LoadCampaigns()
     {
         var query = new GetAllCampaignsQuery();
         Campaigns = await Mediator.Send(query);
     }
-   
+
 }
 
 <style>
@@ -234,6 +235,7 @@
 
     .mud-container-maxwidth-xl {
         max-width: 100% !important;
+        overflow:hidden !important;
     }
 
     .mud-container-maxwidth-lg {
