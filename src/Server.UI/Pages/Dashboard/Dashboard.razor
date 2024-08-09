@@ -227,7 +227,7 @@
     protected override async Task OnInitializedAsync()
     {
         Title = L["Dashboard"];
-        await GetCampaignRevenueAsync();
+        // await GetCampaignRevenueAsync();
         await GetStudentPerformanceAsync();
         await GetTopProductSellerAsync();
         await LoadCampaigns();
@@ -243,28 +243,28 @@
     }
 
 
-    private async Task GetCampaignRevenueAsync()
-    {
-        var query = new GetCampaignRevenueQuery
-            {
-                StartDate = DateTime.Now.AddYears(-1),
-                EndDate = DateTime.Now
-            };
-        campaignRevenue = await Mediator.Send(query);
+    // private async Task GetCampaignRevenueAsync()
+    // {
+    //     var query = new GetCampaignRevenueQuery
+    //         {
+    //             StartDate = DateTime.Now.AddYears(-1),
+    //             EndDate = DateTime.Now
+    //         };
+    //     campaignRevenue = await Mediator.Send(query);
 
-        var limitedCampaignRevenue = campaignRevenue
-        .OrderByDescending(c => c.TotalRevenue)
-        .Take(10)
-        .ToList();
+    //     var limitedCampaignRevenue = campaignRevenue
+    //     .OrderByDescending(c => c.TotalRevenue)
+    //     .Take(10)
+    //     .ToList();
 
-        Series = new List<ChartSeries>
-        {
-        new ChartSeries { Name = "Revenue", Data = limitedCampaignRevenue.Select(c => (double)c.TotalRevenue).ToArray() },
-        new ChartSeries { Name = "Commission", Data = limitedCampaignRevenue.Select(c => (double)c.TotalCommission).ToArray() }
-        };
+    //     Series = new List<ChartSeries>
+    //     {
+    //     new ChartSeries { Name = "Revenue", Data = limitedCampaignRevenue.Select(c => (double)c.TotalRevenue).ToArray() },
+    //     new ChartSeries { Name = "Commission", Data = limitedCampaignRevenue.Select(c => (double)c.TotalCommission).ToArray() }
+    //     };
 
-        XAxisLabels = limitedCampaignRevenue.Select(r => r.CampaignName.Length > 10 ? r.CampaignName.Substring(0, 10) + "..." : r.CampaignName).ToArray();
-    }
+    //     XAxisLabels = limitedCampaignRevenue.Select(r => r.CampaignName.Length > 10 ? r.CampaignName.Substring(0, 10) + "..." : r.CampaignName).ToArray();
+    // }
 
     private async Task GetStudentPerformanceAsync()
     {
