@@ -1,50 +1,56 @@
 ﻿@page "/"
+@using CleanArchitecture.Blazor.Application.Features.Campaigns.DTOs
+@using CleanArchitecture.Blazor.Application.Features.Campaigns.Queries.GetAll
 @using CleanArchitecture.Blazor.Application.Features.Dashboard.DTOs
 @using CleanArchitecture.Blazor.Application.Features.Dashboard.Queries
 @using CleanArchitecture.Blazor.Application.Features.Dashboard.Queries.GetCampaignRevenueQuery
 @using CleanArchitecture.Blazor.Application.Features.Dashboard.Queries.GetStudentPerformanceQueryHandler
 @using CleanArchitecture.Blazor.Application.Features.Dashboard.Queries.GetTopProductSellersQuery
-@using CleanArchitecture.Blazor.Application.Features.Dashboard.Queries.GetTopSellersQuery
+
+@using CleanArchitecture.Blazor.Infrastructure.Constants.Role
 @using CleanArchitecture.Blazor.Server.UI.Pages.Dashboard.Components
 @using MudBlazor.Utilities
 @using RRSTEK.Server.UI.Components
+@using System.Security.Claims
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
 @inject IStringLocalizer<Dashboard> L
 @inject IMediator Mediator
 <PageTitle>@Title</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="mb-0">
+      @if (UserRole == RoleName.SuperAdmin)
+        {
+
     <div class="d-flex  justify-space-between pe-4 pb-1" style=" width:100% !important; padding-left:18px !important; background:#469ec5;">
+
         <div class="d-flex align-center">
-            <span class="text-white"> class 8 A </span>
-            <MudMenu Class="fielter " Icon="@Icons.Material.Filled.ArrowDropDown">
-                <MudMenuItem>Profile</MudMenuItem>
-                <MudMenuItem>My account</MudMenuItem>
-                <MudMenuItem>Logout</MudMenuItem>
-            </MudMenu>
-        </div>
-        <div>
-            <MudSelect T="double" Class="w-200 fielter " Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
-                <MudSelectItem T="double" Value="4.50" />
-                <MudSelectItem T="double" Value="4.99" />
-                <MudSelectItem T="double" Value="3.60" />
+            <MudSelect Variant="Variant.Outlined" T="int?" Value="@SelectedCampaignId" Class="fielter" AnchorOrigin="Origin.BottomCenter">
+                <MudSelectItem Value="@((int?)null)">All Classes</MudSelectItem>
+                @foreach (var campaign in Campaigns)
+                {
+                    <MudSelectItem T="int?" Value="@campaign.Id">@campaign.Name</MudSelectItem>
+                }
             </MudSelect>
         </div>
+     
     </div>
+        }
     <MudGrid Class="pa-4">
-  <MudItem xs="12" md="4">
+        <MudItem xs="12" md="4">
             <MudPaper>
-              <MudCardHeader>
-                  Total Sales
-              </MudCardHeader>
-              <MudCardContent Class="d-flex pt-0 justify-space-between">
+                <MudCardHeader>
+                    Total Sales
+                </MudCardHeader>
+                <MudCardContent Class="d-flex pt-0 justify-space-between">
                     <div>
                         <MudText Typo="Typo.h3" Class="mb-2">401.K </MudText>
-                      <span class="text-gray">We have solid 123 items</span>
-                  </div>
+                        <span class="text-gray">We have solid 123 items</span>
+                    </div>
                     @((MarkupString)CustomIcons.FCProgressBar)
-              </MudCardContent>
+                </MudCardContent>
             </MudPaper>
-  </MudItem>
+        </MudItem>
         <MudItem xs="12" md="4">
             <MudPaper>
                 <MudCardHeader>
@@ -75,324 +81,46 @@
         </MudItem>
         <MudItem xs="12" md="7">
             <MudPaper Class="pa-4 h-416">
-                    <span class="fw-700 fs-16">Live Sales Tracker</span>
-                    <MudChart ChartType="ChartType.Bar" ChartSeries="@Series" XAxisLabels="@XAxisLabels" Width="100%" Height="320px">
-                    </MudChart>
-                </MudPaper>
+                <span class="fw-700 fs-16">Live Sales Tracker</span>
+                <DashboardProfitChart CampaignId="@SelectedCampaignId"></DashboardProfitChart>
+            </MudPaper>
         </MudItem>
 
         <MudItem xs="12" md="5">
             <MudPaper Class="pa-4 h-416  overflow-auto">
-                <span class="fw-700 fs-20">Top Seller</span>
-                <p class="text-gray mb-0">Information about Most Top Seller</p>
-                <MudPaper Class="d-flex align-center mt-3 overflow-hidden h-60 h-md-100">
-                    <div class="d-flex me-2 flex-column align-center justify-center" style="background:#FFB402; height:100%; width:100px;">
-                    @((MarkupString)CustomIcons.Taj)
-                        <span class="text-white text-center fs-16">1st</span>
-                    </div>
-                    <div class="mx-2">
-                        <p class="fw-500 fs-16">Arafat</p>
-                    </div>
-                    <div class="mx-2" style="width:1px; background:#FF9F43; height:90%;"></div>
-                    <div class="d-flex me-2 ms-4 mt-2 mb-3 justify-space-between" style="width: -webkit-fill-available;">
-                        <div>
-                            <p class="fs-14 text-gray">Total Sale</p>
-                            <p class="mt-1 text-center fw-500">$900</p>
-                        </div>
-
-                        <div>
-                            <p class="fs-14 text-gray">Total Commission</p>
-                            <p class="mt-1 text-center fw-500">$500</p>
-                        </div>
-                    </div>
-                </MudPaper>
-                <MudPaper Class="d-flex align-center mt-3 overflow-hidden h-60 h-md-100">
-                    <div class="d-flex me-2 flex-column align-center justify-center" style="background:#ce8946; height:100%; width:100px;">
-                    @((MarkupString)CustomIcons.Taj)
-                        <span class="text-white text-center fs-16">2nd</span>
-                    </div>
-                    <div class="mx-2">
-                        <p class="fw-500 fs-16">Arafat</p>
-                    </div>
-                    <div class="mx-2" style="width:1px; background:#FF9F43; height:90%;"></div>
-                    <div class="d-flex me-2 ms-4 mt-2 mb-3 justify-space-between" style="width: -webkit-fill-available;">
-                        <div>
-                            <p class="fs-14 text-gray">Total Sale</p>
-                            <p class="mt-1 text-center fw-500">$900</p>
-                        </div>
-
-                        <div>
-                            <p class="fs-14 text-gray">Total Commission</p>
-                            <p class="mt-1 text-center fw-500">$500</p>
-                        </div>
-                    </div>
-                </MudPaper>
-                <MudPaper Class="d-flex align-center mt-3 overflow-hidden h-60 h-md-100">
-                    <div class="d-flex me-2 flex-column align-center justify-center" style="background:#c0c0c0; height:100%; width:100px;">
-                                       @((MarkupString)CustomIcons.Taj)
-                        <span class="text-white text-center fs-16">3rd</span>
-                    </div>
-                    <div class="mx-2">
-                        <p class="fw-500 fs-16">Arafat</p>
-                    </div>
-                    <div class="mx-2" style="width:1px; background:#FF9F43; height:90%;"></div>
-                    <div class="d-flex me-2 mb-3 ms-4 mt-2 justify-space-between" style="width: -webkit-fill-available;">
-                        <div>
-                            <p class="fs-14 text-gray">Total Sale</p>
-                            <p class="mt-1 text-center fw-500">$900</p>
-                        </div>
-
-                        <div>
-                            <p class="fs-14 text-gray">Total Commission</p>
-                            <p class="mt-1 text-center fw-500">$500</p>
-                        </div>
-                    </div>
-                </MudPaper>
-                <MudPaper Class="d-flex align-center mt-3 overflow-hidden h-60 h-md-100">
-                    <div class="d-flex me-2 flex-column align-center justify-center" style="background:#469ec5; height:100%; width:100px;">
-                        <span class="text-white text-center fs-16">4th</span>
-                    </div>
-                    <div class="mx-2">
-                        <p class="fw-500 fs-16">Arafat</p>
-                    </div>
-                    <div class="mx-2" style="width:1px; background:#FF9F43; height:90%;"></div>
-                    <div class="d-flex me-2 ms-4 mt-2 mb-3 justify-space-between" style="width: -webkit-fill-available;">
-                        <div>
-                            <p class="fs-14 text-gray">Total Sale</p>
-                            <p class="mt-1 text-center fw-500">$900</p>
-                        </div>
-
-                        <div>
-                            <p class="fs-14 text-gray">Total Commission</p>
-                            <p class="mt-1 text-center fw-500">$500</p>
-                        </div>
-                    </div>
-                </MudPaper>
+                <TopSellersComponent CampaignId="@SelectedCampaignId"></TopSellersComponent>
             </MudPaper>
-           
-         
+
+
         </MudItem>
 
-
-           <MudItem xs="12" md="7">
-        <MudPaper Class="pa-4">
-                <span class="fw-700 mb-3 d-block fs-16 text-gray">Student Performance</span>
-      <MudDataGrid Items="@Enumerable.Range(0,3)">
-    <Columns>
-                        <PropertyColumn Property="x => x" Title="Student Name" />
-                        <PropertyColumn Property="x => x" Title="Sales Amount" />
-                        <PropertyColumn Property="x => x" Title="Products Sold" />
-                        <PropertyColumn Property="x => x" Title="Commission" />
-                        <PropertyColumn Property="x => x" Title="Molar mass" />
-                        <PropertyColumn Property="x => x" Title="Performance" />
-                        <PropertyColumn Property="x => x" Title="Contactss" />
-    </Columns>
-</MudDataGrid>
-        </MudPaper>
-        </MudItem>
-
-        <MudItem xs="12" md="5">
-            <MudPaper Class="pa-4">
-                <SalesDayLeftCampaignComponent />
-            </MudPaper>
-        </MudItem>
-   @*      <MudItem xs="12" md="7">
-            <MudPaper Class="pa-4">
-                <span class="fw-700 fs-16">Live Sales Tracker</span>
-                <MudChart ChartType="ChartType.Bar" ChartSeries="@Series" XAxisLabels="@XAxisLabels" Width="100%" Height="100%">
-                </MudChart>
-            </MudPaper>
-            <MudPaper class="mt-5 pa-10">
-                <DashboardTotals></DashboardTotals>
-
-                <p class="my-3 fs-24 fw-700"> Current Products Sold</p>
-                <MudGrid Justify="Justify.Center">
-                    <MudItem xs="12" md="9" xl="6">
-                        <div class="border-10 bg-gray  d-lg-flex d-md-flex  d-sm-flex align-center justify-space-between pa-4 ">
-                            <div class="d-flex flex-wrap mb-4 mb-lg-0 mb-md-0 justify-space-between justify-lg-left justify-lg-left  align-center">
-                                <span class="fs-14 text-gray fw-bold ">
-                                    Class -
-                                </span>
-                                <span class="fw-700 ms-3 fs-14">
-                                    90A
-                                </span>
+        @if (UserRole != RoleName.Users)
+        {
 
 
-                                <p class=" ms-2 d-none d-sm-block d-lg-block d-md-block" style="width:1px; height:47px; background-color:#fda958;"></p>
-                            </div>
-                            <div>
-                                <div class="d-flex flex-wrap justify-space-between">
-                                    <div class="me-lg-10 me-md-10">
-                                        <p class="fs-14   text-gray fw-500">
-                                            Chocolate
-                                        </p>
-                                        <p class="fs-14 mt-4 fw-500 text-center">9</p>
-                                    </div>
-                                    <div class="ms-lg-10 ms-md-10 ms-3">
-                                        <p class="fs-14 text-gray fw-500">
-                                            Lollipop
-                                        </p>
-                                        <p class="fs-14 mt-4 text-center fw-500">3</p>
-                                    </div>
-                                </div>
+            <MudItem xs="12" md="7">
+                <MudPaper Class="pa-4">
+                    <span class="fw-700 mb-3 d-block fs-16 text-gray">Student Performance</span>
+                    <MudDataGrid Items="@Enumerable.Range(0,3)">
+                        <Columns>
+                            <PropertyColumn Property="x => x" Title="Student Name" />
+                            <PropertyColumn Property="x => x" Title="Sales Amount" />
+                            <PropertyColumn Property="x => x" Title="Products Sold" />
+                            <PropertyColumn Property="x => x" Title="Commission" />
+                            <PropertyColumn Property="x => x" Title="Molar mass" />
+                            <PropertyColumn Property="x => x" Title="Performance" />
+                            <PropertyColumn Property="x => x" Title="Contactss" />
+                        </Columns>
+                    </MudDataGrid>
+                </MudPaper>
+            </MudItem>
 
-                            </div>
-                        </div>
-                    </MudItem>
-                    <MudItem xs="12" md="9" xl="6">
-                        <div class="border-10 bg-gray  d-lg-flex d-md-flex  d-sm-flex align-center justify-space-between pa-4 ">
-                            <div class="d-flex flex-wrap mb-4 mb-lg-0 mb-md-0 justify-space-between justify-lg-left justify-lg-left  align-center">
-                                <span class="fs-14 text-gray fw-bold ">
-                                    Class -
-                                </span>
-                                <span class="fw-700 ms-3 fs-14">
-                                    8A
-                                </span>
-
-
-                                <p class=" ms-2 d-none d-sm-block d-lg-block d-md-block" style="width:1px; height:47px; background-color:#fda958;"></p>
-                            </div>
-                            <div>
-                                <div class="d-flex flex-wrap justify-space-between">
-                                    <div class="me-lg-10 me-md-10">
-                                        <p class="fs-14   text-gray fw-500">
-                                            Chocolate
-                                        </p>
-                                        <p class="fs-14 mt-4 fw-500 text-center">9</p>
-                                    </div>
-                                    <div class="ms-lg-10 ms-md-10 ms-3">
-                                        <p class="fs-14 text-gray fw-500">
-                                            Lollipop
-                                        </p>
-                                        <p class="fs-14 mt-4 text-center fw-500">3</p>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </MudItem>
-
-                    <MudItem xs="12" md="9" xl="6">
-                        <div class="border-10 bg-gray  d-lg-flex d-md-flex  d-sm-flex align-center justify-space-between pa-4 ">
-                            <div class="d-flex flex-wrap mb-4 mb-lg-0 mb-md-0 justify-space-between justify-lg-left justify-lg-left  align-center">
-                                <span class="fs-14 text-gray fw-bold ">
-                                    Class -
-                                </span>
-                                <span class="fw-700 ms-3 fs-14">
-                                    7A
-                                </span>
-
-
-                                <p class=" ms-2 d-none d-sm-block d-lg-block d-md-block" style="width:1px; height:47px; background-color:#fda958;"></p>
-                            </div>
-                            <div>
-                                <div class="d-flex flex-wrap justify-space-between">
-                                    <div class="me-lg-10 me-md-10">
-                                        <p class="fs-14   text-gray fw-500">
-                                            Chocolate
-                                        </p>
-                                        <p class="fs-14 mt-4 fw-500 text-center">9</p>
-                                    </div>
-                                    <div class="ms-lg-10 ms-md-10 ms-3">
-                                        <p class="fs-14 text-gray fw-500">
-                                            Lollipop
-                                        </p>
-                                        <p class="fs-14 mt-4 text-center fw-500">3</p>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </MudItem>
-                    <MudItem xs="12" md="9" xl="6">
-                        <div class="border-10 bg-gray  d-lg-flex d-md-flex  d-sm-flex align-center justify-space-between pa-4 ">
-                            <div class="d-flex flex-wrap mb-4 mb-lg-0 mb-md-0 justify-space-between justify-lg-left justify-lg-left  align-center">
-                                <span class="fs-14 text-gray fw-bold ">
-                                    Class -
-                                </span>
-                                <span class="fw-700 ms-3 fs-14">
-                                    6A
-                                </span>
-
-
-                                <p class=" ms-2 d-none d-sm-block d-lg-block d-md-block" style="width:1px; height:47px; background-color:#fda958;"></p>
-                            </div>
-                            <div>
-                                <div class="d-flex flex-wrap justify-space-between">
-                                    <div class="me-lg-10 me-md-10">
-                                        <p class="fs-14   text-gray fw-500">
-                                            Chocolate
-                                        </p>
-                                        <p class="fs-14 mt-4 fw-500 text-center">9</p>
-                                    </div>
-                                    <div class="ms-lg-10 ms-md-10 ms-3">
-                                        <p class="fs-14 text-gray fw-500">
-                                            Lollipop
-                                        </p>
-                                        <p class="fs-14 mt-4 text-center fw-500">3</p>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </MudItem>
-                </MudGrid>
-            </MudPaper>
-        </MudItem>
-
-        <MudItem xs="12" md="5">
-
-            <MudPaper Class="pa-4">
-
-                <div class="d-flex justify-space-between mb-10 mt-2">
-                    <div>
-                        <p class="fs-30 fw-700">Total Sales This Month</p>
-                        <span class="text-gray fs-14">Informatio About Total Sale</span>
-                    </div>
-                    <span class="d-inline-block mt-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <path d="M19 3L7 3" stroke="#A7A7A7" stroke-width="2" stroke-linecap="round" />
-                            <path d="M3 3L1 3" stroke="#A7A7A7" stroke-width="2" stroke-linecap="round" />
-                            <path d="M19 10L17 10" stroke="#A7A7A7" stroke-width="2" stroke-linecap="round" />
-                            <path d="M3 17L1 17" stroke="#A7A7A7" stroke-width="2" stroke-linecap="round" />
-                            <path d="M13 10L1 10" stroke="#A7A7A7" stroke-width="2" stroke-linecap="round" />
-                            <path d="M19 17L7 17" stroke="#A7A7A7" stroke-width="2" stroke-linecap="round" />
-                            <path d="M15 12C13.8954 12 13 11.1046 13 10C13 8.89543 13.8954 8 15 8C15.489 8 16.3289 8.39194 16.9397 8.82881C17.8382 9.47137 17.0097 11.0854 16.0808 11.6831C15.7691 11.8837 15.3981 12 15 12Z" stroke="#A7A7A7" stroke-width="2" />
-                            <path d="M5 19C3.89543 19 3 18.1046 3 17C3 15.8954 3.89543 15 5 15C6.10457 15 7 15.8954 7 17C7 18.1046 6.10457 19 5 19Z" stroke="#A7A7A7" stroke-width="2" />
-                            <path d="M5 5C3.89543 5 3 4.10457 3 3C3 1.89543 3.89543 1 5 1C6.10457 1 7 1.89543 7 3C7 4.10457 6.10457 5 5 5Z" stroke="#A7A7A7" stroke-width="2" />
-                        </svg>
-                    </span>
-
-                </div>
-                <div class="d-flex flex-wrap justify-lg-space-between justify-md-space-between justify-sm-space-between mb-5 justify-center">
-                    <div class="mb-5">
-                        <App___Copy Height="140px" Content="85" Symbol="%" SymbolFontSize="10" Max="100" Value="85" TextColor="#5f27cd"></App___Copy>
-                        <MudText Typo="Typo.h6" Class="mt-5 fw-600 text-center text-gray">Current Students</MudText>
-                    </div>
-                    <div class="mb-5">
-                        <App___Copy Height="140px" Content="66" Symbol="%" SymbolFontSize="10" ProgressColor="#ffc029" Max="100" Value="66" TextColor="#ffc029" SufixColor="black"></App___Copy>
-                        <MudText Typo="Typo.h6" Class="mt-5 text-center fw-600 text-gray">New Students</MudText>
-
-                    </div>
-                </div>
-
-                <div class=" d-flex flex-wrap justify-lg-space-between justify-md-space-between justify-sm-space-between mb-5 justify-center ">
-                    <div class="mb-5">
-                        <App___Copy Height="140px" Content="90" Symbol="%" SymbolFontSize="10" Max="100" ProgressColor="#ff8918" Value="90" TextColor="#ff8918"></App___Copy>
-                        <MudText Typo="Typo.h6" Class="mt-5 fw-600 text-center text-gray">Daily Sales </MudText>
-
-                    </div>
-                    <div class="mb-5">
-                        <App___Copy Height="140px" Content="30" Max="100" Symbol="%" SymbolFontSize="10" ProgressColor="#ff6b6b" Value="30" TextColor="#ff6b6b"></App___Copy>
-                        <MudText Typo="Typo.h6" Class="mt-5 fw-600 text-center text-gray">Total Sales</MudText>
-
-                    </div>
-                </div>
-            </MudPaper>
-            <MudPaper class="mt-5 px-5 py-8">
-                <SalesDayLeftCampaignComponent />
-            </MudPaper>
-        </MudItem> *@
+            <MudItem xs="12" md="5">
+                <MudPaper Class="pa-4">
+                    <SalesDayLeftCampaignComponent />
+                </MudPaper>
+            </MudItem>
+        }
 
     </MudGrid>
 
@@ -483,11 +211,11 @@
     private string[] YAxisLabels { get; set; } = new string[] { "Revenues", "Commissions" }; // Translated labels
     private List<CampaignRevenueDto> campaignRevenue = new();
     private List<StudentPerformanceDto> studentPerformances = new();
-    private List<TopSellerDto> topSellers = new();
     private List<TopProductSellerDto> topProductSellers = new();
     private DateTime CurrentMonth { get; set; } = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
     private int CurrentYear { get; set; } = DateTime.UtcNow.Year;
-
+    private IEnumerable<CampaignDto> Campaigns { get; set; } = new List<CampaignDto>();
+    private int? SelectedCampaignId { get; set; }
     public string Title { get; set; } = "Dashboard";
 
     protected string ContentClassNames => new CssBuilder("flex-grow-1 flex-shrink-1")
@@ -495,14 +223,25 @@
         .AddClass("px-8", IsMobile)
         .Build();
 
+    public string UserRole = string.Empty;
     protected override async Task OnInitializedAsync()
     {
         Title = L["Dashboard"];
         await GetCampaignRevenueAsync();
         await GetStudentPerformanceAsync();
-        await GetTopSellerAsync();
         await GetTopProductSellerAsync();
+        await LoadCampaigns();
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        UserRole = GetUserRole(user);
     }
+    private string GetUserRole(ClaimsPrincipal user)
+    {
+        if (user.IsInRole("SuperAdmin")) return "SuperAdmin";
+        if (user.IsInRole("Admin")) return "Admin";
+        return "Student";
+    }
+
 
     private async Task GetCampaignRevenueAsync()
     {
@@ -537,15 +276,6 @@
         studentPerformances = await Mediator.Send(query);
     }
 
-    private async Task GetTopSellerAsync()
-    {
-        var query = new GetTopSellersQuery
-            {
-                Year = CurrentYear,
-                Month = CurrentMonth.Month
-            };
-        topSellers = await Mediator.Send(query);
-    }
 
     private async Task GetTopProductSellerAsync()
     {
@@ -556,7 +286,11 @@
             };
         topProductSellers = await Mediator.Send(query);
     }
-
+    private async Task LoadCampaigns()
+    {
+        var query = new GetAllCampaignsQuery();
+        Campaigns = await Mediator.Send(query);
+    }
     // public List<ChartSeries> Series = new List<ChartSeries>()
     // {
     //     new ChartSeries() { Name = "United States", Data = new double[] { 40, 20, 25, 27, 46, 60, 48, 80, 15 } },
@@ -626,44 +360,49 @@
         border-radius: 10px !important;
     }
 
-    .mud-container.mud-container-maxwidth-lg.mud-container--gutters.mb-0{
-        padding:0 !important;
-    }
-    .w-200{
-        width:200px !important;
+    .mud-container.mud-container-maxwidth-lg.mud-container--gutters.mb-0 {
+        padding: 0 !important;
     }
 
-    span.text-white{
-        color:white !important;
+    .w-200 {
+        width: 200px !important;
+    }
+
+    span.text-white {
+        color: white !important;
     }
 
     .mud-input.mud-input-outlined.mud-input-adorned-end.mud-shrink.mud-typography-input.mud-select-input {
         height: 40px;
     }
 
-    .mud-container.mud-container-maxwidth-xl.mud-container--gutters.mb-4.mt-4{
-        margin-top:0 !important;
+    .mud-container.mud-container-maxwidth-xl.mud-container--gutters.mb-4.mt-4 {
+        margin-top: 0 !important;
     }
-    .fielter{
+
+    .fielter {
         filter: brightness(5) !important;
     }
 
-    .mud-input-control.mud-select.w-200.fielter .mud-input > input.mud-input-root-outlined.mud-input-root-adorned-end, div.mud-input-slot.mud-input-root-outlined.mud-input-root-adorned-end{
-        color:white !important;
+    .mud-input-control.mud-select.w-200.fielter .mud-input > input.mud-input-root-outlined.mud-input-root-adorned-end, div.mud-input-slot.mud-input-root-outlined.mud-input-root-adorned-end {
+        color: white !important;
     }
-    .h-60{
-        height:60px !important;
+
+    .h-60 {
+        height: 60px !important;
     }
-    .h-416{
-        height:416px !important;
+
+    .h-416 {
+        height: 416px !important;
     }
 
     .fielter:first-child MudMenuItem {
-        margin-top:120px;
+        margin-top: 120px;
     }
-    @@madia screen and (max-width:767px){
-        .h-md-100{
-            height:100% !important;
+
+    @@madia screen and (max-width:767px) {
+        .h-md-100 {
+            height: 100% !important;
         }
     }
 

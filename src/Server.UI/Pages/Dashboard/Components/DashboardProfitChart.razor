@@ -1,5 +1,6 @@
 ﻿@page "/dashboard"
 @using System.Security.Claims
+@using CleanArchitecture.Blazor.Infrastructure.Constants.Role
 @using pax.BlazorChartJs
 @using CleanArchitecture.Blazor.Application.Features.Dashboard.Queries.GetCampaignRevenueQuery
 @using MediatR
@@ -54,7 +55,7 @@
                 };
             chartData = await Mediator.Send(query);
         }
-        else if (user.IsInRole("Admin"))
+        else if (user.IsInRole(RoleName.Admin))
         {
             var query = new GetStudentRevenueAndProfitQuery { AdminId = userId };
             chartData = await Mediator.Send(query);

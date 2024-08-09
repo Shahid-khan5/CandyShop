@@ -119,7 +119,7 @@ public class GetTop4StudentsInCampaignQueryHandler : IRequestHandler<GetTop4Stud
 
 public class GetTop4ProductsQuery : CampaignFilter, ICacheableRequest<IEnumerable<TopProductDto>>
 {
-    public int StudentId { get; set; }
+    public int? StudentId { get; set; }
     public MemoryCacheEntryOptions? Options => DashboardCacheKey.MemoryCacheEntryOptions;
     public DashboardSpecification<SaleItem> Specification => new(this);
     public string CacheKey => DashboardCacheKey.Top4ProductsKey(CampaignId);

@@ -1,0 +1,93 @@
+﻿@using CleanArchitecture.Blazor.Application.Features.Dashboard.Queries
+@using RRSTEK.Server.UI.Components
+@using System.Security.Claims
+@inject IMediator Mediator
+
+@if (IsBusy)
+{
+    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+}
+else
+{
+    @foreach (var seller in Sellers)
+    {
+        <MudPaper Class="d-flex align-center mt-3 overflow-hidden h-60">
+            <div class="d-flex me-2 flex-column align-center justify-center" style="background:@GetRankColor(seller.Rank); height:100%; width:100px;">
+                @((MarkupString)GetRankSvg(seller.Rank))
+                <span class="text-white text-center fs-16">@GetRankText(seller.Rank)</span>
+            </div>
+            <div class="mx-2">
+                <p class="fw-500 fs-16">@seller.Name</p>
+            </div>
+            <div class="mx-2" style="width:1px; background:#FF9F43; height:90%;"></div>
+            <div class="d-flex me-2 ms-4 mt-2 justify-space-between" style="width: -webkit-fill-available;">
+                <div>
+                    <p class="fs-14 text-gray">Total Sale</p>
+                    <p class="mt-1 text-center fw-500">$@seller.TotalSales.ToString("N2")</p>
+                </div>
+                <div>
+                    <p class="fs-14 text-gray">Total Commission</p>
+                    <p class="mt-1 text-center fw-500">$@seller.TotalCommission.ToString("N2")</p>
+                </div>
+            </div>
+        </MudPaper>
+    }
+}
+
+@code {
+    [Parameter] public int? CampaignId { get; set; }
+    [Parameter] public required string UserRole { get; set; }
+    [Parameter] public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
+    private IEnumerable<TopSellerDto> Sellers { get; set; } = new List<TopSellerDto>();
+    private bool IsBusy { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        IsBusy = true;
+        try
+        {
+            switch (UserRole)
+            {
+                case "SuperAdmin":
+                    Sellers = await Mediator.Send(new GetTop4SellersQuery() { CampaignId = CampaignId });
+                    break;
+                case "Admin":
+                    Sellers = await Mediator.Send(new GetTop4StudentsInCampaignQuery(await GetCurrentUserId(), CampaignId));
+                    break;
+            }
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private string GetRankColor(int rank) => rank switch
+    {
+        1 => "#FFB402",
+        2 => "#ce8946",
+        3 => "#c0c0c0",
+        _ => "#469ec5"
+    };
+
+    private string GetRankText(int rank) => rank switch
+    {
+        1 => "1st",
+        2 => "2nd",
+        3 => "3rd",
+        _ => $"{rank}th"
+    };
+
+    private string GetRankSvg(int rank) => rank switch
+    {
+        1 => CustomIcons.Taj,
+        2 => CustomIcons.Taj,
+        3 => CustomIcons.Taj,
+        _ => ""
+    };
+
+    private async Task<string> GetCurrentUserId()
+    {
+        return (await AuthenticationStateProvider.GetAuthenticationStateAsync()).User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    }
+}

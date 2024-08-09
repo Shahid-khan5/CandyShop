@@ -1,0 +1,55 @@
+﻿@using CleanArchitecture.Blazor.Application.Features.Dashboard.Queries
+@using RRSTEK.Server.UI.Components
+@inject IMediator Mediator
+@if (IsBusy)
+{
+    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+}
+else
+{
+    @foreach (var product in Products)
+    {
+        <MudPaper Class="d-flex align-center mt-3 overflow-hidden h-60 h-md-100">
+            <div class="d-flex me-2 flex-column align-center justify-center" style="background:#FFB402; height:100%; width:100px;">
+                @((MarkupString)CustomIcons.Taj)
+                <span class="text-white text-center fs-16">1st</span>
+            </div>
+            <div class="mx-2">
+                <p class="fw-500 fs-16">@product.Name</p>
+            </div>
+            <div class="mx-2" style="width:1px; background:#FF9F43; height:90%;"></div>
+            <div class="d-flex me-2 ms-4 mt-2 mb-3 justify-space-between" style="width: -webkit-fill-available;">
+                <div>
+                    <p class="fs-14 text-gray">Total Sale</p>
+                    <p class="mt-1 text-center fw-500">$@product.TotalSales.ToString("N2")</p>
+                </div>
+                <div>
+                    <p class="fs-14 text-gray">Total Quantity</p>
+                    <p class="mt-1 text-center fw-500">$@product.QuantitySold.ToString("N2")</p>
+                </div>
+            </div>
+        </MudPaper>
+}}
+
+@code {
+    [Parameter] public int? CampaignId { get; set; }
+    private IEnumerable<TopProductDto> Products { get; set; } = new List<TopProductDto>();
+    private bool IsBusy = false;
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            IsBusy = true;
+            var topProductsQuery = new GetTop4ProductsQuery()
+                {
+                    CampaignId = CampaignId
+                };
+            Products = await Mediator.Send(topProductsQuery);
+        }
+        finally
+        {
+            IsBusy = false;   
+        }
+   
+    }
+}
