@@ -15,6 +15,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Content Remove="C:\Users\imran\.nuget\packages\chartjs.blazor.fork\2.0.2\contentFiles\any\netstandard2.1\wwwroot\ChartJsBlazorInterop.js" />
       <Content Remove="Resources\EmailTemplates\_campaignaccepted.cshtml" />
       <Content Remove="Resources\EmailTemplates\_campaignrejected.cshtml" />
     </ItemGroup>
@@ -27,6 +28,7 @@
         <PackageReference Include="Blazor-Analytics" Version="3.12.0" />
         <PackageReference Include="BlazorDownloadFile" Version="2.4.0.2" />
         <PackageReference Include="BlazorTime" Version="1.0.3" />
+        <PackageReference Include="pax.BlazorChartJs" Version="0.8.3" />
         <PackageReference Include="SixLabors.ImageSharp" Version="3.1.5" />
         <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.7" />
         <PackageReference Include="ActualLab.Fusion.Ext.Services" Version="9.0.18" />
@@ -47,6 +49,7 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Migrators\Migrators.MSSQL\Migrators.MSSQL.csproj" />

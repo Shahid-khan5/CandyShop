@@ -1,0 +1,124 @@
+﻿@page "/dashboard"
+@using System.Security.Claims
+@using pax.BlazorChartJs
+@using CleanArchitecture.Blazor.Application.Features.Dashboard.Queries.GetCampaignRevenueQuery
+@using MediatR
+@using CleanArchitecture.Blazor.Server.UI.Components.Shared
+
+@inject IMediator Mediator
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IJSRuntime jsRuntime
+
+<CompositeViewBaseComponent IsBusy="@isLoading">
+    <ChildContent>
+        @if (chartData != null)
+        {
+            <ChartComponent @ref="chartComponent"
+                            
+                            ChartJsConfig="chartJsConfig" />
+        }
+    </ChildContent>
+    <BusyView>
+        <MudProgressCircular Indeterminate="true"></MudProgressCircular>
+    </BusyView>
+</CompositeViewBaseComponent>
+
+@code {
+    ChartComponent? chartComponent;
+    ChartJsConfig chartJsConfig = null!;
+    private bool isLoading = true;
+    private List<ChartDataPoint> chartData;
+
+    [Parameter]
+    public int? CampaignId{ get; set; }        
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+        await FetchDataAsync();
+        isLoading = false;
+    }
+    public async Task FetchDataAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var isSuperAdmin = user.IsInRole(Infrastructure.Constants.Role.RoleName.SuperAdmin);
+
+        if (isSuperAdmin)
+        {
+            var query = new GetCampaignRevenueAndProfitQuery()
+                {
+                    CampaignId = CampaignId
+                };
+            chartData = await Mediator.Send(query);
+        }
+        else if (user.IsInRole("Admin"))
+        {
+            var query = new GetStudentRevenueAndProfitQuery { AdminId = userId };
+            chartData = await Mediator.Send(query);
+        }
+        else
+        {
+            // Handle other roles or unauthorized access
+        }
+        chartData = chartData.Where(x => x.Revenue > 0).ToList();
+        CreateConfig();
+    }
+
+    private void CreateConfig()
+    {
+        chartJsConfig = new ChartJsConfig()
+        {
+            Type = pax.BlazorChartJs.ChartType.bar,
+            Data = new ChartJsData()
+            {
+                Labels = chartData.Select(x => x.Name).ToList(),
+            },
+            Options = new()
+            {
+                Responsive = true,
+                MaintainAspectRatio = true,
+                Plugins = new()
+                {
+                    Legend = new Legend()
+                    {
+                        Position = "top",
+                        Align = "end"
+                    }
+                }
+            },
+
+
+        };
+
+        var revenueDataset = new BarDataset
+            {
+                Label = "Revenue",
+                BackgroundColor = "rgba(70, 158, 197, 1)",
+                BorderColor = "rgba(225, 224, 224, 1)",
+                BorderWidth = 1,
+                BorderRadius = 20
+            };
+        foreach (var item in chartData.Select(d => d.Revenue))
+        {
+            revenueDataset.Data.Add(item);
+        }
+
+        var profitDataset = new BarDataset
+            {
+                Label = "Commission",
+                BackgroundColor = "rgba(225, 224, 224, 1)",
+                BorderColor = "rgba(225, 224, 224, 1)",
+                BorderWidth = 1,
+                BorderRadius = 20
+            };
+        foreach (var item in chartData.Select(d => d.Profit))
+        {
+            profitDataset.Data.Add(item);
+        }
+        chartJsConfig.Data.Datasets.Add(revenueDataset);
+        chartJsConfig.Data.Datasets.Add(profitDataset);
+    }
+}

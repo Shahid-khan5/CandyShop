@@ -1,0 +1,2 @@
+﻿window.configureChartJs = function (canvasId) {
+}

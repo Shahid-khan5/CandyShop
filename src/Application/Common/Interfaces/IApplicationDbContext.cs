@@ -20,7 +20,9 @@ public interface IApplicationDbContext
 
     DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
     DbSet<Campaign> Campaigns { get; set; }
+    DbSet<CampaignUser> CampaignUsers { get; set; }
     DbSet<Sale> Sales { get; set; }
+    DbSet<SaleItem> SaleItems { get; set; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

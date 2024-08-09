@@ -11,6 +11,10 @@ public static class DashboardCacheKey
     private static readonly TimeSpan RefreshInterval = TimeSpan.FromMinutes(30);
     // Object used for locking to ensure thread safety
     private static readonly object TokenLock = new();
+    internal static string CampaignRevenueAndProfitKey(int? campaignId)=>
+        
+        $"{nameof(CampaignRevenueAndProfitKey)}{campaignId}";
+
     // CancellationTokenSource used for managing cache expiration
     private static CancellationTokenSource _tokenSource = new (RefreshInterval);
     /// <summary>
@@ -24,8 +28,11 @@ public static class DashboardCacheKey
     public const string DashbaordStudentPerformanceCacheKey = nameof(DashbaordStudentPerformanceCacheKey);
     public const string DashbaordGetTopSellersCacheKey = nameof(DashbaordGetTopSellersCacheKey);
     public const string DashbaordTopProductSellersCacheKey = nameof(DashbaordTopProductSellersCacheKey);
+    public static string Top4SellersKey(int? campaignId) => $"Top4Sellers_{campaignId ?? 0}";
+    public static string Top4StudentsKey(string adminId, int? campaignId) => $"Top4Students_{adminId}_{campaignId ?? 0}";
+    public static string Top4ProductsKey(int? campaignId) => $"Top4Products_{campaignId ?? 0}";
 
-    
+
     /// <summary>
     /// Gets or creates a new <see cref="CancellationTokenSource"/> with the specified refresh interval.
     /// </summary>

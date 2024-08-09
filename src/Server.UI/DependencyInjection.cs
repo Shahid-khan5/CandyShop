@@ -24,6 +24,7 @@ using Toolbelt.Blazor.Extensions.DependencyInjection;
 using ActualLab.Fusion.Extensions;
 using CleanArchitecture.Blazor.Server.UI.Middlewares;
 using MudExtensions.Services;
+using pax.BlazorChartJs;
 
 namespace CleanArchitecture.Blazor.Server.UI;
 
@@ -40,6 +41,12 @@ public static class DependencyInjection
     /// <returns>The updated service collection.</returns>
     public static IServiceCollection AddServerUI(this IServiceCollection services, IConfiguration config)
     {
+        services.AddChartJs(options =>
+        {
+            // default
+            options.ChartJsLocation = "https://cdn.jsdelivr.net/npm/chart.js";
+            options.ChartJsPluginDatalabelsLocation = "https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2";
+        });
         services.AddRazorComponents().AddInteractiveServerComponents();
         services.AddCascadingAuthenticationState();
         services.AddScoped<IdentityUserAccessor>();
